@@ -34,9 +34,9 @@ Para mantener la estabilidad del proyecto y cumplir con los estándares de segur
 ## 👥 Equipo (Mobile Core)
 
 * **Front-end (Clientes):** Alan
-* **Front-end (Proveedores):** Angel Apaez
+* **Front-end (Proveedores):** Angel Apaez (@SerevrGG)
 * **Back-end:** German
-* **DevOps / Admin:** AlanGuevara / Ops-Admin
+* **DevOps / Admin:** Alan(@CodexAlG) / Ops-Admin
 
 ---
 

@@ -1,0 +1,36 @@
+# Archivos y carpetas generadas por Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Artefactos de Android e iOS
+/android/app/debug
+/android/app/profile
+/android/app/release
+**/ios/Flutter/.last_build_id
+Pods/
+.symlinks/
+*.xcworkspace/xcuserdata/
+
+# Configuraciones de IDE (Opcional pero recomendado ignorarlos)
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar variables de entorno, credenciales y llaves de API
+.env
+.env.dev
+.env.prod
+.env.*
+*.key
+*.pem

@@ -63,8 +63,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 iconColor: const Color(0xFFB48A14),
                 iconBgColor: AppColors.accentYellow.withOpacity(0.15),
                 onTap: () {
-                  // Viajamos a la pantalla de registro
-                  context.push('/registro');
+                  context.push('/login');
                 },
               ),
 

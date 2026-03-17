@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import 'widgets/custom_input_field.dart';
+import 'providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   // Llave maestra para validar el formulario
   final _formKey = GlobalKey<FormState>();
 
@@ -27,21 +29,56 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
-    // Si la validación pasa, ejecutamos la lógica
+  Future<void> _submitForm() async {
+    FocusScope.of(context).unfocus();
+
     if (_formKey.currentState!.validate()) {
-      // TODO: Aquí conectaremos el mock del Backend para autenticar al usuario
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Validación exitosa. Simulando envío a backend...'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      try {
+        // Llamamos al controlador de Riverpod
+        final status = await ref
+            .read(authControllerProvider.notifier)
+            .login(_emailController.text.trim(), _passwordController.text);
+
+        if (!mounted) return;
+
+        // Evaluamos la respuesta de nuestro Mock Backend
+        if (status == 'aceptado') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('¡Bienvenido a INCIDE!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // TODO: context.go('/home');
+        } else if (status == 'pendiente') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tu cuenta está en revisión por un administrador.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        } else if (status == 'rechazado') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tu solicitud fue rechazada. Contacta a soporte.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        // Si arroja error (contraseña incorrecta)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(authControllerProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -80,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // --- FORMULARIO ---
                 CustomInputField(
-                  label: 'CORREO O USUARIO:',
+                  label: 'CORREO ELECTRÓNICO:',
                   hintText: 'ejemplo@correo.com',
                   controller: _emailController,
                   validator: (value) {
@@ -142,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // --- BOTÓN PRINCIPAL VERDE ---
                 ElevatedButton(
-                  onPressed: _submitForm,
+                  onPressed: isLoading ? null : () => _submitForm(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF16A34A),
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -151,14 +188,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Iniciar Sesión',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Iniciar Sesión',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
 
                 const SizedBox(height: 32),

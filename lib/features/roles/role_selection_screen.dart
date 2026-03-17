@@ -44,7 +44,7 @@ class RoleSelectionScreen extends StatelessWidget {
                     'Busco profesionistas certificados para realizar un trabajo o proyecto.',
                 icon: Icons.home_outlined,
                 iconColor: AppColors.primaryBlue,
-                iconBgColor: AppColors.primaryBlue.withOpacity(0.08),
+                iconBgColor: AppColors.primaryBlue.withValues(alpha: 0.08),
                 onTap: () {
                   // TODO: Navegar a login de cliente cuando exista
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -61,7 +61,7 @@ class RoleSelectionScreen extends StatelessWidget {
                     'Quiero ofrecer mis servicios, recibir cotizaciones y gestionar mis trabajos.',
                 icon: Icons.settings_outlined,
                 iconColor: const Color(0xFFB48A14),
-                iconBgColor: AppColors.accentYellow.withOpacity(0.15),
+                iconBgColor: AppColors.accentYellow.withValues(alpha: 0.15),
                 onTap: () {
                   context.push('/login');
                 },

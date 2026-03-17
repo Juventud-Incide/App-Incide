@@ -9,6 +9,7 @@ class CustomInputField extends StatelessWidget {
   final VoidCallback? onToggleVisibility;
   final TextEditingController controller;
   final String? Function(String?)? validator;
+  final TextInputType keyboardType;
 
   const CustomInputField({
     super.key,
@@ -19,6 +20,7 @@ class CustomInputField extends StatelessWidget {
     this.isPasswordVisible = false,
     this.onToggleVisibility,
     this.validator,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -43,9 +45,7 @@ class CustomInputField extends StatelessWidget {
           obscureText: isPassword && !isPasswordVisible,
           validator: validator,
           // Cambia el teclado si es correo para que muestre el '@' más fácil
-          keyboardType: isPassword
-              ? TextInputType.text
-              : TextInputType.emailAddress,
+          keyboardType: isPassword ? TextInputType.text : keyboardType,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: const TextStyle(color: Color(0xFF9CA3AF)), // Gris claro

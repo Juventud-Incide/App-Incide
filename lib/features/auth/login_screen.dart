@@ -86,6 +86,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Form(
             key: _formKey,
+            autovalidateMode: AutovalidateMode.disabled,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -120,11 +121,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   label: 'CORREO ELECTRÓNICO:',
                   hintText: 'ejemplo@correo.com',
                   controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Por favor ingresa tu correo';
                     }
-                    if (!value.contains('@')) {
+                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+                    if (!emailRegex.hasMatch(value)) {
                       return 'Ingresa un correo válido';
                     }
                     return null; // Null significa que pasó la validación

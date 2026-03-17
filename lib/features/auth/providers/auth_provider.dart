@@ -50,8 +50,8 @@ class AuthController extends Notifier<bool> {
       state = false; // Apagamos la ruedita
       return result;
     } catch (e) {
-      state = false; // Apagamos la ruedita si hay error
-      throw Exception(e.toString().replaceAll('Exception: ', ''));
+      state = false; // Apagamos la ruedita aunque haya error
+      throw e.toString().replaceAll('Exception: ', '');
     }
   }
 }

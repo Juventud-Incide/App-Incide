@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'core/router/app_router.dart';
 
 void main() {
   runApp(const ProviderScope(child: IncideApp()));
@@ -12,11 +11,6 @@ class IncideApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'INCIDE',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
     return MaterialApp(
       title: 'INCIDE',
       debugShowCheckedModeBanner: false,

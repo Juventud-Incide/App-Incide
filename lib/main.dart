@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
+import 'core/router/app_router.dart';
 
 void main() {
   runApp(const ProviderScope(child: IncideApp()));
@@ -11,14 +12,14 @@ class IncideApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'INCIDE',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      routerConfig: AppRouter.router,
     );
-  }
-}
+  } 
+} 
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -28,7 +29,7 @@ class SplashScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF7F7F7),
+      backgroundColor: const Color(0xFFF7F7F7),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +39,6 @@ class SplashScreen extends StatelessWidget {
               width: screenWidth * 0.8,
               fit: BoxFit.contain,
             ),
-
             const SizedBox(height: 24),
             const Text(
               'INCIDE App\nInicializada Correctamente',

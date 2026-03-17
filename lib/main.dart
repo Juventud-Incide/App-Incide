@@ -17,14 +17,9 @@ class IncideApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       routerConfig: AppRouter.router,
-    return MaterialApp(
-      title: 'INCIDE',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
     );
-  }
-}
+  } 
+} 
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -34,7 +29,7 @@ class SplashScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF7F7F7),
+      backgroundColor: const Color(0xFFF7F7F7),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +39,6 @@ class SplashScreen extends StatelessWidget {
               width: screenWidth * 0.8,
               fit: BoxFit.contain,
             ),
-
             const SizedBox(height: 24),
             const Text(
               'INCIDE App\nInicializada Correctamente',

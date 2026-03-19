@@ -3,6 +3,8 @@ import '../../features/auth/splash_screen.dart';
 import '../../features/roles/role_selection_screen.dart';
 import '../../features/auth/register_screen.dart';
 import '../../features/auth/login_screen.dart';
+import '../../features/auth/client_login_screen.dart';
+import '../../features/auth/cliente_register_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -27,6 +29,16 @@ class AppRouter {
         path: '/login',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/login-cliente',
+        name: 'login-cliente',
+        builder: (context, state) => const ClientLoginScreen(),
+      ),
+      GoRoute(
+        path: '/registro-cliente',
+        name: 'registro-cliente',
+        builder: (context, state) => const ClienteRegisterScreen(),
       ),
     ],
   );

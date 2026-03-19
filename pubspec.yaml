@@ -60,6 +60,7 @@ flutter:
     - assets/images/Isotipo_Incide.png
     - assets/images/Logo_Incide.png
     - assets/images/logo_incide.jpeg
+    - assets/images/logo_google.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

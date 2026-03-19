@@ -43,19 +43,19 @@ class _RoleCardState extends State<RoleCard> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: _isPressed
-              ? AppColors.primaryBlue.withOpacity(0.05)
+              ? AppColors.primaryBlue.withValues(alpha: 0.05)
               : AppColors.backgroundWhite,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _isPressed
                 ? AppColors.primaryBlue
-                : AppColors.borderGray.withOpacity(0.5),
+                : AppColors.borderGray.withValues(alpha: 0.5),
             width: 1.5,
           ),
           boxShadow: [
             if (!_isPressed)
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),

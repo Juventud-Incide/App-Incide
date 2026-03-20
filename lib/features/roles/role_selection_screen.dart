@@ -46,12 +46,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 iconColor: AppColors.primaryBlue,
                 iconBgColor: AppColors.primaryBlue.withValues(alpha: 0.08),
                 onTap: () {
-                  // TODO: Navegar a login de cliente cuando exista
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Flujo de cliente en construcción'),
-                    ),
-                  );
+                  context.push('/login-cliente');
                 },
               ),
               const SizedBox(height: 20),

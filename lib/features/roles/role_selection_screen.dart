@@ -58,7 +58,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 iconColor: const Color(0xFFB48A14),
                 iconBgColor: AppColors.accentYellow.withValues(alpha: 0.15),
                 onTap: () {
-                  context.push('/login');
+                  context.push('/prof-login');
                 },
               ),
 

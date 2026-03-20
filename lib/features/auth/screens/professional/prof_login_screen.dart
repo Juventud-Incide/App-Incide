@@ -267,7 +267,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        context.push('/registro');
+                        context.push('/prof-register');
                       },
                       child: const Text(
                         'Regístrate Aquí',

@@ -99,7 +99,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Bienvenido de Nuevo',
+                  'Bienvenido',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFF1E3A8A),

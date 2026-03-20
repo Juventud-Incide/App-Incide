@@ -1,8 +1,8 @@
 import 'package:go_router/go_router.dart';
 import '../../features/auth/splash_screen.dart';
 import '../../features/roles/role_selection_screen.dart';
-import '../../features/auth/register_screen.dart';
-import '../../features/auth/login_screen.dart';
+import '../../features/auth/screens/professional/prof_register_screen.dart';
+import '../../features/auth/screens/professional/prof_login_screen.dart';
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 
@@ -20,16 +20,24 @@ class AppRouter {
         name: 'roles',
         builder: (context, state) => const RoleSelectionScreen(),
       ),
+
+      // ------------------------------------
+      //  RUTAS DEL PROFESIONISTA
+      // ------------------------------------
       GoRoute(
-        path: '/registro',
-        name: 'registro',
-        builder: (context, state) => const RegisterScreen(),
+        path: '/prof-login',
+        name: 'prof_login',
+        builder: (context, state) => const ProfLoginScreen(),
       ),
       GoRoute(
-        path: '/login',
-        name: 'login',
-        builder: (context, state) => const LoginScreen(),
+        path: '/prof-register',
+        name: 'prof_register',
+        builder: (context, state) => const ProfRegisterScreen(),
       ),
+
+      // ------------------------------------
+      //  RUTAS DEL CLIENTE
+      // ------------------------------------
       GoRoute(
         path: '/login-cliente',
         name: 'login-cliente',

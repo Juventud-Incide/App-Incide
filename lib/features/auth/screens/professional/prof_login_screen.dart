@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
-import 'widgets/custom_input_field.dart';
-import 'providers/auth_provider.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../widgets/custom_input_field.dart';
+import '../../providers/auth_provider.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+class ProfLoginScreen extends ConsumerStatefulWidget {
+  const ProfLoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<ProfLoginScreen> createState() => _ProfLoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
   // Llave maestra para validar el formulario
   final _formKey = GlobalKey<FormState>();
 

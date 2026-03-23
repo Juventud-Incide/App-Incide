@@ -14,6 +14,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores exactos de la imagen
+  final _curpController = TextEditingController();
   final _nameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -24,6 +25,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
 
   @override
   void dispose() {
+    _curpController.dispose();
     _nameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
@@ -114,9 +116,33 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
 
                 // --- 3. FORMULARIO ---
                 CustomInputField(
+                  label: 'CURP (18 CARACTERES):',
+                  hintText: 'AAAA000000AAAAAA00',
+                  controller: _curpController,
+                  textCapitalization: TextCapitalization.characters,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Requerido';
+                    }
+                    if (value.length != 18) return 'Debe tener 18 caracteres';
+
+                    // Validación oficial de formato CURP mediante Expresión Regular
+                    final curpRegex = RegExp(
+                      r'^[A-Z]{4}[0-9]{6}[H,M][A-Z]{5}[A-Z0-9][0-9]$',
+                    );
+                    if (!curpRegex.hasMatch(value.toUpperCase())) {
+                      return 'Formato inválido';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                CustomInputField(
                   label: 'NOMBRE(S):',
                   hintText: '',
                   controller: _nameController,
+                  textCapitalization: TextCapitalization.words,
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Requerido' : null,
                 ),
@@ -126,6 +152,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   label: 'APELLIDOS:',
                   hintText: '',
                   controller: _lastNameController,
+                  textCapitalization: TextCapitalization.words,
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Requerido' : null,
                 ),
@@ -136,20 +163,23 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   hintText: 'ejemplo@correo.com',
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  textCapitalization: TextCapitalization.none,
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Requerido';
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value))
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value)) {
                       return 'Ingresa un correo válido';
+                    }
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
 
                 CustomInputField(
-                  label: 'CELULAR (10 DIGITOS):',
+                  label: 'CELULAR (10 DÍGITOS):',
                   hintText: '662 000 0000',
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  textCapitalization: TextCapitalization.none,
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Requerido';
                     if (value.length < 10) return 'Inserta un celular válido';
@@ -171,6 +201,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                     if (value.length < 8) return 'Mínimo 8 caracteres';
                     return null;
                   },
+                  textCapitalization: TextCapitalization.none,
                 ),
                 const SizedBox(height: 50),
 

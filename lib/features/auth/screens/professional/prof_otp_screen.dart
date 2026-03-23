@@ -34,14 +34,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     String otpCode = _controllers.map((c) => c.text).join();
 
     if (otpCode.length == 4) {
-      // context.pushNamed('prof_experience');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Código verificado correctamente'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      context.pushNamed('prof_experience');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

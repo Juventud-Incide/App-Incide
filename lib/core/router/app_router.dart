@@ -6,6 +6,7 @@ import '../../features/auth/screens/professional/prof_login_screen.dart';
 import '../../features/auth/screens/professional/prof_otp_screen.dart';
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
+import '../../features/auth/screens/professional/prof_experience_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -39,6 +40,11 @@ class AppRouter {
         path: '/prof-otp',
         name: 'prof_otp',
         builder: (context, state) => const ProfOtpScreen(),
+      ),
+      GoRoute(
+        path: '/prof-experience',
+        name: 'prof_experience',
+        builder: (context, state) => const ProfExperienceScreen(),
       ),
 
       // ------------------------------------

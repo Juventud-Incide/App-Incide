@@ -47,9 +47,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color textDark = AppColors.textDark;
-    const Color textGray = AppColors.textGray;
-    const Color primaryBlue = AppColors.primaryBlue;
+    const Color inactiveStepColor = Color(0xFFE2E8F0);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -57,7 +55,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: textDark),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: () => context.pop(),
         ),
       ),
@@ -67,20 +65,60 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // --- 1. INDICADOR DE PASOS ---
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryBlue,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: inactiveStepColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+
               // --- 1. TÍTULOS ---
               const Text(
                 'VERIFICA TU NÚMERO',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: textDark,
+                  color: AppColors.textDark,
                   letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 12),
               RichText(
                 text: const TextSpan(
-                  style: TextStyle(fontSize: 15, color: textGray, height: 1.4),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: AppColors.textGray,
+                    height: 1.4,
+                  ),
                   children: [
                     TextSpan(
                       text:
@@ -90,7 +128,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                       text: 'terminación **45',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: textDark,
+                        color: AppColors.textDark,
                       ),
                     ),
                   ],
@@ -114,7 +152,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: primaryBlue,
+                        color: AppColors.primaryBlue,
                       ),
                       // Filtro para aceptar solo números
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -130,7 +168,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: primaryBlue,
+                            color: AppColors.primaryBlue,
                             width: 2,
                           ),
                         ),
@@ -161,7 +199,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                   children: [
                     const Text(
                       '¿No recibiste el código?',
-                      style: TextStyle(color: textGray, fontSize: 14),
+                      style: TextStyle(color: AppColors.textGray, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
                     TextButton(
@@ -171,7 +209,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                       child: const Text(
                         'Reenviar código (00:45)',
                         style: TextStyle(
-                          color: primaryBlue,
+                          color: AppColors.primaryBlue,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
@@ -189,7 +227,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                 child: ElevatedButton(
                   onPressed: _verifyCode,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryBlue,
+                    backgroundColor: AppColors.primaryBlue,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

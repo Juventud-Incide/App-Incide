@@ -1,12 +1,14 @@
 import 'package:go_router/go_router.dart';
 import '../../features/auth/splash_screen.dart';
 import '../../features/roles/role_selection_screen.dart';
+
 import '../../features/auth/screens/professional/prof_register_screen.dart';
 import '../../features/auth/screens/professional/prof_login_screen.dart';
 import '../../features/auth/screens/professional/prof_otp_screen.dart';
+import '../../features/auth/screens/professional/prof_experience_screen.dart';
+
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
-import '../../features/auth/screens/professional/prof_experience_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(

@@ -6,6 +6,8 @@ import '../../features/auth/screens/professional/prof_register_screen.dart';
 import '../../features/auth/screens/professional/prof_login_screen.dart';
 import '../../features/auth/screens/professional/prof_otp_screen.dart';
 import '../../features/auth/screens/professional/prof_experience_screen.dart';
+import '../../features/auth/screens/professional/prof_review_status_screen.dart';
+import '../../features/auth/screens/professional/prof_success_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -47,6 +49,16 @@ class AppRouter {
         path: '/prof-experience',
         name: 'prof_experience',
         builder: (context, state) => const ProfExperienceScreen(),
+      ),
+      GoRoute(
+        path: '/prof-review-status',
+        name: 'prof_review_status',
+        builder: (context, state) => const ProfReviewStatusScreen(),
+      ),
+      GoRoute(
+        path: '/prof-success',
+        name: 'prof_success',
+        builder: (context, state) => const ProfSuccessScreen(),
       ),
 
       // ------------------------------------

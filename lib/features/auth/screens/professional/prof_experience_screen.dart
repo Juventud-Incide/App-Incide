@@ -44,14 +44,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // Todo está listo para mandar a la base de datos y avanzar a la pantalla de "En Revisión"
-
-      // Por ahora simularemos el envío y avanzaremos a un dialog o la siguiente ruta
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('¡Solicitud enviada con éxito!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      context.goNamed('prof_success');
     } else {
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
     }

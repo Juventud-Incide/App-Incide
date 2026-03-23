@@ -51,12 +51,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
           );
           // TODO: context.go('/home');
         } else if (status == 'pendiente') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tu cuenta está en revisión por un administrador.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
+          context.go('/prof-review-status');
         } else if (status == 'rechazado') {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

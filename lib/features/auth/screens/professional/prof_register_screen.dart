@@ -22,6 +22,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
   final _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
+  AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
   @override
   void dispose() {
@@ -35,10 +36,10 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
   }
 
   void _submitForm() {
-    // Valida que todos los campos cumplan las reglas antes de avanzar
     if (_formKey.currentState!.validate()) {
-      // Avanza a la siguiente pantalla (Paso 2 / OTP)
       context.pushNamed('prof_otp');
+    } else {
+      setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
     }
   }
 
@@ -53,7 +54,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.disabled,
+            autovalidateMode: _autoValidateMode,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

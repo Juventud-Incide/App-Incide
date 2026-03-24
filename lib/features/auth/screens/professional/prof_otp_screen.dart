@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 
 class ProfOtpScreen extends StatefulWidget {
-  const ProfOtpScreen({super.key});
+  final String phoneNumber; // Número de teléfono para mostrar en el subtítulo
+
+  const ProfOtpScreen({super.key, required this.phoneNumber});
 
   @override
   State<ProfOtpScreen> createState() => _ProfOtpScreenState();
@@ -13,14 +15,20 @@ class ProfOtpScreen extends StatefulWidget {
 
 class _ProfOtpScreenState extends State<ProfOtpScreen> {
   // Controladores y Nodos de Enfoque para las 4 cajitas
-  final List<TextEditingController> _controllers = List.generate(
-    4,
-    (_) => TextEditingController(),
-  );
-  final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
+  late List<TextEditingController> _controllers;
+  late List<FocusNode> _focusNodes;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = List.generate(4, (_) => TextEditingController());
+    _focusNodes = List.generate(4, (_) => FocusNode());
+  }
 
   @override
   void dispose() {
+    // Limpieza profunda de memoria RAM (Security P0)
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -30,19 +38,57 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     super.dispose();
   }
 
-  void _verifyCode() {
+  String _getMaskedPhone() {
+    if (widget.phoneNumber.length >= 4) {
+      return '**${widget.phoneNumber.substring(widget.phoneNumber.length - 4)}'; // Muestra los últimos 4
+    }
+    return '**00';
+  }
+
+  Future<void> _verifyCode() async {
     // Juntamos el texto de las 4 cajitas
     String otpCode = _controllers.map((c) => c.text).join();
 
-    if (otpCode.length == 4) {
-      context.pushNamed('prof_experience');
-    } else {
+    if (otpCode.length < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(AppStrings.otpIncomplete),
           backgroundColor: Colors.red,
         ),
       );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Simulación de llamada al backend (authService.verifyOTP)
+      await Future.delayed(const Duration(seconds: 1));
+      bool isValid = otpCode == '1234'; // Código de prueba
+
+      if (isValid) {
+        // Limpiamos los datos sensibles de la RAM inmediatamente antes de navegar
+        for (var controller in _controllers) {
+          controller.clear();
+        }
+        if (mounted) context.pushNamed('prof_experience');
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(AppStrings.otpError),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        // Si falla, también limpiamos para evitar intentos de extracción de memoria
+        for (var controller in _controllers) {
+          controller.clear();
+        }
+        _focusNodes[0].requestFocus(); // Regresamos el foco al inicio
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -114,7 +160,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
               ),
               const SizedBox(height: 12),
               RichText(
-                text: const TextSpan(
+                text: TextSpan(
                   style: TextStyle(
                     fontSize: 15,
                     color: AppColors.textGray,
@@ -123,7 +169,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                   children: [
                     TextSpan(text: AppStrings.otpSubtitle1),
                     TextSpan(
-                      text: 'terminación **45',
+                      text: _getMaskedPhone(),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppColors.textDark,
@@ -136,58 +182,64 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
 
               // --- 2. CAJAS DE OTP ---
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(4, (index) {
-                  return SizedBox(
-                    width: 65,
-                    height: 75,
-                    child: TextField(
-                      controller: _controllers[index],
-                      focusNode: _focusNodes[index],
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      maxLength: 1,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primaryBlue,
-                      ),
-                      // Filtro para aceptar solo números
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        counterText: "",
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.grey[300]!,
-                            width: 1.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
+                children: [
+                  for (int i = 0; i < 4; i++) ...[
+                    Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: TextField(
+                          controller: _controllers[i],
+                          focusNode: _focusNodes[i],
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          textAlignVertical: TextAlignVertical.center,
+                          maxLength: 1,
+                          obscureText: true,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
                             color: AppColors.primaryBlue,
-                            width: 2,
                           ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            counterText: "",
+                            contentPadding: EdgeInsets.zero,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.primaryBlue,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              if (i < 3) {
+                                _focusNodes[i + 1].requestFocus();
+                              } else {
+                                _focusNodes[i].unfocus();
+                              }
+                            } else {
+                              if (i > 0) {
+                                _focusNodes[i - 1].requestFocus();
+                              }
+                            }
+                          },
                         ),
                       ),
-                      onChanged: (value) {
-                        // Lógica de salto automático al siguiente campo
-                        if (value.isNotEmpty) {
-                          if (index < 3) {
-                            _focusNodes[index + 1].requestFocus();
-                          } else {
-                            // Si es la última caja, ocultamos el teclado
-                            _focusNodes[index].unfocus();
-                          }
-                        } else if (value.isEmpty && index > 0) {
-                          // Si borra un número, regresa a la caja anterior
-                          _focusNodes[index - 1].requestFocus();
-                        }
-                      },
                     ),
-                  );
-                }),
+                    if (i < 3) const SizedBox(width: 16),
+                  ],
+                ],
               ),
               const SizedBox(height: 40),
 
@@ -232,14 +284,23 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    AppStrings.otpVerifyBtn,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          AppStrings.otpVerifyBtn,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                 ),
               ),
             ],

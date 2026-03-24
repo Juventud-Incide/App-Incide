@@ -48,7 +48,14 @@ class AppRouter {
       GoRoute(
         path: '/prof-otp',
         name: 'prof_otp',
-        builder: (context, state) => const ProfOtpScreen(),
+        builder: (context, state) {
+          // Extraemos los datos pasados desde la pantalla 1
+          final Map<String, dynamic> extraData =
+              state.extra as Map<String, dynamic>? ?? {};
+          final String phone = extraData['phone'] as String? ?? '';
+
+          return ProfOtpScreen(phoneNumber: phone);
+        },
       ),
       GoRoute(
         path: '/prof-experience',

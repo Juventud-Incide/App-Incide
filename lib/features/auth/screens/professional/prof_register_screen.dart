@@ -55,7 +55,10 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
         ),
       );
     } else {
-      context.pushNamed('prof_otp');
+      // Solución P0: Enviamos el teléfono ingresado para no perder el estado
+      final formData = {'phone': _phoneController.text};
+
+      context.pushNamed('prof_otp', extra: formData);
     }
   }
 

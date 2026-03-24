@@ -70,4 +70,18 @@ class AppStrings {
   static const String docFotoShort = 'Foto';
   static const String docFotoSubtitle =
       'Foto de frente, clara y sin lentes oscuros.';
+
+  // --- Revisión de Documentos ---
+  static const String reupload = 'Re-subir ';
+  static const String takeNewPhoto = 'Tomar nueva Fotografía';
+  static const String requiredAction = 'Acción Requerida';
+  static const String reviewTitle = 'Revisión de Documentos';
+  static const String reviewSubtitle =
+      'Hemos revisado tu documentación y encontramos algunos detalles. Por favor, corrige los archivos marcados en rojo para continuar con tu activación.';
+  static const String correctionFiles = 'ARCHIVOS A CORREGIR:';
+  static const String approvedDocs =
+      'DOCUMENTOS APROBADOS (No requieren acción):';
+  static const String resendDocs = 'Volver a Enviar Documentos';
+  static const String correctedFile = 'Corregido. Listo para enviar.';
+  static const String requiredUpdate = 'Requiere actualización';
 }

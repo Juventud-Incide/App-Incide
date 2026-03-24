@@ -1,18 +1,20 @@
-import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:app_incide/core/theme/app_colors.dart';
 
-class CustomCorrectionCard extends StatelessWidget {
+class CustomExpandableCard extends StatelessWidget {
   final String title;
-  final String adminComment;
-  final bool isFixed;
-  final VoidCallback onTap;
+  final String subtitle;
+  final String? feedbackMessage;
+  final bool isCompleted;
+  final ValueChanged<bool> onActionTapped;
 
-  const CustomCorrectionCard({
+  const CustomExpandableCard({
     super.key,
     required this.title,
-    required this.adminComment,
-    required this.isFixed,
-    required this.onTap,
+    required this.subtitle,
+    this.feedbackMessage,
+    required this.isCompleted,
+    required this.onActionTapped,
   });
 
   @override
@@ -20,57 +22,57 @@ class CustomCorrectionCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isFixed
+        color: isCompleted
             ? AppColors.primaryBlue.withValues(alpha: 0.05)
             : Colors.white,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: isFixed ? AppColors.primaryBlue : Colors.redAccent,
-          width: isFixed ? 2 : 1.5,
+          color: isCompleted ? AppColors.primaryBlue : Colors.redAccent,
+          width: isCompleted ? 2 : 1.5,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Parte superior interactiva
           ListTile(
-            onTap: isFixed ? null : onTap,
+            // Pasamos el estado al callback
+            onTap: isCompleted ? null : () => onActionTapped(true),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 8,
             ),
-            leading: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isFixed
-                    ? AppColors.primaryBlue
-                    : Colors.red.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+
+            // Fix UI: CircleAvatar se adapta automáticamente sin tamaños fijos
+            leading: CircleAvatar(
+              backgroundColor: isCompleted
+                  ? AppColors.primaryBlue
+                  : Colors.red.withValues(alpha: 0.1),
+              radius:
+                  22, // Un radio relativo en lugar de width/height absolutos
               child: Icon(
-                isFixed
+                isCompleted
                     ? Icons.check_circle_rounded
                     : Icons.error_outline_rounded,
-                color: isFixed ? Colors.white : Colors.redAccent,
+                color: isCompleted ? Colors.white : Colors.redAccent,
+                size: 24,
               ),
             ),
+
             title: Text(
               title,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isFixed ? AppColors.primaryBlue : AppColors.textDark,
+                color: isCompleted ? AppColors.primaryBlue : AppColors.textDark,
               ),
             ),
             subtitle: Text(
-              isFixed
-                  ? 'Corregido. Listo para enviar.'
-                  : 'Requiere actualización',
+              subtitle,
               style: TextStyle(
-                color: isFixed ? AppColors.primaryBlue : Colors.redAccent,
+                color: isCompleted ? AppColors.primaryBlue : Colors.redAccent,
                 fontSize: 13,
               ),
             ),
-            trailing: isFixed
+            trailing: isCompleted
                 ? null
                 : const Icon(
                     Icons.upload_file_rounded,
@@ -78,8 +80,8 @@ class CustomCorrectionCard extends StatelessWidget {
                   ),
           ),
 
-          // Caja de comentarios del Administrador
-          if (!isFixed)
+          // Caja de comentarios expandible (Solo visible si hay feedback y no está completado)
+          if (!isCompleted && feedbackMessage != null)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -99,8 +101,9 @@ class CustomCorrectionCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
+                    // Protege contra desbordamiento de texto
                     child: Text(
-                      'Nota del revisor: $adminComment',
+                      feedbackMessage!,
                       style: const TextStyle(
                         fontSize: 13,
                         color: Colors.redAccent,

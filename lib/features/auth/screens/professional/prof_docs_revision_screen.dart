@@ -1,8 +1,9 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_approved_card.dart';
-import '../../widgets/custom_correction_card.dart';
+import '../../widgets/custom_expandable_card.dart';
 
 class ProfDocsRevisionScreen extends StatefulWidget {
   const ProfDocsRevisionScreen({super.key});
@@ -33,7 +34,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Re-subir $docName',
+                  '${AppStrings.reupload}$docName',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -45,7 +46,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                     Icons.camera_alt_rounded,
                     color: AppColors.primaryBlue,
                   ),
-                  title: const Text('Tomar nueva Fotografía'),
+                  title: const Text(AppStrings.takeNewPhoto),
                   onTap: () {
                     Navigator.pop(context);
                     onSuccess();
@@ -98,7 +99,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                         const SizedBox(width: 15),
                         const Expanded(
                           child: Text(
-                            'Acción Requerida',
+                            AppStrings.requiredAction,
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
@@ -110,7 +111,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                     ),
                     const SizedBox(height: 15),
                     const Text(
-                      'Hemos revisado tu documentación y encontramos algunos detalles. Por favor, corrige los archivos marcados en rojo para continuar con tu activación.',
+                      AppStrings.reviewSubtitle,
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textGray,
@@ -121,7 +122,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
 
                     // --- DOCUMENTOS CON ERROR ---
                     const Text(
-                      'ARCHIVOS A CORREGIR:',
+                      AppStrings.correctionFiles,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -130,25 +131,31 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    CustomCorrectionCard(
-                      title: 'Identificación Oficial (INE)',
-                      adminComment:
+                    CustomExpandableCard(
+                      title: AppStrings.docIne,
+                      subtitle: _ineFixed
+                          ? AppStrings.correctedFile
+                          : AppStrings.requiredUpdate,
+                      feedbackMessage:
                           'La fotografía trasera está borrosa y no se distinguen los datos. Por favor, tómala con mejor iluminación.',
-                      isFixed: _ineFixed,
-                      onTap: () => _showUploadBottomSheet(
-                        'INE',
-                        () => setState(() => _ineFixed = true),
+                      isCompleted: _ineFixed,
+                      onActionTapped: (value) => _showUploadBottomSheet(
+                        AppStrings.docIneShort,
+                        () => setState(() => _ineFixed = value),
                       ),
                     ),
 
-                    CustomCorrectionCard(
-                      title: 'Carta de No Antecedentes',
-                      adminComment:
+                    CustomExpandableCard(
+                      title: AppStrings.docAntecedentes,
+                      subtitle: _antecedentesFixed
+                          ? AppStrings.correctedFile
+                          : AppStrings.requiredUpdate,
+                      feedbackMessage:
                           'El documento que subiste expiró hace 2 meses. Necesitamos uno vigente.',
-                      isFixed: _antecedentesFixed,
-                      onTap: () => _showUploadBottomSheet(
-                        'Antecedentes',
-                        () => setState(() => _antecedentesFixed = true),
+                      isCompleted: _antecedentesFixed,
+                      onActionTapped: (value) => _showUploadBottomSheet(
+                        AppStrings.docAntecedentesShort,
+                        () => setState(() => _antecedentesFixed = value),
                       ),
                     ),
 
@@ -156,7 +163,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
 
                     // --- DOCUMENTOS APROBADOS ---
                     const Text(
-                      'DOCUMENTOS APROBADOS (No requieren acción):',
+                      AppStrings.approvedDocs,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -164,9 +171,9 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const CustomApprovedCard(title: 'Comprobante de Domicilio'),
-                    const CustomApprovedCard(title: 'Cédula Profesional'),
-                    const CustomApprovedCard(title: 'Fotografía de Perfil'),
+                    const CustomApprovedCard(title: AppStrings.docDomicilio),
+                    const CustomApprovedCard(title: AppStrings.docCedula),
+                    const CustomApprovedCard(title: AppStrings.docFoto),
                   ],
                 ),
               ),
@@ -207,7 +214,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                     ),
                   ),
                   child: const Text(
-                    'Volver a Enviar Documentos',
+                    AppStrings.resendDocs,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),

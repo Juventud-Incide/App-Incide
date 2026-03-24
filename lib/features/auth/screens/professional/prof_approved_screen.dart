@@ -101,8 +101,7 @@ class ProfApprovedScreen extends StatelessWidget {
                 height: 55,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Aquí navegaremos a la pantalla de Subida de Documentos (Aún no creada)
-                    // context.goNamed('prof_upload_docs');
+                    context.goNamed('prof_upload_docs');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,

@@ -9,13 +9,14 @@ import '../../features/auth/screens/professional/prof_experience_screen.dart';
 import '../../features/auth/screens/professional/prof_review_status_screen.dart';
 import '../../features/auth/screens/professional/prof_success_screen.dart';
 import '../../features/auth/screens/professional/prof_approved_screen.dart';
+import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/prof-approved',
     routes: [
       GoRoute(
         path: '/',
@@ -65,6 +66,11 @@ class AppRouter {
         path: '/prof-approved',
         name: 'prof_approved',
         builder: (context, state) => const ProfApprovedScreen(),
+      ),
+      GoRoute(
+        path: '/prof-upload-docs',
+        name: 'prof_upload_docs',
+        builder: (context, state) => const ProfUploadDocsScreen(),
       ),
 
       // ------------------------------------

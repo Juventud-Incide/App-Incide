@@ -10,6 +10,7 @@ import '../../features/auth/screens/professional/prof_review_status_screen.dart'
 import '../../features/auth/screens/professional/prof_success_screen.dart';
 import '../../features/auth/screens/professional/prof_approved_screen.dart';
 import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
+import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -71,6 +72,11 @@ class AppRouter {
         path: '/prof-upload-docs',
         name: 'prof_upload_docs',
         builder: (context, state) => const ProfUploadDocsScreen(),
+      ),
+      GoRoute(
+        path: '/prof-docs-success',
+        name: 'prof_docs_success',
+        builder: (context, state) => const ProfDocsSuccessScreen(),
       ),
 
       // ------------------------------------

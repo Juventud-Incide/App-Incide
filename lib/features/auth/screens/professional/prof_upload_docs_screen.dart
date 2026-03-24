@@ -82,14 +82,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
 
   void _submitDocuments() {
     if (_allDocsUploaded) {
-      // AQUÍ PASAMOS A LA PANTALLA DE "AUTORIZANDO DOCUMENTOS"
-      // context.goNamed('prof_docs_authorizing');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Simulando envío de documentos...'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      context.goNamed('prof_docs_success');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

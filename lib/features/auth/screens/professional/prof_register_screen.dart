@@ -55,9 +55,19 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
         ),
       );
     } else {
-      // Solución P0: Enviamos el teléfono ingresado para no perder el estado
-      final formData = {'phone': _phoneController.text};
+      // Solución P0 COMPLETA: Empaquetamos todo el estado del formulario
+      // para que no se pierda al navegar con GoRouter.
+      final formData = {
+        'name': _nameController.text,
+        'lastName': _lastNameController.text,
+        'email': _emailController.text,
+        'phone': _phoneController.text,
+        'password': _passwordController.text,
+        'curp': _curpController.text,
+        'rfc': _rfcController.text,
+      };
 
+      // Inyectamos todo el mapa de datos en la ruta
       context.pushNamed('prof_otp', extra: formData);
     }
   }

@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 
 class ProfOtpScreen extends StatefulWidget {
-  final String phoneNumber; // Número de teléfono para mostrar en el subtítulo
+  final Map<String, dynamic> formData;
 
-  const ProfOtpScreen({super.key, required this.phoneNumber});
+  const ProfOtpScreen({super.key, required this.formData});
 
   @override
   State<ProfOtpScreen> createState() => _ProfOtpScreenState();
@@ -39,8 +39,9 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
   }
 
   String _getMaskedPhone() {
-    if (widget.phoneNumber.length >= 4) {
-      return '**${widget.phoneNumber.substring(widget.phoneNumber.length - 4)}'; // Muestra los últimos 4
+    final String phone = widget.formData['phone'] as String? ?? '';
+    if (phone.length >= 4) {
+      return '**${phone.substring(phone.length - 4)}'; // Muestra los últimos 4
     }
     return '**00';
   }
@@ -71,7 +72,9 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
         for (var controller in _controllers) {
           controller.clear();
         }
-        if (mounted) context.pushNamed('prof_experience');
+        if (mounted) {
+          context.pushNamed('prof_experience', extra: widget.formData);
+        }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

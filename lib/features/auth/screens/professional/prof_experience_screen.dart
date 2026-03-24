@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../widgets/custom_dropdown_field.dart';
+import 'dart:developer' as developer;
 
 class ProfExperienceScreen extends StatefulWidget {
-  const ProfExperienceScreen({super.key});
+  final Map<String, dynamic> formData;
+
+  const ProfExperienceScreen({super.key, required this.formData});
 
   @override
   State<ProfExperienceScreen> createState() => _ProfExperienceScreenState();
@@ -43,6 +46,22 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      final Map<String, dynamic> finalPayload = {
+        ...widget.formData,
+        'specialty': _selectedSpecialty,
+        'yearsOfExperience': int.tryParse(_yearsController.text) ?? 0,
+        'cedula': _cedulaController.text,
+        'description': _descriptionController.text,
+      };
+
+      // TODO: Aquí se realiza await authService.registerProfessional(finalPayload);
+      developer.log(
+        'Payload del registro completado exitosamente',
+        name: 'AuthModule',
+        error: finalPayload
+            .toString(), // Mandamos los datos aquí para depuración estructurada
+      );
+
       // Todo está listo para mandar a la base de datos y avanzar a la pantalla de "En Revisión"
       context.goNamed('prof_success');
     } else {

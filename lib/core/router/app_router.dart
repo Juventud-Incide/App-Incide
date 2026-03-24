@@ -50,17 +50,22 @@ class AppRouter {
         name: 'prof_otp',
         builder: (context, state) {
           // Extraemos los datos pasados desde la pantalla 1
-          final Map<String, dynamic> extraData =
+          final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
-          final String phone = extraData['phone'] as String? ?? '';
-
-          return ProfOtpScreen(phoneNumber: phone);
+          // Le pasamos todo el paquete al OTP
+          return ProfOtpScreen(formData: formData);
         },
       ),
       GoRoute(
         path: '/prof-experience',
         name: 'prof_experience',
-        builder: (context, state) => const ProfExperienceScreen(),
+        builder: (context, state) {
+          // Extraemos TODO el mapa de datos que nos aventó el OTP
+          final Map<String, dynamic> formData =
+              state.extra as Map<String, dynamic>? ?? {};
+          // Se lo damos a la pantalla final
+          return ProfExperienceScreen(formData: formData);
+        },
       ),
       GoRoute(
         path: '/prof-review-status',

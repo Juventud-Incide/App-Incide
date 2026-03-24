@@ -2,6 +2,7 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_upload_card.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 
 class ProfUploadDocsScreen extends StatefulWidget {
   const ProfUploadDocsScreen({super.key});
@@ -53,7 +54,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                     Icons.camera_alt_rounded,
                     color: AppColors.primaryBlue,
                   ),
-                  title: const Text('Tomar Fotografía'),
+                  title: const Text(AppStrings.takePhoto),
                   onTap: () {
                     // TODO: Implementar image_picker (Cámara)
                     Navigator.pop(context);
@@ -65,7 +66,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                     Icons.photo_library_rounded,
                     color: AppColors.primaryBlue,
                   ),
-                  title: const Text('Elegir de la Galería / Archivos'),
+                  title: const Text(AppStrings.chooseFromGallery),
                   onTap: () {
                     // TODO: Implementar file_picker o image_picker (Galería)
                     Navigator.pop(context);
@@ -86,7 +87,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Por favor, sube todos los documentos obligatorios.'),
+          content: Text(AppStrings.missingDocsError),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -105,7 +106,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
           onPressed: () => context.pop(),
         ),
         title: const Text(
-          'Documentación Legal',
+          AppStrings.docsTitle,
           style: TextStyle(
             color: AppColors.textDark,
             fontSize: 18,
@@ -128,7 +129,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Para activar tu cuenta, necesitamos validar tu identidad con los siguientes documentos. Asegúrate de que las fotos sean claras y legibles.',
+                      AppStrings.docsSubtitle,
                       style: TextStyle(
                         fontSize: 14,
                         color: AppColors.textGray,
@@ -138,52 +139,52 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                     const SizedBox(height: 25),
 
                     CustomUploadCard(
-                      title: 'Identificación Oficial (INE)',
-                      subtitle: 'Sube una foto por ambos lados.',
+                      title: AppStrings.docIne,
+                      subtitle: AppStrings.docIneSubtitle,
                       icon: Icons.badge_rounded,
                       isUploaded: _isIneUploaded,
                       onTap: () => _showUploadBottomSheet(
-                        'INE',
+                        AppStrings.docIneShort,
                         () => setState(() => _isIneUploaded = true),
                       ),
                     ),
                     CustomUploadCard(
-                      title: 'Comprobante de Domicilio',
-                      subtitle: 'No mayor a 3 meses (Luz, Agua, Internet).',
+                      title: AppStrings.docDomicilio,
+                      subtitle: AppStrings.docDomicilioSubtitle,
                       icon: Icons.receipt_long_rounded,
                       isUploaded: _isDomicilioUploaded,
                       onTap: () => _showUploadBottomSheet(
-                        'Comprobante',
+                        AppStrings.docDomicilioShort,
                         () => setState(() => _isDomicilioUploaded = true),
                       ),
                     ),
                     CustomUploadCard(
-                      title: 'Cédula Profesional',
-                      subtitle: 'Documento oficial de tu oficio/profesión.',
+                      title: AppStrings.docCedula,
+                      subtitle: AppStrings.docCedulaSubtitle,
                       icon: Icons.school_rounded,
                       isUploaded: _isCedulaUploaded,
                       onTap: () => _showUploadBottomSheet(
-                        'Cédula',
+                        AppStrings.docCedulaShort,
                         () => setState(() => _isCedulaUploaded = true),
                       ),
                     ),
                     CustomUploadCard(
-                      title: 'Carta de No Antecedentes',
-                      subtitle: 'Documento expedido por el Estado.',
+                      title: AppStrings.docAntecedentes,
+                      subtitle: AppStrings.docAntecedentesSubtitle,
                       icon: Icons.gavel_rounded,
                       isUploaded: _isAntecedentesUploaded,
                       onTap: () => _showUploadBottomSheet(
-                        'Antecedentes Penales',
+                        AppStrings.docAntecedentesShort,
                         () => setState(() => _isAntecedentesUploaded = true),
                       ),
                     ),
                     CustomUploadCard(
-                      title: 'Fotografía de Perfil',
-                      subtitle: 'Foto de frente, clara y sin lentes oscuros.',
+                      title: AppStrings.docFoto,
+                      subtitle: AppStrings.docFotoSubtitle,
                       icon: Icons.face_rounded,
                       isUploaded: _isFotoUploaded,
                       onTap: () => _showUploadBottomSheet(
-                        'Foto de Perfil',
+                        AppStrings.docFotoShort,
                         () => setState(() => _isFotoUploaded = true),
                       ),
                     ),
@@ -224,7 +225,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Enviar Documentos a Revisión',
+                    AppStrings.sendDocsBtn,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),

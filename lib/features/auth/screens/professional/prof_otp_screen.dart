@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -38,7 +39,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Por favor, ingresa los 4 dígitos'),
+          content: Text(AppStrings.otpIncomplete),
           backgroundColor: Colors.red,
         ),
       );
@@ -103,7 +104,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
 
               // --- 1. TÍTULOS ---
               const Text(
-                'VERIFICA TU NÚMERO',
+                AppStrings.otpTitle,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
@@ -120,10 +121,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                     height: 1.4,
                   ),
                   children: [
-                    TextSpan(
-                      text:
-                          'Ingresa el código de 4 dígitos que enviamos por SMS al ',
-                    ),
+                    TextSpan(text: AppStrings.otpSubtitle1),
                     TextSpan(
                       text: 'terminación **45',
                       style: TextStyle(
@@ -198,7 +196,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                 child: Column(
                   children: [
                     const Text(
-                      '¿No recibiste el código?',
+                      AppStrings.otpNotReceived,
                       style: TextStyle(color: AppColors.textGray, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
@@ -207,7 +205,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                         // TODO: Lógica para reiniciar temporizador y reenviar SMS
                       },
                       child: const Text(
-                        'Reenviar código (00:45)',
+                        AppStrings.otpResendBtn,
                         style: TextStyle(
                           color: AppColors.primaryBlue,
                           fontWeight: FontWeight.bold,
@@ -235,7 +233,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Verificar Código',
+                    AppStrings.otpVerifyBtn,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

@@ -2,6 +2,7 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 
 class ProfRegisterScreen extends StatefulWidget {
   const ProfRegisterScreen({super.key});
@@ -48,9 +49,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
       // Mostrar advertencia si no aceptó los términos
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Debes aceptar los Términos y Condiciones para continuar.',
-          ),
+          content: Text(AppStrings.termsNotAccepted),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -139,7 +138,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
 
                 // --- 2. TÍTULO Y SUBTÍTULO ---
                 const Text(
-                  'CREAR CUENTA',
+                  AppStrings.registerTitle,
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
@@ -149,7 +148,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Únete a la red de profesionistas INCIDE.',
+                  AppStrings.registerSubtitle,
                   style: TextStyle(
                     fontSize: 15,
                     color: AppColors.textGray,
@@ -159,106 +158,117 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 const SizedBox(height: 20),
 
                 // --- 3. FORMULARIO ---
-                _buildSectionTitle('INFORMACIÓN PERSONAL'),
+                _buildSectionTitle(AppStrings.personalData),
                 CustomInputField(
-                  label: 'NOMBRE(S):',
+                  label: AppStrings.nameLabel,
                   hintText: '',
                   controller: _nameController,
                   textCapitalization: TextCapitalization.words,
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Requerido' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? AppStrings.requiredField
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
-                  label: 'APELLIDOS:',
+                  label: AppStrings.lastNameLabel,
                   hintText: '',
                   controller: _lastNameController,
                   textCapitalization: TextCapitalization.words,
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Requerido' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? AppStrings.requiredField
+                      : null,
                 ),
 
-                _buildSectionTitle('DATOS DE CONTACTO'),
+                _buildSectionTitle(AppStrings.accountData),
                 CustomInputField(
-                  label: 'CORREO ELECTRÓNICO:',
-                  hintText: 'ejemplo@correo.com',
+                  label: AppStrings.emailLabel,
+                  hintText: AppStrings.emailHint,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   textCapitalization: TextCapitalization.none,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Requerido';
+                    if (value == null || value.isEmpty)
+                      return AppStrings.requiredField;
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value)) {
-                      return 'Ingresa un correo válido';
+                      return AppStrings.emailInvalid;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
-                  label: 'CELULAR (10 DÍGITOS):',
-                  hintText: '662 000 0000',
+                  label: AppStrings.phoneLabel,
+                  hintText: AppStrings.phoneHint,
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   textCapitalization: TextCapitalization.none,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Requerido';
-                    if (value.length < 10) return 'Inserta un celular válido';
+                    if (value == null || value.isEmpty) {
+                      return AppStrings.requiredField;
+                    }
+                    if (value.length < 10) return AppStrings.phoneInvalid;
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
-                  label: 'CONTRASEÑA:',
-                  hintText: '*****',
+                  label: AppStrings.passwordLabel,
+                  hintText: AppStrings.passwordHint,
                   controller: _passwordController,
                   isPassword: true,
                   isPasswordVisible: _isPasswordVisible,
                   onToggleVisibility: () =>
                       setState(() => _isPasswordVisible = !_isPasswordVisible),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Requerido';
-                    if (value.length < 8) return 'Mínimo 8 caracteres';
+                    if (value == null || value.isEmpty) {
+                      return AppStrings.requiredField;
+                    }
+                    if (value.length < 8) return AppStrings.passwordInvalid;
                     return null;
                   },
                   textCapitalization: TextCapitalization.none,
                 ),
 
-                _buildSectionTitle('IDENTIDAD FISCAL Y LEGAL'),
+                _buildSectionTitle(AppStrings.legalData),
                 CustomInputField(
-                  label: 'CURP (18 CARACTERES):',
-                  hintText: 'AAAA000000AAAAAA00',
+                  label: AppStrings.curpLabel,
+                  hintText: AppStrings.curpHint,
                   controller: _curpController,
                   textCapitalization: TextCapitalization.characters,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Requerido';
+                      return AppStrings.requiredField;
                     }
-                    if (value.length != 18) return 'Debe tener 18 caracteres';
+                    if (value.length != 18) return AppStrings.curpInvalid;
 
                     // Validación oficial de formato CURP mediante Expresión Regular
                     final curpRegex = RegExp(
                       r'^[A-Z]{4}[0-9]{6}[H,M][A-Z]{5}[A-Z0-9][0-9]$',
                     );
                     if (!curpRegex.hasMatch(value.toUpperCase())) {
-                      return 'Formato inválido';
+                      return AppStrings.invalidFormat;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
-                  label: 'RFC (13 CARACTERES):',
-                  hintText: 'AAAA000000AAA',
+                  label: AppStrings.rfcLabel,
+                  hintText: AppStrings.rfcHint,
                   controller: _rfcController,
                   textCapitalization: TextCapitalization.characters,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Requerido';
+                      return AppStrings.requiredField;
                     }
                     if (value.length != 13) {
-                      return 'Personas físicas requieren 13 caracteres';
+                      return AppStrings.rfcInvalid;
                     }
-                    return null; // Aquí puedes agregar un Regex de RFC más adelante si lo necesitas
+                    final rfcRegex = RegExp(r'^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$');
+                    if (!rfcRegex.hasMatch(value.toUpperCase())) {
+                      return AppStrings.invalidFormat;
+                    }
+                    return null;
                   },
                 ),
                 const SizedBox(height: 30),
@@ -284,7 +294,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
-                        'Acepto los Términos y Condiciones y el aviso de privacidad. Entiendo que mi cuenta debe ser validada por un administrador.',
+                        AppStrings.termsAndConditions,
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textGray,
@@ -311,7 +321,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                       elevation: 0,
                     ),
                     child: const Text(
-                      'Continuar',
+                      AppStrings.continueBtn,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

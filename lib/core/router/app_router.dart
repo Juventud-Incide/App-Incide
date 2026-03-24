@@ -11,13 +11,15 @@ import '../../features/auth/screens/professional/prof_success_screen.dart';
 import '../../features/auth/screens/professional/prof_approved_screen.dart';
 import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
+import '../../features/auth/screens/professional/prof_rejected_screen.dart';
+import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/prof-approved',
+    initialLocation: '/prof-docs-revision',
     routes: [
       GoRoute(
         path: '/',
@@ -77,6 +79,16 @@ class AppRouter {
         path: '/prof-docs-success',
         name: 'prof_docs_success',
         builder: (context, state) => const ProfDocsSuccessScreen(),
+      ),
+      GoRoute(
+        path: '/prof-rejected',
+        name: 'prof_rejected',
+        builder: (context, state) => const ProfRejectedScreen(),
+      ),
+      GoRoute(
+        path: '/prof-docs-revision',
+        name: 'prof_docs_revision',
+        builder: (context, state) => const ProfDocsRevisionScreen(),
       ),
 
       // ------------------------------------

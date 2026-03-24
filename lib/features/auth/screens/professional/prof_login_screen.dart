@@ -53,12 +53,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
         } else if (status == 'pendiente') {
           context.go('/prof-review-status');
         } else if (status == 'rechazado') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tu solicitud fue rechazada. Contacta a soporte.'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          context.go('/prof-rejected');
         }
       } catch (e) {
         if (!mounted) return;

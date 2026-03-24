@@ -8,6 +8,7 @@ import '../../features/auth/screens/professional/prof_otp_screen.dart';
 import '../../features/auth/screens/professional/prof_experience_screen.dart';
 import '../../features/auth/screens/professional/prof_review_status_screen.dart';
 import '../../features/auth/screens/professional/prof_success_screen.dart';
+import '../../features/auth/screens/professional/prof_approved_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -59,6 +60,11 @@ class AppRouter {
         path: '/prof-success',
         name: 'prof_success',
         builder: (context, state) => const ProfSuccessScreen(),
+      ),
+      GoRoute(
+        path: '/prof-approved',
+        name: 'prof_approved',
+        builder: (context, state) => const ProfApprovedScreen(),
       ),
 
       // ------------------------------------

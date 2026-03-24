@@ -71,7 +71,8 @@ class ProfRejectedScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 55,
                 child: OutlinedButton(
-                  onPressed: () => context.go('/'), // Regresa al inicio
+                  onPressed: () =>
+                      context.goNamed('splash'), // Regresa al inicio
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,
                     side: const BorderSide(color: Colors.redAccent, width: 1.5),

@@ -257,7 +257,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                 width: double.infinity,
                 height: 55,
                 child: OutlinedButton(
-                  onPressed: () => context.go('/'),
+                  onPressed: () => context.goNamed('splash'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
                     side: const BorderSide(color: Colors.red, width: 1.5),

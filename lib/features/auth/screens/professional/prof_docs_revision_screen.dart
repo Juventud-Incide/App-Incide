@@ -69,7 +69,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.goNamed('splash'),
         ),
       ),
       body: SafeArea(

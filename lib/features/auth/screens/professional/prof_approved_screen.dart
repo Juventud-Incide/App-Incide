@@ -125,7 +125,7 @@ class ProfApprovedScreen extends StatelessWidget {
 
               // --- 5. BOTÓN SECUNDARIO (Hacerlo después) ---
               TextButton(
-                onPressed: () => context.go('/'), // Cerrar sesión
+                onPressed: () => context.goNamed('splash'), // Cerrar sesión
                 child: const Text(
                   'Lo haré en otro momento',
                   style: TextStyle(

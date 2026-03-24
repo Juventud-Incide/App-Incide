@@ -49,11 +49,11 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          // TODO: context.go('/home');
+          // TODO: context.goNamed('home');
         } else if (status == 'pendiente') {
-          context.go('/prof-review-status');
+          context.goNamed('prof_review_status');
         } else if (status == 'rechazado') {
-          context.go('/prof-rejected');
+          context.goNamed('prof_rejected');
         }
       } catch (e) {
         if (!mounted) return;

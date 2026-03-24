@@ -113,7 +113,9 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
               Text(
                 _currentStatus == ApplicationStatus.pendingReview
                     ? 'Cuenta en Revisión'
-                    : 'Entrevista Programada',
+                    : _currentStatus == ApplicationStatus.interviewScheduled
+                    ? 'Entrevista Programada'
+                    : 'Documentos en Validación',
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -124,7 +126,9 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
               Text(
                 _currentStatus == ApplicationStatus.pendingReview
                     ? 'Hemos recibido tu solicitud. Nuestro equipo validará tu perfil para agendar tu Entrevista Presencial.'
-                    : 'Tu perfil ha pasado el primer filtro. Te esperamos en nuestras oficinas para conocerte en persona.',
+                    : _currentStatus == ApplicationStatus.interviewScheduled
+                    ? 'Tu perfil ha pasado el primer filtro. Te esperamos en nuestras oficinas para conocerte en persona.'
+                    : 'Estamos revisando tus documentos. Te contactaremos una vez concluyamos el proceso.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 15,

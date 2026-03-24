@@ -19,7 +19,7 @@ import '../../features/auth/cliente_register_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/prof-docs-revision',
+    initialLocation: '/', // Cambia esto para probar diferentes pantallas
     routes: [
       GoRoute(
         path: '/',

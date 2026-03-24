@@ -20,7 +20,7 @@ class ProfReviewStatusScreen extends StatefulWidget {
 class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
   // --- MOCK DATA (Simulando lo que vendría del Backend) ---
   // Cambia esto para ver cómo cambian los estados de espera
-  final ApplicationStatus _currentStatus = ApplicationStatus.validatingDocs;
+  final ApplicationStatus _currentStatus = ApplicationStatus.interviewScheduled;
   final String? _interviewDate = "Jueves 28 de Marzo, 10:00 AM";
   final String? _interviewLocation =
       "Oficinas INCIDE (Col. Centro, Hermosillo)";

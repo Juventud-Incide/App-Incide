@@ -1,6 +1,7 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/stat_card.dart';
+import 'package:app_incide/features/provider/dashboard/widgets/custom_filter_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,6 +15,7 @@ class ProfHomeScreen extends StatefulWidget {
 class _ProfHomeScreenState extends State<ProfHomeScreen> {
   // Estado para controlar el Switch del Radar
   bool _isRadarActive = true;
+  String _selectedFilter = AppStrings.filterAll;
 
   // TODO: Esto vendrá del backend/provider en el futuro
   final String _userName = 'Ángel Apáez';
@@ -37,6 +39,11 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
               ), // Le pasamos el context para calcular la altura de la cámara
               const SizedBox(height: 24),
               _buildStatsCards(),
+              const SizedBox(height: 32),
+
+              _buildOpportunitiesHeader(),
+              const SizedBox(height: 16),
+              _buildFilterChips(),
             ],
           ),
         ),
@@ -221,6 +228,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
     );
   }
 
+  // --- WIDGET: TARJETAS DE ESTADÍSTICAS ---
   Widget _buildStatsCards() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -250,6 +258,72 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // --- WIDGET: TÍTULO Y BOTÓN DE MAPA ---
+  Widget _buildOpportunitiesHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Text(
+            AppStrings.opportunitiesTitle,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: AppColors.textDark,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              // TODO: Navegar a la vista de mapa completo
+            },
+            child: const Text(
+              AppStrings.viewMapBtn,
+              style: TextStyle(
+                color: AppColors.primaryBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- WIDGET: FILTROS HORIZONTALES ---
+  Widget _buildFilterChips() {
+    final filters = [
+      AppStrings.filterAll,
+      AppStrings.filterExclusive,
+      AppStrings.filterOpen,
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: filters.map((filter) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: CustomFilterChip(
+              label: filter,
+              isSelected: _selectedFilter == filter,
+              onTap: () {
+                setState(() {
+                  _selectedFilter = filter;
+                });
+                // TODO: Filtrar la lista de tarjetas de abajo según la selección
+              },
+            ),
+          );
+        }).toList(),
       ),
     );
   }

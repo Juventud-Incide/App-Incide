@@ -211,4 +211,9 @@ class AppStrings {
       'Pausaste la recepción de nuevas solicitudes';
   static const String waitingQuotesTitle = 'Cotizaciones en Espera';
   static const String acceptedQuotesTitle = 'Cotizaciones Aceptadas';
+  static const String opportunitiesTitle = 'Oportunidades Cerca';
+  static const String viewMapBtn = 'Ver Mapa';
+  static const String filterAll = 'Todas';
+  static const String filterExclusive = 'Exclusivas';
+  static const String filterOpen = 'Abiertas';
 }

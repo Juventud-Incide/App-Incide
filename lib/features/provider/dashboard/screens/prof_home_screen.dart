@@ -387,6 +387,9 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
               final shouldDiscard = await context.pushNamed<bool>(
                 'opportunity_detail',
               );
+
+              if (!mounted) return;
+
               if (shouldDiscard == true) _handleDiscard();
             },
             onDiscard: _handleDiscard,
@@ -407,8 +410,11 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
 
   // Lógica del SnackBar de Descartar
   void _handleDiscard() {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
+    // 1. Capturamos el mensajero en una variable para no perderlo
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: const Text(AppStrings.opportunityDiscarded),
         behavior: SnackBarBehavior.floating,
@@ -417,10 +423,14 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
           label: AppStrings.undoDiscard,
           textColor: Colors.amber,
           onPressed: () {
-            // TODO: Lógica para restaurar la tarjeta
+            // TODO: Lógica para deshacer
           },
         ),
       ),
     );
+
+    Future.delayed(const Duration(milliseconds: 3500), () {
+      messenger.hideCurrentSnackBar();
+    });
   }
 }

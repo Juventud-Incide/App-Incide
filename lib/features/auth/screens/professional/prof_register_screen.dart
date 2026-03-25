@@ -200,8 +200,9 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   textCapitalization: TextCapitalization.none,
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return AppStrings.requiredField;
+                    }
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value)) {
                       return AppStrings.emailInvalid;
                     }

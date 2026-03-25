@@ -22,8 +22,8 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
   // --- MOCK DATA (Simulando lo que vendría del Backend) ---
   // Cambia esto para ver cómo cambian los estados de espera
   final ApplicationStatus _currentStatus = ApplicationStatus.interviewScheduled;
-  final String? _interviewDate = "Jueves 28 de Marzo, 10:00 AM";
-  final String? _interviewLocation =
+  final String _interviewDate = "Jueves 28 de Marzo, 10:00 AM";
+  final String _interviewLocation =
       "Oficinas INCIDE (Col. Centro, Hermosillo)";
   // -----------------------------------------------------------
 
@@ -140,9 +140,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
               const SizedBox(height: 30),
 
               // --- 3. TARJETA DE CITA (Solo visible si hay cita) ---
-              if (_currentStatus == ApplicationStatus.interviewScheduled &&
-                  _interviewDate != null &&
-                  _interviewLocation != null)
+              if (_currentStatus == ApplicationStatus.interviewScheduled)
                 Container(
                   margin: const EdgeInsets.only(bottom: 30),
                   padding: const EdgeInsets.all(20),

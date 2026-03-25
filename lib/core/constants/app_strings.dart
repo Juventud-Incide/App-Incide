@@ -156,6 +156,7 @@ class AppStrings {
       'La contraseña debe tener al menos 8 caracteres';
   static const String forgotPassword = '¿Olvidaste tu contraseña?';
   static const String loginBtn = 'Iniciar Sesión';
+  static const String loginSuccessMessage = '¡Bienvenido a INCIDE!';
   static const String continueWith = 'O continúa con';
   static const String googleLogin = 'Google';
   static const String notRegistered = '¿No tienes cuenta? ';

@@ -46,7 +46,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
         if (status == 'aceptado') {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('¡Bienvenido a INCIDE!'),
+              content: Text(AppStrings.loginSuccessMessage),
               backgroundColor: Colors.green,
             ),
           );

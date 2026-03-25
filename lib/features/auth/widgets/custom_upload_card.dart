@@ -26,7 +26,7 @@ class CustomUploadCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isUploaded
-              ? const Color(0xFF10B981).withOpacity(0.05)
+              ? const Color(0xFF10B981).withValues(alpha: 0.05)
               : Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(

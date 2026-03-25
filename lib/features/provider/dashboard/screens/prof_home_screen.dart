@@ -20,6 +20,22 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   bool _isRadarActive = true;
   String _selectedFilter = AppStrings.filterAll;
 
+  // Nuestra "Base de Datos" temporal
+  final List<Map<String, dynamic>> _mockOpportunities = [
+    {
+      'isExclusive': true,
+      'title': AppStrings.opportunityTitle1,
+      'description': AppStrings.opportunitySubtitle1,
+      'distance': AppStrings.opportunityDistance1,
+    },
+    {
+      'isExclusive': false,
+      'title': AppStrings.opportunityTitle2,
+      'description': AppStrings.opportunitySubtitle2,
+      'distance': AppStrings.opportunityDistance2,
+    },
+  ];
+
   // TODO: Esto vendrá del backend/provider en el futuro
   final String _userName = 'Ángel Apáez';
   final String _userInitials = 'AA';
@@ -335,30 +351,43 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
 
   // --- WIDGET: LISTA DE OPORTUNIDADES ---
   Widget _buildOpportunitiesList() {
+    // 1. Filtramos la lista según el chip seleccionado
+    final filteredList = _mockOpportunities.where((opp) {
+      if (_selectedFilter == AppStrings.filterAll) return true;
+      if (_selectedFilter == AppStrings.filterExclusive)
+        return opp['isExclusive'] == true;
+      if (_selectedFilter == AppStrings.filterOpen)
+        return opp['isExclusive'] == false;
+      return true;
+    }).toList();
+
+    // 2. Si no hay resultados, mostramos un mensaje vacío
+    if (filteredList.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(24.0),
+        child: Center(
+          child: Text(
+            'No hay oportunidades en esta categoría.',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        children: [
-          OpportunityCard(
-            isExclusive: true,
-            title: AppStrings.opportunityTitle1,
-            description: AppStrings.opportunitySubtitle1,
-            distance: AppStrings.opportunityDistance1,
-            onTap: () {
-              // TODO: Navegar a Vista de Detalle
-            },
-            onDiscard: _handleDiscard,
-            onInterested: () {
-              // TODO: Abrir Modal "Me Interesa"
-            },
-          ),
-          OpportunityCard(
-            isExclusive: false,
-            title: AppStrings.opportunityTitle2,
-            description: AppStrings.opportunitySubtitle2,
-            distance: AppStrings.opportunityDistance2,
-            onTap: () {
-              context.goNamed('opportunity_detail');
+        children: filteredList.map((opp) {
+          return OpportunityCard(
+            isExclusive: opp['isExclusive'],
+            title: opp['title'],
+            description: opp['description'],
+            distance: opp['distance'],
+            onTap: () async {
+              final shouldDiscard = await context.pushNamed<bool>(
+                'opportunity_detail',
+              );
+              if (shouldDiscard == true) _handleDiscard();
             },
             onDiscard: _handleDiscard,
             onInterested: () {
@@ -370,8 +399,8 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                 builder: (context) => const ProposalBottomSheet(),
               );
             },
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -383,6 +412,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
       SnackBar(
         content: const Text(AppStrings.opportunityDiscarded),
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: AppStrings.undoDiscard,
           textColor: Colors.amber,

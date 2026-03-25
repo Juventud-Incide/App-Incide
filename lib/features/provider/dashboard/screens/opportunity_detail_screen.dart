@@ -3,6 +3,7 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/opportunity_badge.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class OpportunityDetailScreen extends StatelessWidget {
   const OpportunityDetailScreen({super.key});
@@ -311,7 +312,7 @@ class OpportunityDetailScreen extends StatelessWidget {
               child: SizedBox(
                 height: 48,
                 child: TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(true),
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.grey.withValues(alpha: 0.1),
                     foregroundColor: AppColors.textDark,

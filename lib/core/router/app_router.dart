@@ -15,8 +15,7 @@ import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
-// TODO: Descomentar cuando el dev termine la pantalla de registro de cliente
-// import '../../features/auth/cliente_register_screen.dart';
+import '../../features/auth/cliente_register_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -115,8 +114,7 @@ class AppRouter {
       GoRoute(
         path: '/registro-cliente',
         name: 'registro-cliente',
-        // TODO: Restaurar la llamada a ClienteRegisterScreen() cuando el archivo deje de estar vacío
-        // builder: (context, state) => const ClienteRegisterScreen(),
+        builder: (context, state) => const ClienteRegisterScreen(),
       ),
     ],
   );

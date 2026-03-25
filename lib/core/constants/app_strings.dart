@@ -216,4 +216,9 @@ class AppStrings {
   static const String filterAll = 'Todas';
   static const String filterExclusive = 'Exclusivas';
   static const String filterOpen = 'Abiertas';
+  static const String discardBtn = 'Descartar';
+  static const String interestedBtn = 'Me Interesa';
+  static const String distancePrefix = 'a';
+  static const String opportunityTypeExclusive = 'Exclusiva';
+  static const String opportunityTypeOpen = 'Abierta';
 }

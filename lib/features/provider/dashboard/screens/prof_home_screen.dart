@@ -2,6 +2,7 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/stat_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/custom_filter_chip.dart';
+import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -40,10 +41,12 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
               const SizedBox(height: 24),
               _buildStatsCards(),
               const SizedBox(height: 32),
-
               _buildOpportunitiesHeader(),
               const SizedBox(height: 16),
               _buildFilterChips(),
+              const SizedBox(height: 24),
+              _buildOpportunitiesList(), // ¡La lista de tarjetas!
+              const SizedBox(height: 50),
             ],
           ),
         ),
@@ -324,6 +327,63 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             ),
           );
         }).toList(),
+      ),
+    );
+  }
+
+  // --- WIDGET: LISTA DE OPORTUNIDADES ---
+  Widget _buildOpportunitiesList() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          OpportunityCard(
+            isExclusive: true,
+            title: 'Construcción de Habitación',
+            description:
+                'Construcción de una habitación de 30m2 en Hermosillo Centro, se tienen los planos, es necesario de alguien certificado en cons...',
+            distance: '2.5 km',
+            onTap: () {
+              // TODO: Navegar a Vista de Detalle
+            },
+            onDiscard: _handleDiscard,
+            onInterested: () {
+              // TODO: Abrir Modal "Me Interesa"
+            },
+          ),
+          OpportunityCard(
+            isExclusive: false,
+            title: 'Instalación de 4 Minisplits (2 Ton)',
+            description:
+                'Busco instalador certificado para colocar 4 equipos nuevos en oficinas. Solo mano de obra, los equipos ya están en...',
+            distance: '5.8 km',
+            onTap: () {
+              // TODO: Navegar a Vista de Detalle
+            },
+            onDiscard: _handleDiscard,
+            onInterested: () {
+              // TODO: Abrir Modal "Me Interesa"
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Lógica del SnackBar de Descartar
+  void _handleDiscard() {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Oportunidad descartada'),
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Deshacer',
+          textColor: Colors.amber,
+          onPressed: () {
+            // TODO: Lógica para restaurar la tarjeta
+          },
+        ),
       ),
     );
   }

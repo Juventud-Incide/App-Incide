@@ -1,6 +1,7 @@
 using backend.Data.DataDB;
 using backend.Data.Entities;
 using backend.Domain.DTOs;
+using backend.Domain.Enum;
 using backend.Domain.OutPutDTOs;
 using backend.Infraestructure.API_Services_Interfaces;
 using System.Security.Cryptography;
@@ -31,6 +32,7 @@ namespace backend.Infraestructure.API_Services
             Email = entity.Email,
             PhoneNumber = entity.PhoneNumber,
             UserRole = entity.UserRoles.ToString(),
+            Status = entity.Status.ToString(),
             Token = string.Empty
         };
 
@@ -44,6 +46,7 @@ namespace backend.Infraestructure.API_Services
                 PasswordHash = HashPassword(dto.Password),
                 PhoneNumber = dto.PhoneNumber,
                 IsActive = true,
+                Status = ProviderStatus.InterviewPending,
                 CreationDate = DateTime.UtcNow,
                 LastUpdate = DateTime.UtcNow
             };

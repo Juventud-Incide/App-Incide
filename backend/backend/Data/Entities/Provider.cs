@@ -11,5 +11,6 @@ namespace backend.Data.Entities
         public string? PhoneNumber { get; set; }
         public bool IsEmailVerified { get; set; } = false;
         public UserRole UserRoles { get; set; } = UserRole.Provider;
+        public ProviderStatus Status { get; set; } = ProviderStatus.Registered;
     }
 }

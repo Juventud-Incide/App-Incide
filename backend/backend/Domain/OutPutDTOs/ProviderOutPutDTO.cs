@@ -7,6 +7,7 @@ namespace backend.Domain.OutPutDTOs
         public string Email { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
         public string UserRole { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
     }
 }

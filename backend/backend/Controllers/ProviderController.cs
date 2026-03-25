@@ -85,6 +85,23 @@ namespace backend.Controllers
             }
         }
 
+        [HttpPut("{id}/schedule-interview")]
+        public async Task<IActionResult> ScheduleInterview(int id, [FromBody] ScheduleInterviewDTO dto)
+        {
+            try
+            {
+                var provider = await _providerService.ScheduleInterviewAsync(id, dto);
+                if (provider == null)
+                    return NotFound(new { message = "Proveedor no encontrado." });
+
+                return Ok(provider);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

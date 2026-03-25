@@ -33,6 +33,7 @@ namespace backend.Infraestructure.API_Services
             PhoneNumber = entity.PhoneNumber,
             UserRole = entity.UserRoles.ToString(),
             Status = entity.Status.ToString(),
+            InterviewDate = entity.InterviewDate,
             Token = string.Empty
         };
 
@@ -46,7 +47,7 @@ namespace backend.Infraestructure.API_Services
                 PasswordHash = HashPassword(dto.Password),
                 PhoneNumber = dto.PhoneNumber,
                 IsActive = true,
-                Status = ProviderStatus.InterviewPending,
+                Status = ProviderStatus.Registered,
                 CreationDate = DateTime.UtcNow,
                 LastUpdate = DateTime.UtcNow
             };
@@ -81,6 +82,19 @@ namespace backend.Infraestructure.API_Services
             entity.Email = dto.Email;
             entity.PasswordHash = HashPassword(dto.Password);
             entity.PhoneNumber = dto.PhoneNumber;
+            entity.LastUpdate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return ToOutputDTO(entity);
+        }
+
+        public async Task<ProviderOutPutDTO?> ScheduleInterviewAsync(int id, ScheduleInterviewDTO dto)
+        {
+            var entity = await _context.Providers.FindAsync(id);
+            if (entity == null) return null;
+
+            entity.InterviewDate = dto.InterviewDate;
+            entity.Status = ProviderStatus.InterviewPending;
             entity.LastUpdate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

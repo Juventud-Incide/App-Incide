@@ -12,5 +12,6 @@ namespace backend.Data.Entities
         public bool IsEmailVerified { get; set; } = false;
         public UserRole UserRoles { get; set; } = UserRole.Provider;
         public ProviderStatus Status { get; set; } = ProviderStatus.Registered;
+        public DateTime? InterviewDate { get; set; }
     }
 }

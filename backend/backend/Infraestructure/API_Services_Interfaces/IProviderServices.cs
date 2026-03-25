@@ -9,6 +9,7 @@ namespace backend.Infraestructure.API_Services_Interfaces
         Task<ProviderOutPutDTO?> GetByIdAsync(int id);
         Task<List<ProviderOutPutDTO>> GetAllAsync();
         Task<ProviderOutPutDTO?> UpdateAsync(int id, ProviderDTO dto);
+        Task<ProviderOutPutDTO?> ScheduleInterviewAsync(int id, ScheduleInterviewDTO dto);
         Task<bool> DeleteAsync(int id);
     }
 }

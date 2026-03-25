@@ -221,4 +221,23 @@ class AppStrings {
   static const String distancePrefix = 'a';
   static const String opportunityTypeExclusive = 'Exclusiva';
   static const String opportunityTypeOpen = 'Abierta';
+  static const String proposalTitle = 'Enviar Propuesta';
+  static const String proposalSubtitle =
+      'El cliente recibirá tu mensaje y podrá decidir si contactarte para afinar detalles.';
+  static const String messageLabel = 'Mensaje para el cliente';
+  static const String messageHint =
+      'Hola, me interesa tu proyecto. Tengo disponibilidad para...';
+  static const String priceLabel = 'Precio estimado (Opcional)';
+  static const String sendProposalBtn = 'Enviar Propuesta';
+
+  static const String opportunityTitle1 = 'Construcción de Habitación';
+  static const String opportunitySubtitle1 =
+      'Construcción de una habitación de 30m2 en Hermosillo Centro, se tienen los planos, es necesario de alguien certificado en cons...';
+  static const String opportunityDistance1 = '2.5 km';
+  static const String opportunityTitle2 = 'Instalación de 4 Minisplits (2 Ton)';
+  static const String opportunitySubtitle2 =
+      'Busco instalador certificado para colocar 4 equipos nuevos en oficinas. Solo mano de obra, los equipos ya están en...';
+  static const String opportunityDistance2 = '5.8 km';
+  static const String opportunityDiscarded = 'Oportunidad descartada';
+  static const String undoDiscard = 'Deshacer';
 }

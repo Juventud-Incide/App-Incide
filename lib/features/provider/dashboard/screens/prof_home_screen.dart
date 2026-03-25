@@ -6,6 +6,7 @@ import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfHomeScreen extends StatefulWidget {
   const ProfHomeScreen({super.key});
@@ -348,13 +349,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             },
             onDiscard: _handleDiscard,
             onInterested: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                useRootNavigator: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) => const ProposalBottomSheet(),
-              );
+              // TODO: Abrir Modal "Me Interesa"
             },
           ),
           OpportunityCard(
@@ -363,11 +358,17 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             description: AppStrings.opportunitySubtitle2,
             distance: AppStrings.opportunityDistance2,
             onTap: () {
-              // TODO: Navegar a Vista de Detalle
+              context.goNamed('opportunity_detail');
             },
             onDiscard: _handleDiscard,
             onInterested: () {
-              // TODO: Abrir Modal "Me Interesa"
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                useRootNavigator: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const ProposalBottomSheet(),
+              );
             },
           ),
         ],

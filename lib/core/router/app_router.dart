@@ -17,12 +17,16 @@ import '../../features/auth/screens/professional/prof_docs_revision_screen.dart'
 
 import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
+import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+
 class AppRouter {
   static final GoRouter router = GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation:
         '/prof-home', // Cambia esto para probar diferentes pantallas
     routes: [
@@ -121,6 +125,16 @@ class AppRouter {
                 path: '/prof-home',
                 name: 'prof_home',
                 builder: (context, state) => const ProfHomeScreen(),
+                routes: [
+                  // <-- Rutas hijas de Inicio
+                  GoRoute(
+                    path: 'detail', // La URL será /prof-home/detail
+                    name: 'opportunity_detail',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) =>
+                        const OpportunityDetailScreen(),
+                  ),
+                ],
               ),
             ],
           ),

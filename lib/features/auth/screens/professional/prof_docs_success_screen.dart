@@ -1,4 +1,5 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,7 +46,7 @@ class ProfDocsSuccessScreen extends StatelessWidget {
 
               // --- 2. TÍTULOS ---
               const Text(
-                'Documentos Recibidos',
+                AppStrings.docsSentTitle,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -54,7 +55,7 @@ class ProfDocsSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 15),
               const Text(
-                'Tus archivos han sido encriptados y enviados con éxito a nuestro departamento legal.',
+                AppStrings.docsSentSubtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -85,7 +86,7 @@ class ProfDocsSuccessScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
                           Text(
-                            '¿Qué sigue?',
+                            AppStrings.nextStepsTitle,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -94,7 +95,7 @@ class ProfDocsSuccessScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 6),
                           Text(
-                            'Revisaremos que las fotografías sean legibles y coincidan con tu perfil. Te notificaremos al terminar.',
+                            AppStrings.nextStepsSubtitle,
                             style: TextStyle(
                               fontSize: 13,
                               color: AppColors.textGray,
@@ -130,7 +131,7 @@ class ProfDocsSuccessScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Ver estado de mi cuenta',
+                    AppStrings.seeStatusBtn,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),

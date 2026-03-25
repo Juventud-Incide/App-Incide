@@ -1,4 +1,5 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,7 +37,7 @@ class ProfApprovedScreen extends StatelessWidget {
 
               // --- 2. TÍTULOS ---
               const Text(
-                '¡Entrevista Aprobada!',
+                AppStrings.approvalTitle,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -45,7 +46,7 @@ class ProfApprovedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 15),
               const Text(
-                'Nos encantó conocerte. Ya casi eres parte oficial de la red de profesionistas INCIDE.',
+                AppStrings.approvalSubtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -72,7 +73,7 @@ class ProfApprovedScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 15),
                     const Text(
-                      'Último paso: Verificación Legal',
+                      AppStrings.finalStepTitle,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -81,7 +82,7 @@ class ProfApprovedScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Para garantizar la seguridad de nuestros clientes, necesitamos que subas fotografías legibles de tus documentos oficiales. Tenlos a la mano.',
+                      AppStrings.finalStepSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,
@@ -112,7 +113,7 @@ class ProfApprovedScreen extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Subir Documentos Ahora',
+                    AppStrings.uploadDocsBtn,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -127,7 +128,7 @@ class ProfApprovedScreen extends StatelessWidget {
               TextButton(
                 onPressed: () => context.goNamed('splash'), // Cerrar sesión
                 child: const Text(
-                  'Lo haré en otro momento',
+                  AppStrings.uploadDocsLaterBtn,
                   style: TextStyle(
                     color: AppColors.textGray,
                     fontWeight: FontWeight.w600,

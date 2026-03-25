@@ -1,4 +1,5 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
@@ -128,7 +129,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
                 // --- 2. TÍTULOS ---
                 const Text(
-                  'TU EXPERIENCIA',
+                  AppStrings.experienceTitle,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -138,7 +139,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Cuéntanos sobre tu oficio para conectarte con los mejores clientes.',
+                  AppStrings.experienceSubtitle,
                   style: TextStyle(
                     fontSize: 15,
                     color: AppColors.textGray,
@@ -151,8 +152,8 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
                 // DROPDOWN ESPECIALIDAD
                 CustomDropdownField<String>(
-                  label: 'ESPECIALIDAD PRINCIPAL:',
-                  hintText: 'Seleccione un oficio...',
+                  label: AppStrings.specialtyLabel,
+                  hintText: AppStrings.specialtyHint,
                   value: _selectedSpecialty,
                   items: _specialties
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -160,7 +161,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                   onChanged: (newValue) =>
                       setState(() => _selectedSpecialty = newValue),
                   validator: (value) =>
-                      value == null ? 'Selecciona una especialidad' : null,
+                      value == null ? AppStrings.selectSpecialtyError : null,
                 ),
                 const SizedBox(height: 20),
 
@@ -171,20 +172,21 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                     Expanded(
                       flex: 2,
                       child: CustomInputField(
-                        label: 'AÑOS EXP.',
-                        hintText: 'Ej. 5',
+                        label: AppStrings.yearsExperienceLabel,
+                        hintText: AppStrings.yearsExperienceHint,
                         controller: _yearsController,
                         keyboardType: TextInputType.number,
-                        validator: (value) =>
-                            value == null || value.isEmpty ? 'Req.' : null,
+                        validator: (value) => value == null || value.isEmpty
+                            ? AppStrings.requiredFieldShort
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 15),
                     Expanded(
                       flex: 4,
                       child: CustomInputField(
-                        label: 'CÉDULA PROFESIONAL:',
-                        hintText: 'Número (Opcional)',
+                        label: AppStrings.cedulaLabel,
+                        hintText: AppStrings.cedulaHint,
                         controller: _cedulaController,
                         textCapitalization: TextCapitalization.characters,
                       ),
@@ -195,18 +197,17 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
                 // DESCRIPCIÓN MULTILÍNEA
                 CustomInputField(
-                  label: 'DESCRIPCIÓN DE LOS SERVICIOS:',
-                  hintText:
-                      'Describe brevemente qué tipo de trabajos realizas...',
+                  label: AppStrings.descriptionLabel,
+                  hintText: AppStrings.descriptionHint,
                   controller: _descriptionController,
                   maxLines: 5, // <-- AQUÍ USAMOS LA MAGIA DE LA NUEVA VARIABLE
                   textCapitalization: TextCapitalization.sentences,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Cuéntanos un poco sobre tu trabajo';
+                      return AppStrings.descriptionError;
                     }
                     if (value.length < 20) {
-                      return 'Por favor escribe al menos 20 caracteres';
+                      return AppStrings.descriptionTooShortError;
                     }
                     return null;
                   },
@@ -228,7 +229,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                       elevation: 0,
                     ),
                     child: const Text(
-                      'Enviar Solicitud',
+                      AppStrings.sendBtn,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

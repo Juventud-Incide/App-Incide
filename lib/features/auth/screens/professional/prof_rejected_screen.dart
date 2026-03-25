@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -35,7 +36,7 @@ class ProfRejectedScreen extends StatelessWidget {
 
               // --- 2. TÍTULOS Y MENSAJE ---
               const Text(
-                'Proceso Detenido',
+                AppStrings.rejectedTitle,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -44,7 +45,7 @@ class ProfRejectedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 15),
               const Text(
-                'Agradecemos mucho tu interés y el tiempo invertido en tu solicitud de registro.',
+                AppStrings.rejectedSubtitle1,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -54,7 +55,7 @@ class ProfRejectedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 15),
               const Text(
-                'Lamentablemente, en esta ocasión tu perfil no cumple con los requisitos actuales para unirte a la red de profesionistas INCIDE.',
+                AppStrings.rejectedSubtitle2,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -81,7 +82,7 @@ class ProfRejectedScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Cerrar Sesión',
+                    AppStrings.logoutBtn,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),

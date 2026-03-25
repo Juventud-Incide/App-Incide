@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../providers/auth_provider.dart';
@@ -89,7 +90,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Bienvenido',
+                  AppStrings.loginTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFF1E3A8A),
@@ -99,7 +100,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Ingresa para ver tus cotizaciones',
+                  AppStrings.loginSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Color(0xFF6B7280), fontSize: 16),
                 ),
@@ -108,17 +109,17 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
                 // --- FORMULARIO ---
                 CustomInputField(
-                  label: 'CORREO ELECTRÓNICO:',
-                  hintText: 'ejemplo@correo.com',
+                  label: AppStrings.emailLoginLabel,
+                  hintText: AppStrings.emailLoginHint,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Por favor ingresa tu correo';
+                      return AppStrings.emailLoginEmpty;
                     }
                     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
                     if (!emailRegex.hasMatch(value)) {
-                      return 'Ingresa un correo válido';
+                      return AppStrings.emailLoginError;
                     }
                     return null; // Null significa que pasó la validación
                   },
@@ -127,8 +128,8 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                 const SizedBox(height: 24),
 
                 CustomInputField(
-                  label: 'CONTRASEÑA:',
-                  hintText: '*****',
+                  label: AppStrings.passwordLoginLabel,
+                  hintText: AppStrings.passwordLoginHint,
                   isPassword: true,
                   isPasswordVisible: _isPasswordVisible,
                   controller: _passwordController,
@@ -139,10 +140,10 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu contraseña';
+                      return AppStrings.passwordLoginEmpty;
                     }
-                    if (value.length < 6) {
-                      return 'La contraseña es muy corta';
+                    if (value.length < 8) {
+                      return AppStrings.passwordLoginError;
                     }
                     return null;
                   },
@@ -158,7 +159,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                       // TODO: Navegar a recuperación de contraseña
                     },
                     child: const Text(
-                      '¿Olvidaste tu contraseña?',
+                      AppStrings.forgotPassword,
                       style: TextStyle(
                         color: AppColors.primaryBlue,
                         fontWeight: FontWeight.bold,
@@ -191,7 +192,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                           ),
                         )
                       : const Text(
-                          'Iniciar Sesión',
+                          AppStrings.loginBtn,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -209,7 +210,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
-                        'O continúa con',
+                        AppStrings.continueWith,
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontWeight: FontWeight.w500,
@@ -229,7 +230,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                   },
                   icon: Image.asset('assets/images/logo_google.png', width: 32),
                   label: const Text(
-                    'Google',
+                    AppStrings.googleLogin,
                     style: TextStyle(
                       color: Color(0xFF4B5563),
                       fontSize: 16,
@@ -252,7 +253,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      '¿No tienes cuenta? ',
+                      AppStrings.notRegistered,
                       style: TextStyle(color: Color(0xFF4B5563)),
                     ),
                     GestureDetector(
@@ -260,7 +261,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                         context.push('/prof-register');
                       },
                       child: const Text(
-                        'Regístrate Aquí',
+                        AppStrings.registerNow,
                         style: TextStyle(
                           color: AppColors.primaryBlue,
                           fontWeight: FontWeight.bold,

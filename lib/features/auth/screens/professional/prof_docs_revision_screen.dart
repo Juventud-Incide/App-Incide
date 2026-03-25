@@ -136,8 +136,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                       subtitle: _ineFixed
                           ? AppStrings.correctedFile
                           : AppStrings.requiredUpdate,
-                      feedbackMessage:
-                          'La fotografía trasera está borrosa y no se distinguen los datos. Por favor, tómala con mejor iluminación.',
+                      feedbackMessage: AppStrings.docIneFeedback,
                       isCompleted: _ineFixed,
                       onActionTapped: (value) => _showUploadBottomSheet(
                         AppStrings.docIneShort,
@@ -150,8 +149,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                       subtitle: _antecedentesFixed
                           ? AppStrings.correctedFile
                           : AppStrings.requiredUpdate,
-                      feedbackMessage:
-                          'El documento que subiste expiró hace 2 meses. Necesitamos uno vigente.',
+                      feedbackMessage: AppStrings.docAntecedentesFeedback,
                       isCompleted: _antecedentesFixed,
                       onActionTapped: (value) => _showUploadBottomSheet(
                         AppStrings.docAntecedentesShort,

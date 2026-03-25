@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,7 +46,7 @@ class ProfSuccessScreen extends StatelessWidget {
 
               // --- 2. TEXTOS DE CONFIRMACIÓN ---
               const Text(
-                '¡Solicitud Recibida!',
+                AppStrings.submissionTitle,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
@@ -54,13 +55,13 @@ class ProfSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text(
-                'Tus datos han sido guardados de forma segura.',
+                AppStrings.submissionSubtitle1,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: AppColors.textGray),
               ),
               const SizedBox(height: 20),
               const Text(
-                'El equipo de Recursos Humanos de INCIDE revisará tu perfil. Mantente atento, ya que te contactaremos para agendar tu Entrevista Presencial.',
+                AppStrings.submissionSubtitle2,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -98,7 +99,7 @@ class ProfSuccessScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
                           Text(
-                            'Tiempo estimado de respuesta:',
+                            AppStrings.estimatedTime,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textGray,
@@ -106,7 +107,7 @@ class ProfSuccessScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            '1 a 2 días hábiles',
+                            AppStrings.estimatedTimeValue,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -141,7 +142,7 @@ class ProfSuccessScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Ver estado de mi solicitud',
+                    AppStrings.seeUpdateBtn,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),

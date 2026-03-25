@@ -1,4 +1,5 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -112,10 +113,10 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
               // --- 2. TÍTULO Y DESCRIPCIÓN ---
               Text(
                 _currentStatus == ApplicationStatus.pendingReview
-                    ? 'Cuenta en Revisión'
+                    ? AppStrings.underReviewTitle
                     : _currentStatus == ApplicationStatus.interviewScheduled
-                    ? 'Entrevista Programada'
-                    : 'Documentos en Validación',
+                    ? AppStrings.interviewScheduledTitle
+                    : AppStrings.documentValidationTitle,
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -125,10 +126,10 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
               const SizedBox(height: 15),
               Text(
                 _currentStatus == ApplicationStatus.pendingReview
-                    ? 'Hemos recibido tu solicitud. Nuestro equipo validará tu perfil para agendar tu Entrevista Presencial.'
+                    ? AppStrings.underReviewSubtitle1
                     : _currentStatus == ApplicationStatus.interviewScheduled
-                    ? 'Tu perfil ha pasado el primer filtro. Te esperamos en nuestras oficinas para conocerte en persona.'
-                    : 'Estamos revisando tus documentos. Te contactaremos una vez concluyamos el proceso.',
+                    ? AppStrings.interviewScheduledSubtitle1
+                    : AppStrings.documentValidationSubtitle1,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 15,
@@ -212,19 +213,19 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildTimelineStep(
-                      title: 'Solicitud enviada',
+                      title: AppStrings.sentTimelineStep,
                       isCompleted: true,
                       isActive: false,
                     ),
                     _buildTimelineStep(
-                      title: 'Revisión de INCIDE',
+                      title: AppStrings.reviewTimelineStep,
                       isCompleted:
                           _currentStatus != ApplicationStatus.pendingReview,
                       isActive:
                           _currentStatus == ApplicationStatus.pendingReview,
                     ),
                     _buildTimelineStep(
-                      title: 'Entrevista Presencial',
+                      title: AppStrings.interviewTimelineStep,
                       isCompleted:
                           _currentStatus == ApplicationStatus.validatingDocs ||
                           _currentStatus == ApplicationStatus.activated,
@@ -233,14 +234,14 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                           ApplicationStatus.interviewScheduled,
                     ),
                     _buildTimelineStep(
-                      title: 'Revisión de Documentos',
+                      title: AppStrings.reviewDocsTimelineStep,
                       isCompleted:
                           _currentStatus == ApplicationStatus.activated,
                       isActive:
                           _currentStatus == ApplicationStatus.validatingDocs,
                     ),
                     _buildTimelineStep(
-                      title: 'Activación de cuenta',
+                      title: AppStrings.activatedTimelineStep,
                       isCompleted:
                           _currentStatus == ApplicationStatus.activated,
                       isActive: false,
@@ -266,7 +267,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                     ),
                   ),
                   child: const Text(
-                    'Cerrar Sesión',
+                    AppStrings.logoutBtn,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),

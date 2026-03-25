@@ -195,4 +195,10 @@ class AppStrings {
   static const String estimatedTime = 'Tiempo estimado de respuesta:';
   static const String estimatedTimeValue = '1 a 2 días hábiles';
   static const String seeUpdateBtn = 'Ver estado de mi solicitud';
+
+  // --- Pantalla de Shell de Dashboard de proveedores ---
+  static const String shellHome = 'Inicio';
+  static const String shellQuotes = 'Cotizaciones';
+  static const String shellWallet = 'Billetera';
+  static const String shellProfile = 'Perfil';
 }

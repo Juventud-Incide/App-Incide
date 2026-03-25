@@ -195,4 +195,19 @@ class AppStrings {
   static const String estimatedTime = 'Tiempo estimado de respuesta:';
   static const String estimatedTimeValue = '1 a 2 días hábiles';
   static const String seeUpdateBtn = 'Ver estado de mi solicitud';
+
+  // --- Pantalla de Solicitud de Permisos de Ubicación ---
+  static const String locationTitle = 'Encuentra trabajo en tu zona';
+  static const String locationSubtitle =
+      'Para enviarte cotizaciones y solicitudes de clientes cercanos a ti, necesitamos acceso a tu ubicación.';
+  static const String allowLocationBtn = 'Permitir Ubicación';
+  static const String denyLocationBtn =
+      'Ingresar mi Código Postal'; // Plan B por si rechazan
+  static const String locationDeniedMessage =
+      'Debes habilitar la ubicación en la configuración de tu teléfono para continuar.';
+  static const String locationDeniedTitle = 'Ubicación Obligatoria';
+  static const String locationDeniedSubtitle =
+      'Para poder conectarte con clientes y enviarte oportunidades de trabajo cerca de ti, es estrictamente necesario que compartas tu ubicación. Sin este permiso, la aplicación no podrá funcionar.';
+  static const String understandBtn = 'Entendido';
+  static const String locationWhyRequired = '¿Por qué es obligatorio?';
 }

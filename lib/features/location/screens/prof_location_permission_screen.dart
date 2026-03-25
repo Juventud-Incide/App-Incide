@@ -160,21 +160,19 @@ class _ProfLocationPermissionScreenState
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('Ubicación Obligatoria'),
-                      content: const Text(
-                        'Para poder conectarte con clientes y enviarte oportunidades de trabajo cerca de ti, es estrictamente necesario que compartas tu ubicación. Sin este permiso, la aplicación no podrá funcionar.',
-                      ),
+                      title: const Text(AppStrings.locationDeniedTitle),
+                      content: const Text(AppStrings.locationDeniedSubtitle),
                       actions: [
                         TextButton(
                           onPressed: () => context.pop(),
-                          child: const Text('Entendido'),
+                          child: const Text(AppStrings.understandBtn),
                         ),
                       ],
                     ),
                   );
                 },
                 child: const Text(
-                  '¿Por qué es obligatorio?',
+                  AppStrings.locationWhyRequired,
                   style: TextStyle(
                     color: AppColors.textGray,
                     fontSize: 15,

@@ -201,4 +201,12 @@ class AppStrings {
   static const String shellQuotes = 'Cotizaciones';
   static const String shellWallet = 'Billetera';
   static const String shellProfile = 'Perfil';
+
+  // --- Pantalla de Inicio del Dashboard de proveedores ---
+  static const String welcomeText = 'Bienvenido,';
+  static const String radarTitleOn = 'Recibiendo Solicitudes';
+  static const String radarSubtitleOn = 'Estás visible en el radar de clientes';
+  static const String radarTitleOff = 'Modo Ocupado';
+  static const String radarSubtitleOff =
+      'Pausaste la recepción de nuevas solicitudes';
 }

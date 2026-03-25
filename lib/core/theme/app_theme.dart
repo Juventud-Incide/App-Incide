@@ -5,7 +5,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       primaryColor: AppColors.primaryBlue,
-      scaffoldBackgroundColor: AppColors.backgroundLight,
+      scaffoldBackgroundColor: AppColors.backgroundWhite,
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

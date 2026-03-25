@@ -214,4 +214,17 @@ class AppStrings {
   static const String resendIn = 'Reenviar en';
   static const String resendNow = 'Reenviar código ahora';
   static const String newLinkSent = 'Nuevo enlace enviado';
+
+  // --- Pantalla de Escribir Nueva Contraseña ---
+  static const String newPasswordTitle = 'NUEVA CONTRASEÑA';
+  static const String newPasswordSubtitle =
+      'Crea una nueva contraseña segura para tu cuenta de INCIDE.';
+  static const String newPasswordLabel = 'NUEVA CONTRASEÑA:';
+  static const String confirmPasswordLabel = 'CONFIRMAR CONTRASEÑA:';
+  static const String updatePasswordBtn = 'Actualizar Contraseña';
+  static const String passwordsDoNotMatch = 'Las contraseñas no coinciden';
+  static const String passwordUpdatedTitle = '¡Contraseña Actualizada!';
+  static const String passwordUpdatedSubtitle =
+      'Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.';
+  static const String goToLoginBtn = 'Ir a Iniciar Sesión';
 }

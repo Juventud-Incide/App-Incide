@@ -15,6 +15,7 @@ import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
 import '../../features/auth/screens/professional/prof_forgot_password_screen.dart';
 import '../../features/auth/screens/professional/prof_forgot_password_sent_screen.dart';
+import '../../features/auth/screens/professional/prof_new_password_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -119,6 +120,11 @@ class AppRouter {
 
           return ProfForgotPasswordSentScreen(email: email);
         },
+      ),
+      GoRoute(
+        path: '/prof-new-password',
+        name: 'prof_new_password',
+        builder: (context, state) => const ProfNewPasswordScreen(),
       ),
 
       // ------------------------------------

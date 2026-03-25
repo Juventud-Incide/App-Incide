@@ -29,6 +29,9 @@ class AppStrings {
   static const String passwordLabel = 'CONTRASEÑA:';
   static const String passwordHint = '*****';
   static const String passwordInvalid = 'Mínimo 8 caracteres';
+  static const String confirmPasswordLabel = 'CONFIRMAR CONTRASEÑA:';
+  static const String confirmPasswordHint = '*****';
+  static const String passwordMismatch = 'Las contraseñas no coinciden';
   static const String legalData = 'IDENTIDAD FISCAL Y LEGAL';
   static const String curpLabel = 'CURP (18 CARACTERES):';
   static const String curpHint = 'Ejemplo: GOML900101HDFRRL09';
@@ -39,8 +42,12 @@ class AppStrings {
   static const String invalidFormat = 'Formato inválido';
   static const String termsAndConditions =
       'Acepto los Términos y Condiciones y el aviso de privacidad. Entiendo que mi cuenta debe ser validada por un administrador.';
+      static const String termsAndConditionsCliente =
+      'Acepto los Términos y Condiciones y el aviso de privacidad.';
   static const String termsNotAccepted =
       'Debes aceptar los Términos y Condiciones para continuar.';
+  static const String orSignInWith = 'O regístrate con';
+  static const String googleSignIn = 'Registrarte con Google';
   static const String continueBtn = 'Continuar';
 
   // --- Verificación OTP (Paso 2) ---

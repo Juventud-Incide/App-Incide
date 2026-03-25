@@ -203,4 +203,15 @@ class AppStrings {
   static const String sendLinkBtn = 'Enviar Enlace';
   static const String emailNotFound =
       'No encontramos una cuenta con este correo.';
+
+  // --- Pantalla de Envío de Enlace de Recuperación ---
+  static const String linkSentTitle = '¡Enlace enviado!';
+  static const String linkSentSubtitle1 = 'Hemos enviado las instrucciones a';
+  static const String linkSentSubtitle2 =
+      'Por favor, revisa tu bandeja de entrada o la carpeta de Spam.';
+  static const String backToHomeBtn = 'Volver al Inicio';
+  static const String didNotReceiveEmail = '¿No recibiste el correo?';
+  static const String resendIn = 'Reenviar en';
+  static const String resendNow = 'Reenviar código ahora';
+  static const String newLinkSent = 'Nuevo enlace enviado';
 }

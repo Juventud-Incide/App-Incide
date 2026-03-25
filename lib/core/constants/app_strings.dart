@@ -195,4 +195,12 @@ class AppStrings {
   static const String estimatedTime = 'Tiempo estimado de respuesta:';
   static const String estimatedTimeValue = '1 a 2 días hábiles';
   static const String seeUpdateBtn = 'Ver estado de mi solicitud';
+
+  // --- Pantalla de Recuperación de Contraseña ---
+  static const String forgotPassTitle = 'RECUPERAR CUENTA';
+  static const String forgotPassSubtitle =
+      'Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.';
+  static const String sendLinkBtn = 'Enviar Enlace';
+  static const String emailNotFound =
+      'No encontramos una cuenta con este correo.';
 }

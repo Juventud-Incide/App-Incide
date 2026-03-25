@@ -13,6 +13,7 @@ import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
+import '../../features/auth/screens/professional/prof_forgot_password_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -102,6 +103,11 @@ class AppRouter {
         name: 'prof_docs_revision',
         builder: (context, state) => const ProfDocsRevisionScreen(),
       ),
+      GoRoute(
+        path: '/prof-forgot-password',
+        name: 'prof_forgot_password',
+        builder: (context, state) => const ProfForgotPasswordScreen(),
+      ),
 
       // ------------------------------------
       //  RUTAS DEL CLIENTE
@@ -118,4 +124,4 @@ class AppRouter {
       ),
     ],
   );
-} 
+}

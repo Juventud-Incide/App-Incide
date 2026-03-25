@@ -9,8 +9,6 @@ namespace backend.Data.Entities
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string? PhoneNumber { get; set; }
-        public string? Address { get; set; }
-        public string? Website { get; set; }
         public bool IsEmailVerified { get; set; } = false;
         public UserRole UserRoles { get; set; } = UserRole.Provider;
     }

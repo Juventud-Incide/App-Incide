@@ -9,5 +9,7 @@ namespace backend.Data.DataDB
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Client> Clients => Set<Client>();
+        public DbSet<Provider> Providers => Set<Provider>();
+
     }
 }

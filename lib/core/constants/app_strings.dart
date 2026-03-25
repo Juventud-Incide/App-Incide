@@ -209,4 +209,6 @@ class AppStrings {
   static const String radarTitleOff = 'Modo Ocupado';
   static const String radarSubtitleOff =
       'Pausaste la recepción de nuevas solicitudes';
+  static const String waitingQuotesTitle = 'Cotizaciones en Espera';
+  static const String acceptedQuotesTitle = 'Cotizaciones Aceptadas';
 }

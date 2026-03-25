@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/provider/dashboard/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -35,9 +36,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                 context,
               ), // Le pasamos el context para calcular la altura de la cámara
               const SizedBox(height: 24),
-
-              // Aquí irán las tarjetas de estadísticas
-              // _buildStatsCards(),
+              _buildStatsCards(),
             ],
           ),
         ),
@@ -204,8 +203,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                 Switch.adaptive(
                   value: _isRadarActive,
                   activeThumbColor: Colors.white,
-                  activeTrackColor:
-                      Colors.green, // Verde cuando está activo (como tu diseño)
+                  activeTrackColor: Colors.green,
                   inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
                   inactiveThumbColor: Colors.white,
                   onChanged: (value) {
@@ -216,6 +214,39 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                   },
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsCards() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          Expanded(
+            child: StatCard(
+              icon: Icons.hourglass_bottom_rounded,
+              iconColor: AppColors.primaryBlue,
+              count: '3', // TODO: Conectar a la base de datos
+              label: AppStrings.waitingQuotesTitle,
+              onTap: () {
+                // TODO: Filtrar la vista inferior
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: StatCard(
+              icon: Icons.handshake_rounded,
+              iconColor: Colors.green,
+              count: '1', // TODO: Conectar a la base de datos
+              label: AppStrings.acceptedQuotesTitle,
+              onTap: () {
+                // TODO: Filtrar la vista inferior
+              },
             ),
           ),
         ],

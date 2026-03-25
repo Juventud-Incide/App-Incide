@@ -10,6 +10,8 @@ class CustomInputField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final TextInputType keyboardType;
+  final TextCapitalization textCapitalization;
+  final int maxLines;
 
   const CustomInputField({
     super.key,
@@ -21,6 +23,8 @@ class CustomInputField extends StatelessWidget {
     this.onToggleVisibility,
     this.validator,
     this.keyboardType = TextInputType.text,
+    this.textCapitalization = TextCapitalization.none,
+    this.maxLines = 1,
   });
 
   @override
@@ -42,6 +46,8 @@ class CustomInputField extends StatelessWidget {
         // --- EL CAMPO DE TEXTO ---
         TextFormField(
           controller: controller,
+          textCapitalization: textCapitalization,
+          maxLines: isPassword ? 1 : maxLines,
           obscureText: isPassword && !isPasswordVisible,
           validator: validator,
           // Cambia el teclado si es correo para que muestre el '@' más fácil

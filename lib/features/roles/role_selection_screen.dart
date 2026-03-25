@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'widgets/role_card.dart'; // Importamos tu nuevo componente
 
 class RoleSelectionScreen extends StatelessWidget {
@@ -22,7 +23,7 @@ class RoleSelectionScreen extends StatelessWidget {
               Image.asset('assets/images/Isotipo_Incide.png', width: 60),
               const SizedBox(height: 32),
               const Text(
-                'Bienvenido a INCIDE',
+                AppStrings.welcomeTitle,
                 style: TextStyle(
                   color: AppColors.primaryBlue,
                   fontSize: 26,
@@ -31,7 +32,7 @@ class RoleSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                '¿Cómo deseas usar la plataforma hoy?',
+                AppStrings.welcomeSubtitle,
                 style: TextStyle(color: AppColors.textGray, fontSize: 16),
               ),
 
@@ -39,9 +40,8 @@ class RoleSelectionScreen extends StatelessWidget {
 
               // --- TARJETAS DE SELECCIÓN ---
               RoleCard(
-                title: 'Soy Cliente',
-                description:
-                    'Busco profesionistas certificados para realizar un trabajo o proyecto.',
+                title: AppStrings.roleClient,
+                description: AppStrings.roleClientDesc,
                 icon: Icons.home_outlined,
                 iconColor: AppColors.primaryBlue,
                 iconBgColor: AppColors.primaryBlue.withValues(alpha: 0.08),
@@ -51,14 +51,13 @@ class RoleSelectionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               RoleCard(
-                title: 'Soy Profesionista',
-                description:
-                    'Quiero ofrecer mis servicios, recibir cotizaciones y gestionar mis trabajos.',
+                title: AppStrings.roleProfessional,
+                description: AppStrings.roleProfessionalDesc,
                 icon: Icons.settings_outlined,
                 iconColor: const Color(0xFFB48A14),
                 iconBgColor: AppColors.accentYellow.withValues(alpha: 0.15),
                 onTap: () {
-                  context.push('/login');
+                  context.push('/prof-login');
                 },
               ),
 
@@ -66,7 +65,7 @@ class RoleSelectionScreen extends StatelessWidget {
 
               // --- FOOTER ---
               const Text(
-                'Podrás cambiar de perfil más adelante desde\ntu configuración.',
+                AppStrings.roleSelectionFooter,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textGray,

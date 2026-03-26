@@ -13,10 +13,12 @@ namespace backend.Infraestructure.API_Services
     public class ClientServices : IClientServices
     {
         private readonly AppDbContext _context;
+        private readonly IJwtService _jwtService;
 
-        public ClientServices(AppDbContext context)
+        public ClientServices(AppDbContext context, IJwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
         private static string HashPassword(string password)
@@ -25,14 +27,14 @@ namespace backend.Infraestructure.API_Services
             return Convert.ToBase64String(bytes);
         }
 
-        private static ClientOutPutDTO ToOutputDTO(Client entity) => new()
+        private static ClientOutPutDTO ToOutputDTO(Client entity, string token = "") => new()
         {
             Id = entity.Id,
             FullName = $"{entity.User.FirstName} {entity.User.LastName}",
             Email = entity.User.Email,
             PhoneNumber = entity.User.PhoneNumber,
             UserRole = entity.User.UserRole.ToString(),
-            Token = string.Empty
+            Token = token
         };
 
         public async Task<ClientOutPutDTO> CreateAsync(ClientDTO dto)
@@ -61,7 +63,7 @@ namespace backend.Infraestructure.API_Services
             _context.Clients.Add(entity);
             await _context.SaveChangesAsync();
 
-            return ToOutputDTO(entity);
+            return ToOutputDTO(entity, _jwtService.GenerateToken(user));
         }
 
         public async Task<ClientOutPutDTO?> GetByIdAsync(int id)

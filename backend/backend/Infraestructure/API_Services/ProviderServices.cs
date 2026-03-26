@@ -13,10 +13,12 @@ namespace backend.Infraestructure.API_Services
     public class ProviderServices : IProviderServices
     {
         private readonly AppDbContext _context;
+        private readonly IJwtService _jwtService;
 
-        public ProviderServices(AppDbContext context)
+        public ProviderServices(AppDbContext context, IJwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
         private static string HashPassword(string password)
@@ -25,7 +27,7 @@ namespace backend.Infraestructure.API_Services
             return Convert.ToBase64String(bytes);
         }
 
-        private static ProviderOutPutDTO ToOutputDTO(Provider entity) => new()
+        private static ProviderOutPutDTO ToOutputDTO(Provider entity, string token = "") => new()
         {
             Id = entity.Id,
             FullName = $"{entity.User.FirstName} {entity.User.LastName}",
@@ -34,7 +36,7 @@ namespace backend.Infraestructure.API_Services
             UserRole = entity.User.UserRole.ToString(),
             Status = entity.Status.ToString(),
             InterviewDate = entity.InterviewDate,
-            Token = string.Empty
+            Token = token
         };
 
         public async Task<ProviderOutPutDTO> CreateAsync(ProviderDTO dto)
@@ -64,7 +66,7 @@ namespace backend.Infraestructure.API_Services
             _context.Providers.Add(entity);
             await _context.SaveChangesAsync();
 
-            return ToOutputDTO(entity);
+            return ToOutputDTO(entity, _jwtService.GenerateToken(user));
         }
 
         public async Task<ProviderOutPutDTO?> GetByIdAsync(int id)

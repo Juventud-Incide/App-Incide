@@ -18,7 +18,6 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
   final _nameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -31,7 +30,6 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
     _nameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -59,7 +57,6 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
         'name': _nameController.text,
         'lastName': _lastNameController.text,
         'email': _emailController.text,
-        'phone': _phoneController.text,
         'password': _passwordController.text,
       };
 
@@ -202,21 +199,6 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
                     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value)) {
                       return AppStrings.emailInvalid;
                     }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-                CustomInputField(
-                  label: AppStrings.phoneLabel,
-                  hintText: AppStrings.phoneHint,
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  textCapitalization: TextCapitalization.none,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return AppStrings.requiredField;
-                    }
-                    if (value.length < 10) return AppStrings.phoneInvalid;
                     return null;
                   },
                 ),

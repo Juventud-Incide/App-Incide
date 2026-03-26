@@ -3,8 +3,8 @@ using backend.Domain.OutPutDTOs;
 
 namespace backend.Infraestructure.API_Services_Interfaces
 {
-    public class IAuthService
+    public interface IAuthService
     {
-        Task<AuthOutPutDTO> LoginAsync(LoginDTO dto);
+        Task<AuthOutPutDTO?> LoginAsync(LoginDTO dto);
     }
 }

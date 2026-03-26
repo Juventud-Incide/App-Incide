@@ -81,7 +81,7 @@ namespace backend.Infraestructure.API_Services
             var clients = await _context.Clients
                 .Include(c => c.User)
                 .ToListAsync();
-            return clients.Select(ToOutputDTO).ToList();
+            return clients.Select(c => ToOutputDTO(c)).ToList();
         }
 
         public async Task<ClientOutPutDTO?> UpdateAsync(int id, ClientDTO dto)

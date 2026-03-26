@@ -28,10 +28,10 @@ namespace backend.Infraestructure.API_Services
         private static ProviderOutPutDTO ToOutputDTO(Provider entity) => new()
         {
             Id = entity.Id,
-            FullName = $"{entity.FirstName} {entity.LastName}",
-            Email = entity.Email,
-            PhoneNumber = entity.PhoneNumber,
-            UserRole = entity.UserRoles.ToString(),
+            FullName = $"{entity.User.FirstName} {entity.User.LastName}",
+            Email = entity.User.Email,
+            PhoneNumber = entity.User.PhoneNumber,
+            UserRole = entity.User.UserRole.ToString(),
             Status = entity.Status.ToString(),
             InterviewDate = entity.InterviewDate,
             Token = string.Empty
@@ -39,15 +39,24 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<ProviderOutPutDTO> CreateAsync(ProviderDTO dto)
         {
-            var entity = new Provider
+            var user = new User
             {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,
                 PasswordHash = HashPassword(dto.Password),
                 PhoneNumber = dto.PhoneNumber,
+                UserRole = UserRole.Provider,
                 IsActive = true,
+                CreationDate = DateTime.UtcNow,
+                LastUpdate = DateTime.UtcNow
+            };
+
+            var entity = new Provider
+            {
+                User = user,
                 Status = ProviderStatus.Registered,
+                IsActive = true,
                 CreationDate = DateTime.UtcNow,
                 LastUpdate = DateTime.UtcNow
             };
@@ -60,7 +69,9 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<ProviderOutPutDTO?> GetByIdAsync(int id)
         {
-            var entity = await _context.Providers.FindAsync(id);
+            var entity = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (entity == null) return null;
 
             return ToOutputDTO(entity);
@@ -68,20 +79,25 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<List<ProviderOutPutDTO>> GetAllAsync()
         {
-            var providers = await _context.Providers.ToListAsync();
+            var providers = await _context.Providers
+                .Include(p => p.User)
+                .ToListAsync();
             return providers.Select(ToOutputDTO).ToList();
         }
 
         public async Task<ProviderOutPutDTO?> UpdateAsync(int id, ProviderDTO dto)
         {
-            var entity = await _context.Providers.FindAsync(id);
+            var entity = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (entity == null) return null;
 
-            entity.FirstName = dto.FirstName;
-            entity.LastName = dto.LastName;
-            entity.Email = dto.Email;
-            entity.PasswordHash = HashPassword(dto.Password);
-            entity.PhoneNumber = dto.PhoneNumber;
+            entity.User.FirstName = dto.FirstName;
+            entity.User.LastName = dto.LastName;
+            entity.User.Email = dto.Email;
+            entity.User.PasswordHash = HashPassword(dto.Password);
+            entity.User.PhoneNumber = dto.PhoneNumber;
+            entity.User.LastUpdate = DateTime.UtcNow;
             entity.LastUpdate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -90,7 +106,9 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<ProviderOutPutDTO?> ScheduleInterviewAsync(int id, ScheduleInterviewDTO dto)
         {
-            var entity = await _context.Providers.FindAsync(id);
+            var entity = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (entity == null) return null;
 
             entity.InterviewDate = dto.InterviewDate;

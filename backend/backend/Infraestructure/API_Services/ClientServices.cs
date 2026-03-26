@@ -1,6 +1,7 @@
 using backend.Data.DataDB;
 using backend.Data.Entities;
 using backend.Domain.DTOs;
+using backend.Domain.Enum;
 using backend.Domain.OutPutDTOs;
 using backend.Infraestructure.API_Services_Interfaces;
 using System.Security.Cryptography;
@@ -27,22 +28,31 @@ namespace backend.Infraestructure.API_Services
         private static ClientOutPutDTO ToOutputDTO(Client entity) => new()
         {
             Id = entity.Id,
-            FullName = $"{entity.FirstName} {entity.LastName}",
-            Email = entity.Email,
-            PhoneNumber = entity.PhoneNumber,
-            UserRole = entity.UserRoles.ToString(),
+            FullName = $"{entity.User.FirstName} {entity.User.LastName}",
+            Email = entity.User.Email,
+            PhoneNumber = entity.User.PhoneNumber,
+            UserRole = entity.User.UserRole.ToString(),
             Token = string.Empty
         };
 
         public async Task<ClientOutPutDTO> CreateAsync(ClientDTO dto)
         {
-            var entity = new Client
+            var user = new User
             {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,
                 PasswordHash = HashPassword(dto.Password),
                 PhoneNumber = dto.PhoneNumber,
+                UserRole = UserRole.Client,
+                IsActive = true,
+                CreationDate = DateTime.UtcNow,
+                LastUpdate = DateTime.UtcNow
+            };
+
+            var entity = new Client
+            {
+                User = user,
                 IsActive = true,
                 CreationDate = DateTime.UtcNow,
                 LastUpdate = DateTime.UtcNow
@@ -56,7 +66,9 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<ClientOutPutDTO?> GetByIdAsync(int id)
         {
-            var entity = await _context.Clients.FindAsync(id);
+            var entity = await _context.Clients
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (entity == null) return null;
 
             return ToOutputDTO(entity);
@@ -64,20 +76,25 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<List<ClientOutPutDTO>> GetAllAsync()
         {
-            var clients = await _context.Clients.ToListAsync();
+            var clients = await _context.Clients
+                .Include(c => c.User)
+                .ToListAsync();
             return clients.Select(ToOutputDTO).ToList();
         }
 
         public async Task<ClientOutPutDTO?> UpdateAsync(int id, ClientDTO dto)
         {
-            var entity = await _context.Clients.FindAsync(id);
+            var entity = await _context.Clients
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (entity == null) return null;
 
-            entity.FirstName = dto.FirstName;
-            entity.LastName = dto.LastName;
-            entity.Email = dto.Email;
-            entity.PasswordHash = HashPassword(dto.Password);
-            entity.PhoneNumber = dto.PhoneNumber;
+            entity.User.FirstName = dto.FirstName;
+            entity.User.LastName = dto.LastName;
+            entity.User.Email = dto.Email;
+            entity.User.PasswordHash = HashPassword(dto.Password);
+            entity.User.PhoneNumber = dto.PhoneNumber;
+            entity.User.LastUpdate = DateTime.UtcNow;
             entity.LastUpdate = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

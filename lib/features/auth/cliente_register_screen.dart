@@ -60,8 +60,8 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
         'password': _passwordController.text,
       };
 
-      // Cliente: ruta de finalización o login
-      context.pushNamed('login-cliente', extra: formData);
+      // Cliente: ir a verificar correo antes del login
+      context.pushNamed('verif-correo-cliente', extra: formData);
     }
   }
 

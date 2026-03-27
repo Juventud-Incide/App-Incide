@@ -53,6 +53,12 @@ namespace backend.Controllers
         [Authorize(Roles = "Admin,Client,Provider")]
         public async Task<IActionResult> Update(int id, [FromBody] UserDTO dto)
         {
+            var currentUserId = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+            var isAdmin = User.IsInRole("Admin");
+
+            if (!isAdmin && currentUserId != id.ToString())
+                return Forbid();
+
             try
             {
                 var user = await _userService.UpdateAsync(id, dto);

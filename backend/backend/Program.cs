@@ -19,6 +19,7 @@ var jwtConfig = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -27,7 +28,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtConfig["Issuer"],
             ValidAudience = jwtConfig["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Key"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Key"]!)),
+            RoleClaimType = System.Security.Claims.ClaimTypes.Role
         };
     });
 
@@ -39,17 +41,15 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
+        Type = Microsoft.OpenApi.SecuritySchemeType.ApiKey,
         In = Microsoft.OpenApi.ParameterLocation.Header,
-        Description = "Ingresa el token JWT. Ejemplo: Bearer {token}"
+        Description = "Ingresa el token con el prefijo Bearer. Ejemplo: Bearer eyJhbG..."
     });
 
-    options.AddSecurityRequirement(_ => new Microsoft.OpenApi.OpenApiSecurityRequirement
+    options.AddSecurityRequirement(document => new Microsoft.OpenApi.OpenApiSecurityRequirement
     {
         {
-            new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", null),
+            new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document),
             new List<string>()
         }
     });
@@ -67,4 +67,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();

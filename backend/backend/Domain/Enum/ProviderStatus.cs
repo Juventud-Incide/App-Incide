@@ -4,7 +4,7 @@ namespace backend.Domain.Enum
     {
         Registered = 0,
         InterviewPending = 1,
-        InterviewCompleted = 2,
+        InterviewApproved = 2,
         AffiliationPending = 3,
         Affiliated = 4,
         Rejected = 5

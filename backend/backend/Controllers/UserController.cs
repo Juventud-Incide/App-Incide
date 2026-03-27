@@ -7,7 +7,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -32,6 +32,7 @@ namespace backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Client,Provider")]
         public async Task<IActionResult> GetById(int id)
         {
             try
@@ -49,6 +50,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Client,Provider")]
         public async Task<IActionResult> Update(int id, [FromBody] UserDTO dto)
         {
             try

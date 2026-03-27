@@ -4,14 +4,45 @@ using backend.Domain.DTOs;
 using backend.Domain.Enum;
 using backend.Domain.OutPutDTOs;
 using backend.Infraestructure.API_Services_Interfaces;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Infraestructure.API_Services
 {
-    public class ProviderServices 
+    public class ProviderServices : IProviderServices
     {
+        private readonly AppDbContext _context;
 
+        public ProviderServices(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        private static ProviderOutPutDTO ToOutputDTO(Provider provider) => new()
+        {
+            Id = provider.Id,
+            FullName = $"{provider.User.FirstName} {provider.User.LastName}",
+            Email = provider.User.Email,
+            PhoneNumber = provider.User.PhoneNumber,
+            UserRole = provider.User.UserRole.ToString(),
+            Status = provider.Status.ToString(),
+            InterviewDate = provider.InterviewDate,
+            Token = string.Empty
+        };
+
+        public async Task<ProviderOutPutDTO?> ScheduleInterviewAsync(int id, ScheduleInterviewDTO dto)
+        {
+            var provider = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (provider == null) return null;
+
+            provider.InterviewDate = dto.InterviewDate;
+            provider.Status = ProviderStatus.InterviewPending;
+            provider.LastUpdate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return ToOutputDTO(provider);
+        } 
     }
 }

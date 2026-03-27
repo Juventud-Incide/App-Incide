@@ -8,18 +8,16 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
+
 namespace backend.Infraestructure.API_Services
 {
     public class UserService : IUserService
     {
         private readonly AppDbContext _context;
-        
-       private readonly IJwtService _jwtService;
 
-        public UserService(AppDbContext context, IJwtService jwtService)
+        public UserService(AppDbContext context)
         {
             _context = context;
-            _jwtService = jwtService;
         }
 
         private static string HashPassword(string password)
@@ -36,9 +34,8 @@ namespace backend.Infraestructure.API_Services
             UserRole = user.UserRole.ToString(),
         };
 
-        public async Task<UserOutPutDTO> CreateAsync(UserDTO dto)
+        public async Task<User> CreateAsync(UserDTO dto)
         {
-
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (existingUser != null)
                 throw new InvalidOperationException("El correo ya está registrado.");
@@ -83,10 +80,8 @@ namespace backend.Infraestructure.API_Services
             }
 
             await _context.SaveChangesAsync();
-
-            var token = _jwtService.GenerateToken(user);
-            return ToOutputDTO(user);
-        }S
+            return user;
+        }
 
         public async Task<UserOutPutDTO?> GetByIdAsync(int id)
         {

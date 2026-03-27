@@ -14,6 +14,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IClientServices, ClientServices>();
 builder.Services.AddScoped<IProviderServices, ProviderServices>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");

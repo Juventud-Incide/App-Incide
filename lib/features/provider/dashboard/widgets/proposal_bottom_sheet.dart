@@ -131,6 +131,12 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
+                suffixText: ' MXN',
+                suffixStyle: const TextStyle(
+                  color: AppColors.textDark,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
                 filled: true,
                 fillColor: const Color(0xFFF8F9FA),
                 border: OutlineInputBorder(

@@ -4,6 +4,7 @@ import 'package:app_incide/features/provider/dashboard/widgets/stat_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/custom_filter_chip.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
+import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -20,20 +21,42 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   bool _isRadarActive = true;
   String _selectedFilter = AppStrings.filterAll;
 
-  // Nuestra "Base de Datos" temporal
-  final List<Map<String, dynamic>> _mockOpportunities = [
-    {
-      'isExclusive': true,
-      'title': AppStrings.opportunityTitle1,
-      'description': AppStrings.opportunitySubtitle1,
-      'distance': AppStrings.opportunityDistance1,
-    },
-    {
-      'isExclusive': false,
-      'title': AppStrings.opportunityTitle2,
-      'description': AppStrings.opportunitySubtitle2,
-      'distance': AppStrings.opportunityDistance2,
-    },
+  // TODO: (BACKEND) - Reemplazar esta lista con un llamado API
+  // Future<void> fetchOpportunities() async { ... }
+  final List<OpportunityModel> _opportunities = [
+    OpportunityModel(
+      id: 'OPP-001',
+      title: 'Construcción de Habitación',
+      description:
+          'Construcción de una habitación de 30m2 en Hermosillo Centro, se tienen los planos.',
+      distance: 2.5,
+      isExclusive: true,
+      category: 'Albañilería',
+      urgency: 'Próxima semana',
+      estimatedPriceMin: 15000,
+      estimatedPriceMax: 20000,
+      clientAnswers: {
+        '¿Tienes material comprado?': 'Solo el cemento, falta la varilla.',
+        '¿El terreno está nivelado?': 'Sí, listo para cimentar.',
+      },
+    ),
+    OpportunityModel(
+      id: 'OPP-002',
+      title: 'Instalación de 4 Minisplits (2 Ton)',
+      description:
+          'Busco instalador certificado para colocar 4 equipos nuevos en oficinas. Solo mano de obra.',
+      distance: 5.8,
+      isExclusive: false,
+      category: 'Refrigeración',
+      urgency: 'Lo antes posible',
+      estimatedPriceMin: 3200,
+      estimatedPriceMax: 4000,
+      clientAnswers: {
+        '¿Los equipos son nuevos o usados?': 'Nuevos en caja cerrada.',
+        '¿Hay preparación eléctrica previa?':
+            'Sí, ya cuenta con pastillas a 220v.',
+      },
+    ),
   ];
 
   // TODO: Esto vendrá del backend/provider en el futuro
@@ -63,7 +86,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
               const SizedBox(height: 16),
               _buildFilterChips(),
               const SizedBox(height: 24),
-              _buildOpportunitiesList(), // ¡La lista de tarjetas!
+              _buildOpportunitiesList(),
               const SizedBox(height: 50),
             ],
           ),
@@ -352,12 +375,10 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   // --- WIDGET: LISTA DE OPORTUNIDADES ---
   Widget _buildOpportunitiesList() {
     // 1. Filtramos la lista según el chip seleccionado
-    final filteredList = _mockOpportunities.where((opp) {
+    final filteredList = _opportunities.where((opp) {
       if (_selectedFilter == AppStrings.filterAll) return true;
-      if (_selectedFilter == AppStrings.filterExclusive)
-        return opp['isExclusive'] == true;
-      if (_selectedFilter == AppStrings.filterOpen)
-        return opp['isExclusive'] == false;
+      if (_selectedFilter == AppStrings.filterExclusive) return opp.isExclusive;
+      if (_selectedFilter == AppStrings.filterOpen) return !opp.isExclusive;
       return true;
     }).toList();
 
@@ -379,21 +400,23 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
       child: Column(
         children: filteredList.map((opp) {
           return OpportunityCard(
-            isExclusive: opp['isExclusive'],
-            title: opp['title'],
-            description: opp['description'],
-            distance: opp['distance'],
+            isExclusive: opp.isExclusive,
+            title: opp.title,
+            description: opp.description,
+            distance: opp.formattedDistance,
             onTap: () async {
               final shouldDiscard = await context.pushNamed<bool>(
                 'opportunity_detail',
+                extra:
+                    opp, // Pasamos el objeto completo a la pantalla de detalle
               );
+              if (!context.mounted) return;
 
-              if (!mounted) return;
-
-              if (shouldDiscard == true) _handleDiscard();
+              if (shouldDiscard == true) _handleDiscard(opp.id);
             },
-            onDiscard: _handleDiscard,
+            onDiscard: () => _handleDiscard(opp.id),
             onInterested: () {
+              // TODO: (BACKEND) - Preparar datos para abrir modal asociado a opp.id
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
@@ -409,7 +432,10 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   }
 
   // Lógica del SnackBar de Descartar
-  void _handleDiscard() {
+  void _handleDiscard(String opportunityId) {
+    // TODO: (BACKEND) - Llamada API para ocultar/descartar la oportunidad 'opportunityId'
+    // await api.discardOpportunity(opportunityId);
+
     // 1. Capturamos el mensajero en una variable para no perderlo
     final messenger = ScaffoldMessenger.of(context);
 
@@ -424,6 +450,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
           textColor: Colors.amber,
           onPressed: () {
             // TODO: Lógica para deshacer
+            // TODO: (BACKEND) - Llamada API para restaurar 'opportunityId'
           },
         ),
       ),

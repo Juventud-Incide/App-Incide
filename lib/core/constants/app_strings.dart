@@ -229,15 +229,6 @@ class AppStrings {
       'Hola, me interesa tu proyecto. Tengo disponibilidad para...';
   static const String priceLabel = 'Precio estimado (Opcional)';
   static const String sendProposalBtn = 'Enviar Propuesta';
-
-  static const String opportunityTitle1 = 'Construcción de Habitación';
-  static const String opportunitySubtitle1 =
-      'Construcción de una habitación de 30m2 en Hermosillo Centro, se tienen los planos, es necesario de alguien certificado en cons...';
-  static const String opportunityDistance1 = '2.5 km';
-  static const String opportunityTitle2 = 'Instalación de 4 Minisplits (2 Ton)';
-  static const String opportunitySubtitle2 =
-      'Busco instalador certificado para colocar 4 equipos nuevos en oficinas. Solo mano de obra, los equipos ya están en...';
-  static const String opportunityDistance2 = '5.8 km';
   static const String opportunityDiscarded = 'Oportunidad descartada';
   static const String undoDiscard = 'Deshacer';
 
@@ -246,22 +237,6 @@ class AppStrings {
   static const String clientAnswers = 'Especificaciones del Cliente';
   static const String estimatedPrice = 'Presupuesto Estimado';
   static const String systemCalculated = 'Calculado por el sistema';
-  static const String approximateLocation = 'Ubicación aproximada';
-  static const String urgency = 'Urgencia';
   static const String attachedPhotos = 'Fotos adjuntas';
-  static const String serviceCategory = 'Categoría';
   static const String descriptionTitle = 'Descripción';
-  static const String opportunityDetailSubtitle2 =
-      'Busco instalador certificado para colocar 4 equipos nuevos en oficinas. Solo mano de obra, los equipos ya están en el lugar. Necesito que se haga cuidando no ensuciar las paredes porque están recién pintadas.';
-  static const String question1 = '¿Los equipos son nuevos o usados?';
-  static const String answer1 = 'Nuevos en caja cerrada.';
-  static const String question2 = '¿Hay preparación eléctrica previa?';
-  static const String answer2 =
-      'Sí, ya cuenta con pastillas y cableado a 220v.';
-  static const String question3 = '¿Altura aproximada de instalación?';
-  static const String answer3 = 'En planta baja, a 2.5 metros de altura.';
-  static const String distanceToClient = 'a 5.8 km';
-  static const String opportunityCategory = 'Refrigeración';
-  static const String opportunityUrgency = 'Lo antes posible';
-  static const String priceRange = '\$3,200 - \$4,000';
 }

@@ -2,11 +2,14 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/opportunity_badge.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
+import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class OpportunityDetailScreen extends StatelessWidget {
-  const OpportunityDetailScreen({super.key});
+  final OpportunityModel opportunity;
+
+  const OpportunityDetailScreen({super.key, required this.opportunity});
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +68,13 @@ class OpportunityDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Título y Estado
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
-                          AppStrings.opportunityTitle2,
+                          opportunity.title,
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
@@ -80,17 +83,21 @@ class OpportunityDetailScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(width: 12),
-                      OpportunityBadge(isExclusive: false),
+                      OpportunityBadge(isExclusive: opportunity.isExclusive),
                     ],
                   ),
                   const SizedBox(height: 24),
 
                   // Info Rápida (Categoría, Distancia, Urgencia)
-                  _buildQuickInfoRow(),
+                  _buildQuickInfoRow(
+                    opportunity.category,
+                    opportunity.formattedDistance,
+                    opportunity.urgency,
+                  ),
                   const SizedBox(height: 24),
 
                   // Presupuesto del Sistema
-                  _buildEstimatedPriceBox(),
+                  _buildEstimatedPriceBox(opportunity.formattedPriceRange),
                   const SizedBox(height: 24),
 
                   // Descripción
@@ -103,8 +110,8 @@ class OpportunityDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    AppStrings.opportunityDetailSubtitle2,
+                  Text(
+                    opportunity.description,
                     style: TextStyle(
                       fontSize: 14,
                       color: AppColors.textGray,
@@ -123,17 +130,8 @@ class OpportunityDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildQuestionAnswer(
-                    AppStrings.question1,
-                    AppStrings.answer1,
-                  ),
-                  _buildQuestionAnswer(
-                    AppStrings.question2,
-                    AppStrings.answer2,
-                  ),
-                  _buildQuestionAnswer(
-                    AppStrings.question3,
-                    AppStrings.answer3,
+                  ...opportunity.clientAnswers.entries.map(
+                    (entry) => _buildQuestionAnswer(entry.key, entry.value),
                   ),
                   const SizedBox(height: 32),
 
@@ -164,20 +162,14 @@ class OpportunityDetailScreen extends StatelessWidget {
 
   // --- SUB-WIDGETS ---
 
-  Widget _buildQuickInfoRow() {
+  Widget _buildQuickInfoRow(String category, String distance, String urgency) {
     return Wrap(
       spacing: 12.0,
       runSpacing: 12.0,
       children: [
-        _infoChip(Icons.build_rounded, AppStrings.opportunityCategory),
-        _infoChip(
-          Icons.location_on_rounded,
-          '${AppStrings.distancePrefix} ${AppStrings.opportunityDistance2}',
-        ),
-        _infoChip(
-          Icons.access_time_filled_rounded,
-          AppStrings.opportunityUrgency,
-        ),
+        _infoChip(Icons.build_rounded, category),
+        _infoChip(Icons.location_on_rounded, 'a $distance'),
+        _infoChip(Icons.access_time_filled_rounded, urgency),
       ],
     );
   }
@@ -207,7 +199,7 @@ class OpportunityDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEstimatedPriceBox() {
+  Widget _buildEstimatedPriceBox(String priceRange) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -235,7 +227,7 @@ class OpportunityDetailScreen extends StatelessWidget {
             ],
           ),
           Text(
-            AppStrings.priceRange,
+            priceRange,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,

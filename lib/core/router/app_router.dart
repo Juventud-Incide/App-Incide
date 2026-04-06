@@ -18,6 +18,7 @@ import '../../features/auth/screens/professional/prof_docs_revision_screen.dart'
 import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
 import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart';
+import '../../features/provider/dashboard/models/opportunity_model.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -131,8 +132,10 @@ class AppRouter {
                     path: 'detail', // La URL será /prof-home/detail
                     name: 'opportunity_detail',
                     parentNavigatorKey: _rootNavigatorKey,
-                    builder: (context, state) =>
-                        const OpportunityDetailScreen(),
+                    builder: (context, state) {
+                      final opportunity = state.extra as OpportunityModel;
+                      return OpportunityDetailScreen(opportunity: opportunity);
+                    },
                   ),
                 ],
               ),

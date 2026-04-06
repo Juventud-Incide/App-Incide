@@ -18,6 +18,9 @@ import '../../features/location/screens/prof_location_permission_screen.dart';
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 import '../../features/auth/cliente_verif_correo.dart';
+import '../../features/auth/forgot_password_screen.dart';
+import '../../features/auth/forgot_password_sent_screen.dart';
+import '../../features/auth/reset_password_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -181,6 +184,37 @@ class AppRouter {
           final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
           return ClienteVerifCorreoScreen(formData: formData);
+        },
+      ),
+
+      // ------------------------------------
+      //  RUTAS DE RECUPERACIÓN DE CONTRASEÑA
+      // ------------------------------------
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password-sent',
+        name: 'forgot-password-sent',
+        builder: (context, state) {
+          final Map<String, dynamic> data =
+              state.extra as Map<String, dynamic>? ?? {};
+          return ForgotPasswordSentScreen(data: data);
+        },
+      ),
+      // La ruta acepta el token como query param para deep links:
+      // Ejemplo: incide://reset-password?token=abc123xyz
+      // TODO (Backend): Configurar deep link en AndroidManifest / Info.plist
+      //                 apuntando a esta ruta con el esquema de la app.
+      GoRoute(
+        path: '/reset-password',
+        name: 'reset-password',
+        builder: (context, state) {
+          final String token =
+              state.uri.queryParameters['token'] ?? '';
+          return ResetPasswordScreen(token: token);
         },
       ),
     ],

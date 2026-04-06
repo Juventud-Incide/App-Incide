@@ -17,6 +17,7 @@ import '../../features/location/screens/prof_location_permission_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
+import '../../features/auth/cliente_verif_correo.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -121,6 +122,15 @@ class AppRouter {
         path: '/registro-cliente',
         name: 'registro-cliente',
         builder: (context, state) => const ClienteRegisterScreen(),
+      ),
+      GoRoute(
+        path: '/verif-correo-cliente',
+        name: 'verif-correo-cliente',
+        builder: (context, state) {
+          final Map<String, dynamic> formData =
+              state.extra as Map<String, dynamic>? ?? {};
+          return ClienteVerifCorreoScreen(formData: formData);
+        },
       ),
     ],
   );

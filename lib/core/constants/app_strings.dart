@@ -29,6 +29,9 @@ class AppStrings {
   static const String passwordLabel = 'CONTRASEÑA:';
   static const String passwordHint = '*****';
   static const String passwordInvalid = 'Mínimo 8 caracteres';
+  static const String confirmPasswordLabel = 'CONFIRMAR CONTRASEÑA:';
+  static const String confirmPasswordHint = '*****';
+  static const String passwordMismatch = 'Las contraseñas no coinciden';
   static const String legalData = 'IDENTIDAD FISCAL Y LEGAL';
   static const String curpLabel = 'CURP (18 CARACTERES):';
   static const String curpHint = 'Ejemplo: GOML900101HDFRRL09';
@@ -39,20 +42,31 @@ class AppStrings {
   static const String invalidFormat = 'Formato inválido';
   static const String termsAndConditions =
       'Acepto los Términos y Condiciones y el aviso de privacidad. Entiendo que mi cuenta debe ser validada por un administrador.';
+      static const String termsAndConditionsCliente =
+      'Acepto los Términos y Condiciones y el aviso de privacidad.';
   static const String termsNotAccepted =
       'Debes aceptar los Términos y Condiciones para continuar.';
+  static const String orSignInWith = 'O regístrate con';
+  static const String googleSignIn = 'Registrarte con Google';
   static const String continueBtn = 'Continuar';
 
-  // --- Verificación OTP (Paso 2) ---
+  // --- Verificación OTP SMS (Paso 2 - Profesionista) ---
   static const String otpTitle = 'VERIFICA TU NÚMERO';
   static const String otpSubtitle1 =
       'Ingresa el código de 4 dígitos que enviamos por SMS a la terminación ';
   static const String otpNotReceived = '¿No recibiste el código?';
-  static const String otpResendBtn = 'Reenviar código (00:45)';
+  static const String otpResendBtn = 'Reenviar código ';
   static const String otpVerifyBtn = 'Verificar Código';
   static const String otpSuccess = 'Código verificado correctamente';
   static const String otpError = 'Código incorrecto. Intenta de nuevo.';
   static const String otpIncomplete = 'Por favor, ingresa los 4 dígitos';
+
+  // --- Verificación de Correo (Paso 2 - Cliente) ---
+  static const String emailOtpTitle = 'VERIFICA TU CORREO';
+  static const String emailOtpSubtitle1 =
+      'Ingresa el código de 6 dígitos que enviamos a ';
+  static const String emailOtpNotReceived = '¿No recibiste el código?';
+  static const String emailOtpResendBtn = 'Reenviar código (00:45)';
 
   // --- Documentos KYC ---
   static const String uploadText = 'Subir ';

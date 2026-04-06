@@ -13,6 +13,9 @@ import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
+import '../../features/auth/screens/professional/prof_forgot_password_screen.dart';
+import '../../features/auth/screens/professional/prof_forgot_password_sent_screen.dart';
+import '../../features/auth/screens/professional/prof_new_password_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -106,6 +109,27 @@ class AppRouter {
         name: 'prof_docs_revision',
         builder: (context, state) => const ProfDocsRevisionScreen(),
       ),
+      GoRoute(
+        path: '/prof-forgot-password',
+        name: 'prof_forgot_password',
+        builder: (context, state) => const ProfForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/prof-forgot-password-sent',
+        name: 'prof_forgot_password_sent',
+        builder: (context, state) {
+          final Map<String, dynamic> extraData =
+              state.extra as Map<String, dynamic>? ?? {};
+          final String email = extraData['email'] as String? ?? '';
+
+          return ProfForgotPasswordSentScreen(email: email);
+        },
+      ),
+      GoRoute(
+        path: '/prof-new-password',
+        name: 'prof_new_password',
+        builder: (context, state) => const ProfNewPasswordScreen(),
+      ),
 
       // ------------------------------------
       //  RUTAS DEL CLIENTE
@@ -162,4 +186,4 @@ class AppRouter {
       ),
     ],
   );
-} 
+}

@@ -156,7 +156,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                   alignment: Alignment.center,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Navegar a recuperación de contraseña
+                      context.push('/prof-forgot-password');
                     },
                     child: const Text(
                       AppStrings.forgotPassword,

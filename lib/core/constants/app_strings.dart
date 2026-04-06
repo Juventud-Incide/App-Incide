@@ -55,7 +55,7 @@ class AppStrings {
   static const String otpSubtitle1 =
       'Ingresa el código de 4 dígitos que enviamos por SMS a la terminación ';
   static const String otpNotReceived = '¿No recibiste el código?';
-  static const String otpResendBtn = 'Reenviar código (00:45)';
+  static const String otpResendBtn = 'Reenviar código ';
   static const String otpVerifyBtn = 'Verificar Código';
   static const String otpSuccess = 'Código verificado correctamente';
   static const String otpError = 'Código incorrecto. Intenta de nuevo.';
@@ -209,4 +209,36 @@ class AppStrings {
   static const String estimatedTime = 'Tiempo estimado de respuesta:';
   static const String estimatedTimeValue = '1 a 2 días hábiles';
   static const String seeUpdateBtn = 'Ver estado de mi solicitud';
+
+  // --- Pantalla de Recuperación de Contraseña ---
+  static const String forgotPassTitle = 'RECUPERAR CUENTA';
+  static const String forgotPassSubtitle =
+      'Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.';
+  static const String sendLinkBtn = 'Enviar Enlace';
+  static const String emailNotFound =
+      'No encontramos una cuenta con este correo.';
+
+  // --- Pantalla de Envío de Enlace de Recuperación ---
+  static const String linkSentTitle = '¡Enlace enviado!';
+  static const String linkSentSubtitle1 = 'Hemos enviado las instrucciones a';
+  static const String linkSentSubtitle2 =
+      'Por favor, revisa tu bandeja de entrada o la carpeta de Spam.';
+  static const String backToHomeBtn = 'Volver al Inicio';
+  static const String didNotReceiveEmail = '¿No recibiste el correo?';
+  static const String resendIn = 'Reenviar en';
+  static const String resendNow = 'Reenviar código ahora';
+  static const String newLinkSent = 'Nuevo enlace enviado';
+
+  // --- Pantalla de Escribir Nueva Contraseña ---
+  static const String newPasswordTitle = 'NUEVA CONTRASEÑA';
+  static const String newPasswordSubtitle =
+      'Crea una nueva contraseña segura para tu cuenta de INCIDE.';
+  static const String newPasswordLabel = 'NUEVA CONTRASEÑA:';
+  static const String confirmPasswordLabel = 'CONFIRMAR CONTRASEÑA:';
+  static const String updatePasswordBtn = 'Actualizar Contraseña';
+  static const String passwordsDoNotMatch = 'Las contraseñas no coinciden';
+  static const String passwordUpdatedTitle = '¡Contraseña Actualizada!';
+  static const String passwordUpdatedSubtitle =
+      'Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.';
+  static const String goToLoginBtn = 'Ir a Iniciar Sesión';
 }

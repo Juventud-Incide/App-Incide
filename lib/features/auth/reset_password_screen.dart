@@ -31,14 +31,49 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
   late Animation<Offset> _slideAnim;
 
   // ── Requisitos de contraseña ──────────────────────────────────────────────
+  /// Valida que la contraseña tenga al menos 8 caracteres
   bool get _hasMinLength => _passwordController.text.length >= 8;
+
+  /// Valida que la contraseña contenga al menos una letra MAYÚSCULA (A-Z)
   bool get _hasUppercase => RegExp(r'[A-Z]').hasMatch(_passwordController.text);
+
+  /// Valida que la contraseña contenga al menos una letra minúscula (a-z)
   bool get _hasLowercase => RegExp(r'[a-z]').hasMatch(_passwordController.text);
+
+  /// Valida que la contraseña contenga al menos un número (0-9)
   bool get _hasNumber => RegExp(r'[0-9]').hasMatch(_passwordController.text);
+
+  /// Valida que la contraseña contenga un carácter especial (recomendado)
   bool get _hasSpecial =>
       RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]').hasMatch(_passwordController.text);
+
+  /// TRUE solo si se cumplen TODOS los requisitos de seguridad (P0):
+  /// - Mínimo 8 caracteres 
+  /// - Al menos una mayúscula (A-Z) 
+  /// - Al menos una minúscula (a-z) 
+  /// - Al menos un número (0-9) 
+  /// (Carácter especial es recomedado, no obligatorio)
   bool get _allRequirementsMet =>
       _hasMinLength && _hasUppercase && _hasLowercase && _hasNumber;
+
+  /// TRUE si ambas contraseñas coinciden exactamente y no están vacías
+  /// Esto valida que el usuario confirmó correctamente su nueva contraseña
+  bool get _passwordsMatch =>
+      _passwordController.text == _confirmController.text &&
+      _passwordController.text.isNotEmpty;
+
+  /// LÓGICA DEL BOTÓN "Guardar nueva contraseña":
+  /// El botón se DESHABILITA (onPressed: null) si CUALQUIERA de estas es false:
+  /// 1. _allRequirementsMet = false → Faltan requisitos de seguridad
+  /// 2. _passwordsMatch = false → Las contraseñas no coinciden
+  /// 3. _isLoading = true → Hay un petición en curso al backend
+  /// 
+  /// El botón se HABILITA (onPressed: _submitForm) SOLO cuando TODAS son true:
+  /// 1. _allRequirementsMet = true (todos los requisitos RegExp cumplidos)
+  /// 2. _passwordsMatch = true  (contraseñas coinciden)
+  /// 3. !_isLoading = true  (no hay petición en curso)
+  bool get _isFormValid =>
+      _allRequirementsMet && _passwordsMatch && !_isLoading;
 
   @override
   void initState() {
@@ -53,6 +88,48 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
+
+    // ── VALIDACIÓN INICIAL DEL TOKEN (P0) ──────────────────────────────
+    _validateTokenAndInitialize();
+
+    // ── Listener para actualizar estado cuando cambian las contraseñas
+    _passwordController.addListener(() => setState(() {}));
+    _confirmController.addListener(() => setState(() {}));
+  }
+
+  /// Valida el token recibido de la URL.
+  /// Si es nulo o vacío, redirecciona al login con un mensaje de error.
+  void _validateTokenAndInitialize() {
+    if (widget.token.isEmpty || widget.token.trim().isEmpty) {
+      _showInvalidTokenDialog();
+    }
+  }
+
+  /// Muestra un diálogo cuando el token es inválido y redirecciona al login.
+  void _showInvalidTokenDialog() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Enlace Inválido'),
+          content: const Text(
+            'El enlace de recuperación de contraseña es inválido o ha expirado. '
+            'Por favor, solicita un nuevo enlace desde la pantalla de login.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.goNamed('login-cliente');
+              },
+              child: const Text('Ir al Login'),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override
@@ -247,10 +324,49 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen>
             width: double.infinity,
             height: 55,
             child: ElevatedButton(
-              onPressed: _isLoading ? null : _submitForm,
+              ///  LÓGICA DE DESHABILITACIÓN DEL BOTÓN (P0)                  
+              /// onPressed: null → BOTÓN DESHABILITADO (gris opaco, no clickeable)
+              /// onPressed: _submitForm → BOTÓN HABILITADO (azul, clickeable)
+              /// 
+              /// La condición es: _isFormValid ? _submitForm : null
+              /// 
+              /// _isFormValid = true SOLO si:
+              /// ───────────────────────────────────
+              /// TODOS los requisitos RegExp se cumplen:
+              ///    ✓ Mínimo 8 caracteres
+              ///    ✓ Al menos una mayúscula (A-Z)
+              ///    ✓ Al menos una minúscula (a-z)
+              ///    ✓ Al menos un número (0-9)
+              /// 
+              /// Las contraseñas COINCIDEN EXACTAMENTE:
+              ///    ✓ campo "Nueva Contraseña" == campo "Confirmar Contraseña"
+              ///    ✓ Ninguna contraseña está vacía
+              /// 
+              /// NO hay petición en curso:
+              ///    ✓ _isLoading = false (el usuario no presionó recientemente)
+              /// 
+              /// ═══════════════════════════════════════════════════════════════
+              /// 
+              /// EJEMPLOS DE CUÁNDO ESTÁ DESHABILITADO ❌:
+              /// ────────────────────────────────────────
+              /// • Usuario abre la pantalla → Campos vacíos = disabled
+              /// • Escribe "pass" (4 caracteres) → Falta longitud = disabled
+              /// • Escribe "Pass123" (7 caracteres) → Falta 1 carácter = disabled
+              /// • Escribe "Pass1234" pero confirma "Pass1235" → No coinciden = disabled
+              /// • Usuario presiona botón (petición en curso) → _isLoading=true = disabled
+              /// 
+              /// EJEMPLO DE CUÁNDO ESTÁ HABILITADO ✅:
+              /// ────────────────────────────────────
+              /// • Nueva Contraseña: "Pass1234"
+              /// • Confirmar: "Pass1234"
+              /// • Checklist: TODOS los requisitos completados ✓
+              /// • Estado: LISTO PARA GUARDAR 🟢
+              onPressed: _isFormValid ? _submitForm : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: const Color(0xFFC7D2E0), // Gris opaco
+                disabledForegroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

@@ -234,7 +234,6 @@ class AppStrings {
   static const String newPasswordSubtitle =
       'Crea una nueva contraseña segura para tu cuenta de INCIDE.';
   static const String newPasswordLabel = 'NUEVA CONTRASEÑA:';
-  static const String confirmPasswordLabel = 'CONFIRMAR CONTRASEÑA:';
   static const String updatePasswordBtn = 'Actualizar Contraseña';
   static const String passwordsDoNotMatch = 'Las contraseñas no coinciden';
   static const String passwordUpdatedTitle = '¡Contraseña Actualizada!';

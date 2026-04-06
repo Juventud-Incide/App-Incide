@@ -44,7 +44,7 @@ class _ProfLocationPermissionScreenState
     if (status.isGranted) {
       // Si ya tiene permiso, lo mandamos directo al Dashboard sin mostrar esta UI
       if (mounted) {
-        context.goNamed('home');
+        context.goNamed('prof_home');
       }
     } else {
       // Si no tiene permiso, quitamos el loader y mostramos nuestra UI para convencerlo
@@ -56,7 +56,7 @@ class _ProfLocationPermissionScreenState
     final status = await Permission.locationWhenInUse.request();
 
     if (status.isGranted) {
-      if (mounted) context.goNamed('home');
+      if (mounted) context.goNamed('prof_home');
     } else if (status.isPermanentlyDenied) {
       // Si le dio a "Nunca permitir", el sistema operativo ya no nos deja mostrar la alerta.
       // Tenemos que mandarlo a la configuración de su celular.
@@ -76,112 +76,124 @@ class _ProfLocationPermissionScreenState
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.primaryBlue),
+      return const PopScope(
+        canPop: false,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(
+            child: CircularProgressIndicator(color: AppColors.primaryBlue),
+          ),
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              // --- 1. ILUSTRACIÓN / ÍCONO ---
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withValues(alpha: 0.06),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.location_on_rounded,
-                  color: AppColors.primaryBlue,
-                  size: 60,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // --- 2. TEXTOS PERSUASIVOS ---
-              const Text(
-                AppStrings.locationTitle,
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textDark,
-                  letterSpacing: 0.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                AppStrings.locationSubtitle,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textGray,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const Spacer(),
-
-              // --- 3. BOTONES DE ACCIÓN ---
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: _requestPermission,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBlue,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 0,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 40.0,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Spacer(),
+                // --- 1. ILUSTRACIÓN / ÍCONO ---
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withValues(alpha: 0.06),
+                    shape: BoxShape.circle,
                   ),
-                  child: const Text(
-                    AppStrings.allowLocationBtn,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: const Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.primaryBlue,
+                    size: 60,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 40),
 
-              // Plan B: Si el usuario es terco y no quiere dar su ubicación GPS
-              TextButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text(AppStrings.locationDeniedTitle),
-                      content: const Text(AppStrings.locationDeniedSubtitle),
-                      actions: [
-                        TextButton(
-                          onPressed: () => context.pop(),
-                          child: const Text(AppStrings.understandBtn),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: const Text(
-                  AppStrings.locationWhyRequired,
+                // --- 2. TEXTOS PERSUASIVOS ---
+                const Text(
+                  AppStrings.locationTitle,
                   style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textDark,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  AppStrings.locationSubtitle,
+                  style: TextStyle(
+                    fontSize: 16,
                     color: AppColors.textGray,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Spacer(),
+
+                // --- 3. BOTONES DE ACCIÓN ---
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    onPressed: _requestPermission,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBlue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      AppStrings.allowLocationBtn,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 16),
+
+                // Plan B: Si el usuario es terco y no quiere dar su ubicación GPS
+                TextButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text(AppStrings.locationDeniedTitle),
+                        content: const Text(AppStrings.locationDeniedSubtitle),
+                        actions: [
+                          TextButton(
+                            onPressed: () => context.pop(),
+                            child: const Text(AppStrings.understandBtn),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    AppStrings.locationWhyRequired,
+                    style: TextStyle(
+                      color: AppColors.textGray,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

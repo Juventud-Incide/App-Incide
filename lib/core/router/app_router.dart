@@ -22,6 +22,57 @@ import '../../features/auth/cliente_verif_correo.dart';
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/', // Cambia esto para probar diferentes pantallas
+    redirect: (context, state) {
+      // 1. EL ESTADO DEL USUARIO
+      final bool isAuthenticated = true; // TODO: Cambiar por estado real
+      final bool hasLocationPermission = false; // TODO: Cambiar por estado real
+
+      // 2. ¿A DÓNDE QUIERE IR?
+      final targetPath = state.matchedLocation;
+      final isGoingToSplash = targetPath == '/';
+      final isGoingToLocationScreen = targetPath == '/location-permission';
+
+      // Rutas "Públicas" (no ocupan login)
+      final publicRoutes = [
+        '/',
+        '/roles',
+        '/prof-login',
+        '/prof-register',
+        '/prof-otp',
+        '/login-cliente',
+        '/registro-cliente',
+        '/verif-correo-cliente',
+      ];
+      final isGoingToPublicRoute = publicRoutes.contains(targetPath);
+
+      // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden de importancia)
+
+      // Regla 0: SIEMPRE deja que se muestre el Splash Screen al abrir la app
+      if (isGoingToSplash) {
+        return null;
+      }
+
+      // Regla A: Si NO está autenticado y quiere ir a una zona privada
+      if (!isAuthenticated && !isGoingToPublicRoute) {
+        return '/roles'; // Lo pateamos al login
+      }
+
+      // Regla B: Si ya hizo login, PERO intenta ir a las pantallas de login/registro otra vez
+      if (isAuthenticated && isGoingToPublicRoute) {
+        // Lo mandamos al dashboard o a pedir permisos
+        return hasLocationPermission ? '/prof-home' : '/location-permission';
+      }
+
+      // Regla C: Si está autenticado, NO tiene ubicación, y no está en la pantalla de pedirla
+      if (isAuthenticated &&
+          !hasLocationPermission &&
+          !isGoingToLocationScreen) {
+        return '/location-permission';
+      }
+
+      // Si pasó todas las reglas, déjalo continuar su camino
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/',

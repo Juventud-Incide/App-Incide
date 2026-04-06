@@ -48,7 +48,7 @@ class AppStrings {
   static const String otpSubtitle1 =
       'Ingresa el código de 4 dígitos que enviamos por SMS a la terminación ';
   static const String otpNotReceived = '¿No recibiste el código?';
-  static const String otpResendBtn = 'Reenviar código (00:45)';
+  static const String otpResendBtn = 'Reenviar código ';
   static const String otpVerifyBtn = 'Verificar Código';
   static const String otpSuccess = 'Código verificado correctamente';
   static const String otpError = 'Código incorrecto. Intenta de nuevo.';

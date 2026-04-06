@@ -3,6 +3,7 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
 
 class ProfOtpScreen extends StatefulWidget {
   final Map<String, dynamic> formData;
@@ -19,16 +20,22 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
   late List<FocusNode> _focusNodes;
   bool _isLoading = false;
 
+  Timer? _timer;
+  int _secondsRemaining = 59;
+  bool _canResend = false;
+
   @override
   void initState() {
     super.initState();
     _controllers = List.generate(4, (_) => TextEditingController());
     _focusNodes = List.generate(4, (_) => FocusNode());
+    _startTimer();
   }
 
   @override
   void dispose() {
     // Limpieza profunda de memoria RAM (Security P0)
+    _timer?.cancel();
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -37,6 +44,41 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     }
     super.dispose();
   }
+
+  void _startTimer() {
+    setState(() {
+      _secondsRemaining = 59;
+      _canResend = false;
+    });
+
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+        } else {
+          _canResend = true;
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  void _resendOTP() {
+    // TODO: Llamada real al backend para reenviar el SMS
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Nuevo código SMS enviado'),
+        backgroundColor: Colors.green,
+      ),
+    );
+    _startTimer();
+    _focusNodes[0].requestFocus();
+  }
+
+  String get timerText => '00:${_secondsRemaining.toString().padLeft(2, '0')}';
 
   String _getMaskedPhone() {
     final String phone = widget.formData['phone'] as String? ?? '';
@@ -255,19 +297,26 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                       style: TextStyle(color: AppColors.textGray, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () {
-                        // TODO: Lógica para reiniciar temporizador y reenviar SMS
-                      },
-                      child: const Text(
-                        AppStrings.otpResendBtn,
-                        style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
+                    _canResend
+                        ? TextButton(
+                            onPressed: _resendOTP,
+                            child: const Text(
+                              AppStrings.otpResendBtn,
+                              style: TextStyle(
+                                color: AppColors.primaryBlue,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            '${AppStrings.otpResendBtn}($timerText)',
+                            style: const TextStyle(
+                              color: AppColors.primaryBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
                   ],
                 ),
               ),

@@ -44,13 +44,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
         // Evaluamos la respuesta de nuestro Mock Backend
         if (status == 'aceptado') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(AppStrings.loginSuccessMessage),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // TODO: context.goNamed('home');
+          context.goNamed('location_permission');
         } else if (status == 'pendiente') {
           context.goNamed('prof_review_status');
         } else if (status == 'rechazado') {

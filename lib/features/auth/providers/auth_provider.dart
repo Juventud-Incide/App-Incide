@@ -11,7 +11,7 @@ class MockAuthRepository {
     await Future.delayed(const Duration(seconds: 2));
 
     // Casos de prueba:
-    if (email == 'admin@correo.com' && password == '123456') {
+    if (email == 'admin@correo.com' && password == '12345678') {
       return 'aceptado';
     } else if (email == 'espera@correo.com') {
       return 'pendiente';

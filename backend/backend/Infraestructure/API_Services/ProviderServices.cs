@@ -50,6 +50,46 @@ namespace backend.Infraestructure.API_Services
 
             await _context.SaveChangesAsync();
             return ToOutputDTO(provider);
-        } 
+        }
+
+        public async Task<ProviderOutPutDTO?> ApproveInterviewAsync(int id)
+        {
+            var provider = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (provider == null) return null;
+
+            if (provider.Status != ProviderStatus.InterviewPending)
+                throw new InvalidOperationException(
+                    $"No se puede aprobar la entrevista: el proveedor está en estado '{provider.Status}'. Solo se permite desde 'InterviewPending'.");
+
+            provider.Status = ProviderStatus.InterviewApproved;
+            provider.InterviewRejectionReason = null;
+            provider.LastUpdate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return ToOutputDTO(provider);
+        }
+
+        public async Task<ProviderOutPutDTO?> RejectInterviewAsync(int id, RejectInterviewDTO dto)
+        {
+            var provider = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (provider == null) return null;
+
+            if (provider.Status != ProviderStatus.InterviewPending)
+                throw new InvalidOperationException(
+                    $"No se puede rechazar la entrevista: el proveedor está en estado '{provider.Status}'. Solo se permite desde 'InterviewPending'.");
+
+            provider.Status = ProviderStatus.Rejected;
+            provider.InterviewRejectionReason = dto.Reason;
+            provider.LastUpdate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return ToOutputDTO(provider);
+        }
     }
 }

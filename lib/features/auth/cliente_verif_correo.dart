@@ -75,9 +75,8 @@ class _ClienteVerifCorreoScreenState extends State<ClienteVerifCorreoScreen> {
           controller.clear();
         }
         if (mounted) {
-          // Navegar a la siguiente pantalla del flujo cliente
-          // (por ejemplo, pantalla de inicio o dashboard del cliente)
-          context.pushNamed('login-cliente');
+          // Navegar a la pantalla de permiso de ubicación del cliente (Tarea #76)
+          context.goNamed('client_location_permission');
         }
       } else {
         if (mounted) {

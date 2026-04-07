@@ -298,4 +298,30 @@ class AppStrings {
       'Para poder conectarte con clientes y enviarte oportunidades de trabajo cerca de ti, es estrictamente necesario que compartas tu ubicación. Sin este permiso, la aplicación no podrá funcionar.';
   static const String understandBtn = 'Entendido';
   static const String locationWhyRequired = '¿Por qué es obligatorio?';
+
+  // --- Pantalla de Permiso de Ubicación (Cliente) – Tarea #76 ---
+  static const String clientLocationTitle = 'Profesionistas cerca de ti';
+  static const String clientLocationSubtitle =
+      'Necesitamos tu ubicación para mostrarte los mejores profesionistas disponibles en tu zona.';
+
+  // Modal explicativo previo a la solicitud del sistema
+  static const String clientLocationModalTitle = 'Tu ubicación, tu ventaja';
+  static const String clientLocationModalBody =
+      'Necesitamos tu ubicación para mostrarte profesionistas cerca de ti y calcular distancias en tus cotizaciones.';
+  static const String clientLocationModalContinueBtn =
+      'Entendido, continuar';
+  static const String clientLocationModalLaterBtn = 'Ahora no';
+
+  // Caso 2: Denegado una vez
+  static const String clientLocationDeniedOnceTitle = 'Sin ubicación por ahora';
+  static const String clientLocationDeniedOnceBody =
+      'Sin tu ubicación no podremos mostrarte profesionistas cercanos. Puedes habilitar el permiso cuando quieras.';
+  static const String clientLocationRetryBtn = 'Reintentar';
+  static const String clientLocationLaterBtn = 'Más tarde';
+
+  // Caso 3: Denegado permanentemente
+  static const String clientLocationPermanentDeniedBody =
+      'El permiso de ubicación fue bloqueado. Para continuar, habilítalo manualmente desde la Configuración de tu dispositivo.';
+  static const String clientLocationOpenSettingsBtn = 'Abrir Configuración';
+  static const String clientLocationCancelBtn = 'Cancelar';
 }

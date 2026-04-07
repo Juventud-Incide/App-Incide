@@ -15,6 +15,7 @@ import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
 import '../../features/location/screens/prof_location_permission_screen.dart';
+import '../../features/location/screens/client_location_permission_screen.dart';
 
 import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
@@ -36,7 +37,8 @@ class AppRouter {
     initialLocation: '/', // Cambia esto para probar diferentes pantallas
     redirect: (context, state) {
       // 1. EL ESTADO DEL USUARIO
-      final bool isAuthenticated = true; // TODO: Cambiar por estado real
+      //lo cambie a false ALAN
+      final bool isAuthenticated = false; // TODO: Cambiar por estado real
       final bool hasLocationPermission = false; // TODO: Cambiar por estado real
 
       // 2. ¿A DÓNDE QUIERE IR?
@@ -54,6 +56,7 @@ class AppRouter {
         '/login-cliente',
         '/registro-cliente',
         '/verif-correo-cliente',
+        '/client-location-permission',
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
@@ -267,6 +270,12 @@ class AppRouter {
               state.extra as Map<String, dynamic>? ?? {};
           return ClienteVerifCorreoScreen(formData: formData);
         },
+      ),
+      GoRoute(
+        path: '/client-location-permission',
+        name: 'client_location_permission',
+        builder: (context, state) =>
+            const ClientLocationPermissionScreen(),
       ),
 
       // ------------------------------------

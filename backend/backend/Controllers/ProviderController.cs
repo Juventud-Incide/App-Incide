@@ -36,6 +36,50 @@ namespace backend.Controllers
             {
                 return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
             }
-        }   
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}/approve-interview")]
+        public async Task<IActionResult> ApproveInterview(int id)
+        {
+            try
+            {
+                var provider = await _providerService.ApproveInterviewAsync(id);
+                if (provider == null)
+                    return NotFound(new { message = "Proveedor no encontrado." });
+
+                return Ok(provider);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}/reject-interview")]
+        public async Task<IActionResult> RejectInterview(int id, [FromBody] RejectInterviewDTO dto)
+        {
+            try
+            {
+                var provider = await _providerService.RejectInterviewAsync(id, dto);
+                if (provider == null)
+                    return NotFound(new { message = "Proveedor no encontrado." });
+
+                return Ok(provider);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
     }
 }

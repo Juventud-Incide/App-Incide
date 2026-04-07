@@ -1,12 +1,11 @@
-﻿using backend.Data.DataDB;
+using backend.Data.DataDB;
 using backend.Data.Entities;
 using backend.Domain.DTOs;
 using backend.Domain.Enum;
 using backend.Domain.OutPutDTOs;
 using backend.Infraestructure.API_Services_Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 
 
 namespace backend.Infraestructure.API_Services
@@ -14,17 +13,14 @@ namespace backend.Infraestructure.API_Services
     public class UserService : IUserService
     {
         private readonly AppDbContext _context;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(AppDbContext context)
+        public UserService(AppDbContext context, IPasswordHasher<User> passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
-        private static string HashPassword(string password)
-        {
-            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
-        }
         private static UserOutPutDTO ToOutputDTO(User user) => new()
         {
             Id = user.Id,
@@ -45,13 +41,13 @@ namespace backend.Infraestructure.API_Services
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,
-                PasswordHash = HashPassword(dto.Password),
                 PhoneNumber = dto.PhoneNumber,
                 UserRole = dto.UserRole,
                 IsActive = true,
                 CreationDate = DateTime.UtcNow,
                 LastUpdate = DateTime.UtcNow
             };
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
 
             _context.Users.Add(user);
 
@@ -112,7 +108,7 @@ namespace backend.Infraestructure.API_Services
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
             user.Email = dto.Email;
-            user.PasswordHash = HashPassword(dto.Password);
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
             user.PhoneNumber = dto.PhoneNumber;
             user.LastUpdate = DateTime.UtcNow;
 

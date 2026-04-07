@@ -1,10 +1,10 @@
 using backend.Data.DataDB;
+using backend.Data.Entities;
 using backend.Domain.DTOs;
 using backend.Domain.OutPutDTOs;
 using backend.Infraestructure.API_Services_Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace backend.Infraestructure.API_Services
 {
@@ -13,12 +13,18 @@ namespace backend.Infraestructure.API_Services
         private readonly AppDbContext _context;
         private readonly IJwtService _jwtService;
         private readonly IUserService _userService;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public AuthService(AppDbContext context, IJwtService jwtService, IUserService userService)
+        public AuthService(
+            AppDbContext context,
+            IJwtService jwtService,
+            IUserService userService,
+            IPasswordHasher<User> passwordHasher)
         {
             _context = context;
             _jwtService = jwtService;
             _userService = userService;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<AuthOutPutDTO> RegisterAsync(RegisterDTO dto)
@@ -55,12 +61,19 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<AuthOutPutDTO?> LoginAsync(LoginDTO dto)
         {
-            var passwordHash = HashPassword(dto.Password);
-
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == dto.Email && u.PasswordHash == passwordHash);
+                .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
             if (user == null) return null;
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+            if (result == PasswordVerificationResult.Failed) return null;
+
+            if (result == PasswordVerificationResult.SuccessRehashNeeded)
+            {
+                user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+                await _context.SaveChangesAsync();
+            }
 
             var token = _jwtService.GenerateToken(user);
 
@@ -76,12 +89,6 @@ namespace backend.Infraestructure.API_Services
                 },
                 Token = token
             };
-        }
-
-        private static string HashPassword(string password)
-        {
-            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
         }
     }
 }

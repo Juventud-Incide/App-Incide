@@ -65,3 +65,7 @@ appsettings.Local.json
 *.mdf
 *.ldf
 *.ndf
+
+# Claude Code
+.claude/
+CLAUDE.md

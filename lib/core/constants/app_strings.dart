@@ -29,6 +29,9 @@ class AppStrings {
   static const String passwordLabel = 'CONTRASEÑA:';
   static const String passwordHint = '*****';
   static const String passwordInvalid = 'Mínimo 8 caracteres';
+  static const String confirmPasswordLabel = 'CONFIRMAR CONTRASEÑA:';
+  static const String confirmPasswordHint = '*****';
+  static const String passwordMismatch = 'Las contraseñas no coinciden';
   static const String legalData = 'IDENTIDAD FISCAL Y LEGAL';
   static const String curpLabel = 'CURP (18 CARACTERES):';
   static const String curpHint = 'Ejemplo: GOML900101HDFRRL09';
@@ -39,20 +42,31 @@ class AppStrings {
   static const String invalidFormat = 'Formato inválido';
   static const String termsAndConditions =
       'Acepto los Términos y Condiciones y el aviso de privacidad. Entiendo que mi cuenta debe ser validada por un administrador.';
+      static const String termsAndConditionsCliente =
+      'Acepto los Términos y Condiciones y el aviso de privacidad.';
   static const String termsNotAccepted =
       'Debes aceptar los Términos y Condiciones para continuar.';
+  static const String orSignInWith = 'O regístrate con';
+  static const String googleSignIn = 'Registrarte con Google';
   static const String continueBtn = 'Continuar';
 
-  // --- Verificación OTP (Paso 2) ---
+  // --- Verificación OTP SMS (Paso 2 - Profesionista) ---
   static const String otpTitle = 'VERIFICA TU NÚMERO';
   static const String otpSubtitle1 =
       'Ingresa el código de 4 dígitos que enviamos por SMS a la terminación ';
   static const String otpNotReceived = '¿No recibiste el código?';
-  static const String otpResendBtn = 'Reenviar código (00:45)';
+  static const String otpResendBtn = 'Reenviar código ';
   static const String otpVerifyBtn = 'Verificar Código';
   static const String otpSuccess = 'Código verificado correctamente';
   static const String otpError = 'Código incorrecto. Intenta de nuevo.';
   static const String otpIncomplete = 'Por favor, ingresa los 4 dígitos';
+
+  // --- Verificación de Correo (Paso 2 - Cliente) ---
+  static const String emailOtpTitle = 'VERIFICA TU CORREO';
+  static const String emailOtpSubtitle1 =
+      'Ingresa el código de 6 dígitos que enviamos a ';
+  static const String emailOtpNotReceived = '¿No recibiste el código?';
+  static const String emailOtpResendBtn = 'Reenviar código (00:45)';
 
   // --- Documentos KYC ---
   static const String uploadText = 'Subir ';
@@ -239,4 +253,49 @@ class AppStrings {
   static const String systemCalculated = 'Calculado por el sistema';
   static const String attachedPhotos = 'Fotos adjuntas';
   static const String descriptionTitle = 'Descripción';
+  // --- Pantalla de Recuperación de Contraseña ---
+  static const String forgotPassTitle = 'RECUPERAR CUENTA';
+  static const String forgotPassSubtitle =
+      'Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.';
+  static const String sendLinkBtn = 'Enviar Enlace';
+  static const String emailNotFound =
+      'No encontramos una cuenta con este correo.';
+
+  // --- Pantalla de Envío de Enlace de Recuperación ---
+  static const String linkSentTitle = '¡Enlace enviado!';
+  static const String linkSentSubtitle1 = 'Hemos enviado las instrucciones a';
+  static const String linkSentSubtitle2 =
+      'Por favor, revisa tu bandeja de entrada o la carpeta de Spam.';
+  static const String backToHomeBtn = 'Volver al Inicio';
+  static const String didNotReceiveEmail = '¿No recibiste el correo?';
+  static const String resendIn = 'Reenviar en';
+  static const String resendNow = 'Reenviar código ahora';
+  static const String newLinkSent = 'Nuevo enlace enviado';
+
+  // --- Pantalla de Escribir Nueva Contraseña ---
+  static const String newPasswordTitle = 'NUEVA CONTRASEÑA';
+  static const String newPasswordSubtitle =
+      'Crea una nueva contraseña segura para tu cuenta de INCIDE.';
+  static const String newPasswordLabel = 'NUEVA CONTRASEÑA:';
+  static const String updatePasswordBtn = 'Actualizar Contraseña';
+  static const String passwordsDoNotMatch = 'Las contraseñas no coinciden';
+  static const String passwordUpdatedTitle = '¡Contraseña Actualizada!';
+  static const String passwordUpdatedSubtitle =
+      'Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.';
+  static const String goToLoginBtn = 'Ir a Iniciar Sesión';
+
+   // --- Pantalla de Solicitud de Permisos de Ubicación ---
+  static const String locationTitle = 'Encuentra trabajo en tu zona';
+  static const String locationSubtitle =
+      'Para enviarte cotizaciones y solicitudes de clientes cercanos a ti, necesitamos acceso a tu ubicación.';
+  static const String allowLocationBtn = 'Permitir Ubicación';
+  static const String denyLocationBtn =
+      'Ingresar mi Código Postal'; // Plan B por si rechazan
+  static const String locationDeniedMessage =
+      'Debes habilitar la ubicación en la configuración de tu teléfono para continuar.';
+  static const String locationDeniedTitle = 'Ubicación Obligatoria';
+  static const String locationDeniedSubtitle =
+      'Para poder conectarte con clientes y enviarte oportunidades de trabajo cerca de ti, es estrictamente necesario que compartas tu ubicación. Sin este permiso, la aplicación no podrá funcionar.';
+  static const String understandBtn = 'Entendido';
+  static const String locationWhyRequired = '¿Por qué es obligatorio?';
 }

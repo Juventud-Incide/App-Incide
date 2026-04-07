@@ -3,39 +3,31 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
-import 'dart:async';
 
-class ProfOtpScreen extends StatefulWidget {
+class ClienteVerifCorreoScreen extends StatefulWidget {
   final Map<String, dynamic> formData;
 
-  const ProfOtpScreen({super.key, required this.formData});
+  const ClienteVerifCorreoScreen({super.key, required this.formData});
 
   @override
-  State<ProfOtpScreen> createState() => _ProfOtpScreenState();
+  State<ClienteVerifCorreoScreen> createState() =>
+      _ClienteVerifCorreoScreenState();
 }
 
-class _ProfOtpScreenState extends State<ProfOtpScreen> {
-  // Controladores y Nodos de Enfoque para las 4 cajitas
+class _ClienteVerifCorreoScreenState extends State<ClienteVerifCorreoScreen> {
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
   bool _isLoading = false;
 
-  Timer? _timer;
-  int _secondsRemaining = 59;
-  bool _canResend = false;
-
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(4, (_) => TextEditingController());
-    _focusNodes = List.generate(4, (_) => FocusNode());
-    _startTimer();
+    _controllers = List.generate(6, (_) => TextEditingController());
+    _focusNodes = List.generate(6, (_) => FocusNode());
   }
 
   @override
   void dispose() {
-    // Limpieza profunda de memoria RAM (Security P0)
-    _timer?.cancel();
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -45,54 +37,23 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     super.dispose();
   }
 
-  void _startTimer() {
-    setState(() {
-      _secondsRemaining = 59;
-      _canResend = false;
-    });
-
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
-
-      setState(() {
-        if (_secondsRemaining > 0) {
-          _secondsRemaining--;
-        } else {
-          _canResend = true;
-          timer.cancel();
-        }
-      });
-    });
-  }
-
-  void _resendOTP() {
-    // TODO: Llamada real al backend para reenviar el SMS
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Nuevo código SMS enviado'),
-        backgroundColor: Colors.green,
-      ),
-    );
-    _startTimer();
-    _focusNodes[0].requestFocus();
-  }
-
-  String get timerText => '00:${_secondsRemaining.toString().padLeft(2, '0')}';
-
-  String _getMaskedPhone() {
-    final String phone = widget.formData['phone'] as String? ?? '';
-    if (phone.length >= 4) {
-      return '**${phone.substring(phone.length - 4)}'; // Muestra los últimos 4
+  /// Muestra solo los primeros 3 caracteres del correo y enmascara el resto
+  /// hasta el @, ejemplo: eje***@correo.com
+  String _getMaskedEmail() {
+    final String email = widget.formData['email'] as String? ?? '';
+    final int atIndex = email.indexOf('@');
+    if (atIndex > 3) {
+      return '${email.substring(0, 3)}***${email.substring(atIndex)}';
+    } else if (atIndex > 0) {
+      return '${email.substring(0, 1)}***${email.substring(atIndex)}';
     }
-    return '**00';
+    return email;
   }
 
   Future<void> _verifyCode() async {
-    // Juntamos el texto de las 4 cajitas
-    String otpCode = _controllers.map((c) => c.text).join();
+    final String otpCode = _controllers.map((c) => c.text).join();
 
-    if (otpCode.length < 4) {
+    if (otpCode.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(AppStrings.otpIncomplete),
@@ -105,17 +66,18 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Simulación de llamada al backend (authService.verifyOTP)
+      // Simulación de verificación con el backend
       await Future.delayed(const Duration(seconds: 1));
-      bool isValid = otpCode == '1234'; // Código de prueba
+      final bool isValid = otpCode == '123456'; // Código de prueba
 
       if (isValid) {
-        // Limpiamos los datos sensibles de la RAM inmediatamente antes de navegar
         for (var controller in _controllers) {
           controller.clear();
         }
         if (mounted) {
-          context.pushNamed('prof_experience', extra: widget.formData);
+          // Navegar a la siguiente pantalla del flujo cliente
+          // (por ejemplo, pantalla de inicio o dashboard del cliente)
+          context.pushNamed('login-cliente');
         }
       } else {
         if (mounted) {
@@ -126,11 +88,10 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
             ),
           );
         }
-        // Si falla, también limpiamos para evitar intentos de extracción de memoria
         for (var controller in _controllers) {
           controller.clear();
         }
-        _focusNodes[0].requestFocus(); // Regresamos el foco al inicio
+        _focusNodes[0].requestFocus();
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -193,9 +154,9 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
               ),
               const SizedBox(height: 30),
 
-              // --- 1. TÍTULOS ---
+              // --- 2. TÍTULOS ---
               const Text(
-                AppStrings.otpTitle,
+                AppStrings.emailOtpTitle,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
@@ -206,16 +167,16 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
               const SizedBox(height: 12),
               RichText(
                 text: TextSpan(
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                     color: AppColors.textGray,
                     height: 1.4,
                   ),
                   children: [
-                    TextSpan(text: AppStrings.otpSubtitle1),
+                    const TextSpan(text: AppStrings.emailOtpSubtitle1),
                     TextSpan(
-                      text: _getMaskedPhone(),
-                      style: TextStyle(
+                      text: _getMaskedEmail(),
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppColors.textDark,
                       ),
@@ -225,10 +186,10 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
               ),
               const SizedBox(height: 40),
 
-              // --- 2. CAJAS DE OTP ---
+              // --- 3. CAJAS DE CÓDIGO ---
               Row(
                 children: [
-                  for (int i = 0; i < 4; i++) ...[
+                  for (int i = 0; i < 6; i++) ...[
                     Expanded(
                       child: AspectRatio(
                         aspectRatio: 1,
@@ -268,7 +229,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                           ),
                           onChanged: (value) {
                             if (value.isNotEmpty) {
-                              if (i < 3) {
+                              if (i < 5) {
                                 _focusNodes[i + 1].requestFocus();
                               } else {
                                 _focusNodes[i].unfocus();
@@ -282,55 +243,51 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                         ),
                       ),
                     ),
-                    if (i < 3) const SizedBox(width: 16),
+                    if (i < 5) const SizedBox(width: 10),
                   ],
                 ],
               ),
               const SizedBox(height: 40),
 
-              // --- 3. REENVIAR CÓDIGO ---
+              // --- 4. REENVIAR CÓDIGO ---
               Center(
                 child: Column(
                   children: [
                     const Text(
-                      AppStrings.otpNotReceived,
+                      AppStrings.emailOtpNotReceived,
                       style: TextStyle(color: AppColors.textGray, fontSize: 14),
                     ),
                     const SizedBox(height: 8),
-                    _canResend
-                        ? TextButton(
-                            onPressed: _resendOTP,
-                            child: const Text(
-                              AppStrings.otpResendBtn,
-                              style: TextStyle(
-                                color: AppColors.primaryBlue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            '${AppStrings.otpResendBtn}($timerText)',
-                            style: const TextStyle(
-                              color: AppColors.primaryBlue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
+                    TextButton(
+                      onPressed: () {
+                        // TODO: Lógica para reenviar código al correo
+                      },
+                      child: const Text(
+                        AppStrings.emailOtpResendBtn,
+                        style: TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 50),
 
-              // --- 4. BOTÓN VERIFICAR ---
+              // --- 5. BOTÓN VERIFICAR ---
               SizedBox(
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: _verifyCode,
+                  onPressed: _isLoading ? null : _verifyCode,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor: AppColors.primaryBlue.withOpacity(
+                      0.7,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),

@@ -14,6 +14,7 @@ import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
+import '../../features/location/screens/prof_location_permission_screen.dart';
 
 import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
@@ -22,14 +23,68 @@ import '../../features/provider/dashboard/models/opportunity_model.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
+import '../../features/auth/cliente_verif_correo.dart';
+import '../../features/auth/forgot_password_screen.dart';
+import '../../features/auth/forgot_password_sent_screen.dart';
+import '../../features/auth/reset_password_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation:
-        '/prof-home', // Cambia esto para probar diferentes pantallas
+    initialLocation: '/', // Cambia esto para probar diferentes pantallas
+    redirect: (context, state) {
+      // 1. EL ESTADO DEL USUARIO
+      final bool isAuthenticated = true; // TODO: Cambiar por estado real
+      final bool hasLocationPermission = false; // TODO: Cambiar por estado real
+
+      // 2. ¿A DÓNDE QUIERE IR?
+      final targetPath = state.matchedLocation;
+      final isGoingToSplash = targetPath == '/';
+      final isGoingToLocationScreen = targetPath == '/location-permission';
+
+      // Rutas "Públicas" (no ocupan login)
+      final publicRoutes = [
+        '/',
+        '/roles',
+        '/prof-login',
+        '/prof-register',
+        '/prof-otp',
+        '/login-cliente',
+        '/registro-cliente',
+        '/verif-correo-cliente',
+      ];
+      final isGoingToPublicRoute = publicRoutes.contains(targetPath);
+
+      // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden de importancia)
+
+      // Regla 0: SIEMPRE deja que se muestre el Splash Screen al abrir la app
+      if (isGoingToSplash) {
+        return null;
+      }
+
+      // Regla A: Si NO está autenticado y quiere ir a una zona privada
+      if (!isAuthenticated && !isGoingToPublicRoute) {
+        return '/roles'; // Lo pateamos al login
+      }
+
+      // Regla B: Si ya hizo login, PERO intenta ir a las pantallas de login/registro otra vez
+      if (isAuthenticated && isGoingToPublicRoute) {
+        // Lo mandamos al dashboard o a pedir permisos
+        return hasLocationPermission ? '/prof-home' : '/location-permission';
+      }
+
+      // Regla C: Si está autenticado, NO tiene ubicación, y no está en la pantalla de pedirla
+      if (isAuthenticated &&
+          !hasLocationPermission &&
+          !isGoingToLocationScreen) {
+        return '/location-permission';
+      }
+
+      // Si pasó todas las reglas, déjalo continuar su camino
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/',
@@ -111,6 +166,11 @@ class AppRouter {
         path: '/prof-docs-revision',
         name: 'prof_docs_revision',
         builder: (context, state) => const ProfDocsRevisionScreen(),
+      ),
+      GoRoute(
+        path: '/location-permission',
+        name: 'location_permission',
+        builder: (context, state) => const ProfLocationPermissionScreen(),
       ),
 
       // --- DASHBOARD DEL PROFESIONISTA (SHELL ROUTE) ---
@@ -198,6 +258,46 @@ class AppRouter {
         path: '/registro-cliente',
         name: 'registro-cliente',
         builder: (context, state) => const ClienteRegisterScreen(),
+      ),
+      GoRoute(
+        path: '/verif-correo-cliente',
+        name: 'verif-correo-cliente',
+        builder: (context, state) {
+          final Map<String, dynamic> formData =
+              state.extra as Map<String, dynamic>? ?? {};
+          return ClienteVerifCorreoScreen(formData: formData);
+        },
+      ),
+
+      // ------------------------------------
+      //  RUTAS DE RECUPERACIÓN DE CONTRASEÑA
+      // ------------------------------------
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password-sent',
+        name: 'forgot-password-sent',
+        builder: (context, state) {
+          final Map<String, dynamic> data =
+              state.extra as Map<String, dynamic>? ?? {};
+          return ForgotPasswordSentScreen(data: data);
+        },
+      ),
+      // La ruta acepta el token como query param para deep links:
+      // Ejemplo: incide://reset-password?token=abc123xyz
+      // TODO (Backend): Configurar deep link en AndroidManifest / Info.plist
+      //                 apuntando a esta ruta con el esquema de la app.
+      GoRoute(
+        path: '/reset-password',
+        name: 'reset-password',
+        builder: (context, state) {
+          final String token =
+              state.uri.queryParameters['token'] ?? '';
+          return ResetPasswordScreen(token: token);
+        },
       ),
     ],
   );

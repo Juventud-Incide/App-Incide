@@ -56,6 +56,9 @@ class AppRouter {
         '/login-cliente',
         '/registro-cliente',
         '/verif-correo-cliente',
+        '/forgot-password',
+        '/forgot-password-sent',
+        '/reset-password',
         '/client-location-permission',
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);

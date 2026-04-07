@@ -210,6 +210,49 @@ class AppStrings {
   static const String estimatedTimeValue = '1 a 2 días hábiles';
   static const String seeUpdateBtn = 'Ver estado de mi solicitud';
 
+  // --- Pantalla de Shell de Dashboard de proveedores ---
+  static const String shellHome = 'Inicio';
+  static const String shellQuotes = 'Cotizaciones';
+  static const String shellWallet = 'Billetera';
+  static const String shellProfile = 'Perfil';
+
+  // --- Pantalla de Inicio del Dashboard de proveedores ---
+  static const String welcomeText = 'Bienvenido,';
+  static const String radarTitleOn = 'Recibiendo Solicitudes';
+  static const String radarSubtitleOn = 'Estás visible en el radar de clientes';
+  static const String radarTitleOff = 'Modo Ocupado';
+  static const String radarSubtitleOff =
+      'Pausaste la recepción de nuevas solicitudes';
+  static const String waitingQuotesTitle = 'Cotizaciones en Espera';
+  static const String acceptedQuotesTitle = 'Cotizaciones Aceptadas';
+  static const String opportunitiesTitle = 'Oportunidades Cerca';
+  static const String viewMapBtn = 'Ver Mapa';
+  static const String filterAll = 'Todas';
+  static const String filterExclusive = 'Exclusivas';
+  static const String filterOpen = 'Abiertas';
+  static const String discardBtn = 'Descartar';
+  static const String interestedBtn = 'Me Interesa';
+  static const String distancePrefix = 'a';
+  static const String opportunityTypeExclusive = 'Exclusiva';
+  static const String opportunityTypeOpen = 'Abierta';
+  static const String proposalTitle = 'Enviar Propuesta';
+  static const String proposalSubtitle =
+      'El cliente recibirá tu mensaje y podrá decidir si contactarte para afinar detalles.';
+  static const String messageLabel = 'Mensaje para el cliente';
+  static const String messageHint =
+      'Hola, me interesa tu proyecto. Tengo disponibilidad para...';
+  static const String priceLabel = 'Precio estimado (Opcional)';
+  static const String sendProposalBtn = 'Enviar Propuesta';
+  static const String opportunityDiscarded = 'Oportunidad descartada';
+  static const String undoDiscard = 'Deshacer';
+
+  // --- Pantalla de Detalle de Oportunidad ---
+  static const String detailTitle = 'Detalle de la Solicitud';
+  static const String clientAnswers = 'Especificaciones del Cliente';
+  static const String estimatedPrice = 'Presupuesto Estimado';
+  static const String systemCalculated = 'Calculado por el sistema';
+  static const String attachedPhotos = 'Fotos adjuntas';
+  static const String descriptionTitle = 'Descripción';
   // --- Pantalla de Recuperación de Contraseña ---
   static const String forgotPassTitle = 'RECUPERAR CUENTA';
   static const String forgotPassSubtitle =
@@ -255,4 +298,30 @@ class AppStrings {
       'Para poder conectarte con clientes y enviarte oportunidades de trabajo cerca de ti, es estrictamente necesario que compartas tu ubicación. Sin este permiso, la aplicación no podrá funcionar.';
   static const String understandBtn = 'Entendido';
   static const String locationWhyRequired = '¿Por qué es obligatorio?';
+
+  // --- Pantalla de Permiso de Ubicación (Cliente) – Tarea #76 ---
+  static const String clientLocationTitle = 'Profesionistas cerca de ti';
+  static const String clientLocationSubtitle =
+      'Necesitamos tu ubicación para mostrarte los mejores profesionistas disponibles en tu zona.';
+
+  // Modal explicativo previo a la solicitud del sistema
+  static const String clientLocationModalTitle = 'Tu ubicación, tu ventaja';
+  static const String clientLocationModalBody =
+      'Necesitamos tu ubicación para mostrarte profesionistas cerca de ti y calcular distancias en tus cotizaciones.';
+  static const String clientLocationModalContinueBtn =
+      'Entendido, continuar';
+  static const String clientLocationModalLaterBtn = 'Ahora no';
+
+  // Caso 2: Denegado una vez
+  static const String clientLocationDeniedOnceTitle = 'Sin ubicación por ahora';
+  static const String clientLocationDeniedOnceBody =
+      'Sin tu ubicación no podremos mostrarte profesionistas cercanos. Puedes habilitar el permiso cuando quieras.';
+  static const String clientLocationRetryBtn = 'Reintentar';
+  static const String clientLocationLaterBtn = 'Más tarde';
+
+  // Caso 3: Denegado permanentemente
+  static const String clientLocationPermanentDeniedBody =
+      'El permiso de ubicación fue bloqueado. Para continuar, habilítalo manualmente desde la Configuración de tu dispositivo.';
+  static const String clientLocationOpenSettingsBtn = 'Abrir Configuración';
+  static const String clientLocationCancelBtn = 'Cancelar';
 }

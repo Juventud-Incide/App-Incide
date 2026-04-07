@@ -210,6 +210,49 @@ class AppStrings {
   static const String estimatedTimeValue = '1 a 2 días hábiles';
   static const String seeUpdateBtn = 'Ver estado de mi solicitud';
 
+  // --- Pantalla de Shell de Dashboard de proveedores ---
+  static const String shellHome = 'Inicio';
+  static const String shellQuotes = 'Cotizaciones';
+  static const String shellWallet = 'Billetera';
+  static const String shellProfile = 'Perfil';
+
+  // --- Pantalla de Inicio del Dashboard de proveedores ---
+  static const String welcomeText = 'Bienvenido,';
+  static const String radarTitleOn = 'Recibiendo Solicitudes';
+  static const String radarSubtitleOn = 'Estás visible en el radar de clientes';
+  static const String radarTitleOff = 'Modo Ocupado';
+  static const String radarSubtitleOff =
+      'Pausaste la recepción de nuevas solicitudes';
+  static const String waitingQuotesTitle = 'Cotizaciones en Espera';
+  static const String acceptedQuotesTitle = 'Cotizaciones Aceptadas';
+  static const String opportunitiesTitle = 'Oportunidades Cerca';
+  static const String viewMapBtn = 'Ver Mapa';
+  static const String filterAll = 'Todas';
+  static const String filterExclusive = 'Exclusivas';
+  static const String filterOpen = 'Abiertas';
+  static const String discardBtn = 'Descartar';
+  static const String interestedBtn = 'Me Interesa';
+  static const String distancePrefix = 'a';
+  static const String opportunityTypeExclusive = 'Exclusiva';
+  static const String opportunityTypeOpen = 'Abierta';
+  static const String proposalTitle = 'Enviar Propuesta';
+  static const String proposalSubtitle =
+      'El cliente recibirá tu mensaje y podrá decidir si contactarte para afinar detalles.';
+  static const String messageLabel = 'Mensaje para el cliente';
+  static const String messageHint =
+      'Hola, me interesa tu proyecto. Tengo disponibilidad para...';
+  static const String priceLabel = 'Precio estimado (Opcional)';
+  static const String sendProposalBtn = 'Enviar Propuesta';
+  static const String opportunityDiscarded = 'Oportunidad descartada';
+  static const String undoDiscard = 'Deshacer';
+
+  // --- Pantalla de Detalle de Oportunidad ---
+  static const String detailTitle = 'Detalle de la Solicitud';
+  static const String clientAnswers = 'Especificaciones del Cliente';
+  static const String estimatedPrice = 'Presupuesto Estimado';
+  static const String systemCalculated = 'Calculado por el sistema';
+  static const String attachedPhotos = 'Fotos adjuntas';
+  static const String descriptionTitle = 'Descripción';
   // --- Pantalla de Recuperación de Contraseña ---
   static const String forgotPassTitle = 'RECUPERAR CUENTA';
   static const String forgotPassSubtitle =

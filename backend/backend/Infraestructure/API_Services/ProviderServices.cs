@@ -37,6 +37,13 @@ namespace backend.Infraestructure.API_Services
 
             if (provider == null) return null;
 
+            if (provider.Status != ProviderStatus.Registered)
+                throw new InvalidOperationException(
+                    $"No se puede agendar entrevista: el proveedor está en estado '{provider.Status}'. Solo se permite desde 'Registered'.");
+
+            if (dto.InterviewDate <= DateTime.UtcNow)
+                throw new InvalidOperationException("La fecha de la entrevista debe ser en el futuro.");
+
             provider.InterviewDate = dto.InterviewDate;
             provider.Status = ProviderStatus.InterviewPending;
             provider.LastUpdate = DateTime.UtcNow;

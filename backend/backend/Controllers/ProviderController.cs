@@ -28,6 +28,10 @@ namespace backend.Controllers
 
                 return Ok(provider);
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });

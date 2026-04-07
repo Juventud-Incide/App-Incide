@@ -19,7 +19,11 @@ namespace backend.Infraestructure.API_Services
         {
             var jwtConfig = _configuration.GetSection("Jwt");
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtConfig["Key"]!));
+            var jwtKey = jwtConfig["Key"];
+            if (string.IsNullOrWhiteSpace(jwtKey))
+                throw new InvalidOperationException("JWT signing key is not configured.");
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]

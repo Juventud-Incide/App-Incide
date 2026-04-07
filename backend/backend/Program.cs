@@ -20,6 +20,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProviderServices, ProviderServices>();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtConfig["Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException(
+        "JWT signing key is not configured. Set 'Jwt:Key' via User Secrets (development) " +
+        "or the environment variable 'Jwt__Key' (production).");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -32,7 +38,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtConfig["Issuer"],
             ValidAudience = jwtConfig["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig["Key"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             RoleClaimType = System.Security.Claims.ClaimTypes.Role
         };
     });

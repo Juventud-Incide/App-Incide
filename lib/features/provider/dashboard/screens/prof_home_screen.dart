@@ -8,6 +8,7 @@ import 'package:app_incide/features/provider/dashboard/models/opportunity_model.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 
 class ProfHomeScreen extends StatefulWidget {
   const ProfHomeScreen({super.key});
@@ -20,6 +21,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   // Estado para controlar el Switch del Radar
   bool _isRadarActive = true;
   String _selectedFilter = AppStrings.filterAll;
+  Timer? _snackBarTimer;
 
   // TODO: (BACKEND) - Reemplazar esta lista con un llamado API
   // Future<void> fetchOpportunities() async { ... }
@@ -405,25 +407,34 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             description: opp.description,
             distance: opp.formattedDistance,
             onTap: () async {
-              final shouldDiscard = await context.pushNamed<bool>(
+              final result = await context.pushNamed<String>(
                 'opportunity_detail',
                 extra:
                     opp, // Pasamos el objeto completo a la pantalla de detalle
               );
               if (!context.mounted) return;
 
-              if (shouldDiscard == true) _handleDiscard(opp.id);
+              if (result == 'discarded') {
+                _handleDiscard(opp.id);
+              } else if (result == 'accepted') {
+                _handleAccept(opp.id);
+              }
             },
             onDiscard: () => _handleDiscard(opp.id),
-            onInterested: () {
+            onInterested: () async {
               // TODO: (BACKEND) - Preparar datos para abrir modal asociado a opp.id
-              showModalBottomSheet(
+              final result = await showModalBottomSheet<bool>(
                 context: context,
                 isScrollControlled: true,
                 useRootNavigator: true,
                 backgroundColor: Colors.transparent,
                 builder: (context) => const ProposalBottomSheet(),
               );
+
+              // Si recibimos el éxito, ejecutamos la acción de aceptar
+              if (result == true) {
+                _handleAccept(opp.id);
+              }
             },
           );
         }).toList(),
@@ -431,33 +442,67 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
     );
   }
 
+  // Manejador para cuando se acepta una oportunidad
+  void _handleAccept(String opportunityId) {
+    setState(() {
+      _opportunities.removeWhere((opp) => opp.id == opportunityId);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('¡Propuesta enviada con éxito!'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
   // Lógica del SnackBar de Descartar
   void _handleDiscard(String opportunityId) {
-    // TODO: (BACKEND) - Llamada API para ocultar/descartar la oportunidad 'opportunityId'
-    // await api.discardOpportunity(opportunityId);
+    // 1. Encontrar y guardar la tarjeta antes de borrarla
+    final index = _opportunities.indexWhere((opp) => opp.id == opportunityId);
+    if (index == -1) return;
+    final deletedOpportunity = _opportunities[index]; // Guardamos una copia
 
-    // 1. Capturamos el mensajero en una variable para no perderlo
+    // 2. Borrarla de la vista principal
+    setState(() {
+      _opportunities.removeAt(index);
+    });
+
+    _snackBarTimer?.cancel(); // Cancelamos cualquier SnackBar pendiente
     final messenger = ScaffoldMessenger.of(context);
-
     messenger.clearSnackBars();
     messenger.showSnackBar(
       SnackBar(
-        content: const Text(AppStrings.opportunityDiscarded),
+        content: const Text('Oportunidad descartada'),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
-          label: AppStrings.undoDiscard,
+          label: 'Deshacer',
           textColor: Colors.amber,
           onPressed: () {
-            // TODO: Lógica para deshacer
-            // TODO: (BACKEND) - Llamada API para restaurar 'opportunityId'
+            _snackBarTimer?.cancel();
+            messenger.hideCurrentSnackBar();
+
+            setState(() {
+              _opportunities.insert(index, deletedOpportunity);
+            });
           },
         ),
       ),
     );
 
-    Future.delayed(const Duration(milliseconds: 3500), () {
-      messenger.hideCurrentSnackBar();
+    _snackBarTimer = Timer(const Duration(milliseconds: 3500), () {
+      if (mounted) {
+        messenger.hideCurrentSnackBar();
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _snackBarTimer?.cancel();
+    super.dispose();
   }
 }

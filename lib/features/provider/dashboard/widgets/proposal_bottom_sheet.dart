@@ -157,14 +157,8 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Enviar al backend
-                  Navigator.pop(context); // Cierra el modal
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('¡Propuesta enviada con éxito!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                  // TODO: (BACKEND) - Enviar la propuesta al servidor
+                  Navigator.pop(context, true); // Cierra el modal
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,

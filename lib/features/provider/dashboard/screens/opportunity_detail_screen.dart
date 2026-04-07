@@ -304,7 +304,7 @@ class OpportunityDetailScreen extends StatelessWidget {
               child: SizedBox(
                 height: 48,
                 child: TextButton(
-                  onPressed: () => context.pop(true),
+                  onPressed: () => context.pop('discarded'),
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.grey.withValues(alpha: 0.1),
                     foregroundColor: AppColors.textDark,
@@ -324,14 +324,20 @@ class OpportunityDetailScreen extends StatelessWidget {
               child: SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {
-                    showModalBottomSheet(
+                  onPressed: () async {
+                    final result = await showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
                       useRootNavigator: true,
                       backgroundColor: Colors.transparent,
                       builder: (context) => const ProposalBottomSheet(),
                     );
+
+                    if (result == true && context.mounted) {
+                      context.pop(
+                        'accepted',
+                      ); // Cierra la pantalla de detalle y vuelve a la lista
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,

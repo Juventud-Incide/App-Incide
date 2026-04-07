@@ -9,5 +9,6 @@ namespace backend.Data.Entities
 
         public ProviderStatus Status { get; set; } = ProviderStatus.Registered;
         public DateTime? InterviewDate { get; set; }
+        public string? InterviewRejectionReason { get; set; }
     }
 }

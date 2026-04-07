@@ -1,8 +1,11 @@
-﻿namespace backend.Domain.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace backend.Domain.DTOs
 {
     public class ClientDTO
     {
-        public UserDTO User { get; set; }
+        [Required(ErrorMessage = "Los datos del usuario son obligatorios.")]
+        public UserDTO User { get; set; } = new();
 
         //Mas informacion requerida de Clientes
     }

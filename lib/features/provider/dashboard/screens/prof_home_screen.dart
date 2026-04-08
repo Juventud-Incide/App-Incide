@@ -410,7 +410,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
         padding: EdgeInsets.all(24.0),
         child: Center(
           child: Text(
-            'No hay oportunidades en esta categoría.',
+            AppStrings.noOpportunities,
             style: TextStyle(color: Colors.grey),
           ),
         ),

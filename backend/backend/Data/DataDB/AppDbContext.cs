@@ -11,6 +11,7 @@ namespace backend.Data.DataDB
         public DbSet<User> Users => Set<User>();
         public DbSet<Client> Clients => Set<Client>();
         public DbSet<Provider> Providers => Set<Provider>();
+        public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,6 +44,13 @@ namespace backend.Data.DataDB
                  .WithOne(u => u.Provider)
                  .HasForeignKey<Provider>(p => p.UserId)
                  .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<RevokedToken>(e =>
+            {
+                e.HasKey(rt => rt.Id);
+                e.Property(rt => rt.Jti).IsRequired().HasMaxLength(64);
+                e.HasIndex(rt => rt.Jti).IsUnique();
             });
         }
     }

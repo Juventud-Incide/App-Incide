@@ -25,6 +25,45 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
   bool _termsAccepted = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
+  // ── Requisitos de contraseña ──────────────────────────────────────────────
+  /// Valida que la contraseña tenga al menos 8 caracteres
+  bool get _hasMinLength => _passwordController.text.length >= 8;
+
+  /// Valida que la contraseña contenga al menos una letra MAYÚSCULA (A-Z)
+  bool get _hasUppercase => RegExp(r'[A-Z]').hasMatch(_passwordController.text);
+
+  /// Valida que la contraseña contenga al menos una letra minúscula (a-z)
+  bool get _hasLowercase => RegExp(r'[a-z]').hasMatch(_passwordController.text);
+
+  /// Valida que la contraseña contenga al menos un número (0-9)
+  bool get _hasNumber => RegExp(r'[0-9]').hasMatch(_passwordController.text);
+
+  /// Valida que la contraseña contenga un carácter especial (recomendado)
+  bool get _hasSpecial =>
+      RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]').hasMatch(_passwordController.text);
+
+  /// TRUE solo si se cumplen TODOS los requisitos de seguridad:
+  /// - Mínimo 8 caracteres 
+  /// - Al menos una mayúscula (A-Z) 
+  /// - Al menos una minúscula (a-z) 
+  /// - Al menos un número (0-9) 
+  /// (Carácter especial es recomendado, no obligatorio)
+  bool get _allRequirementsMet =>
+      _hasMinLength && _hasUppercase && _hasLowercase && _hasNumber;
+
+  /// TRUE si ambas contraseñas coinciden exactamente y no están vacías
+  bool get _passwordsMatch =>
+      _passwordController.text == _confirmPasswordController.text &&
+      _passwordController.text.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listeners para actualizar estado cuando cambian las contraseñas
+    _passwordController.addListener(() => setState(() {}));
+    _confirmPasswordController.addListener(() => setState(() {}));
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -40,6 +79,24 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
 
     if (!isValidForm) {
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
+      return;
+    } else if (!_passwordsMatch) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(AppStrings.passwordMismatch),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    } else if (!_allRequirementsMet) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La contraseña no cumple todos los requisitos necesarios'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       return;
     } else if (!_termsAccepted) {
       // Mostrar advertencia si no aceptó los términos
@@ -86,6 +143,56 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
           ),
           const SizedBox(width: 10),
           Expanded(child: Divider(color: Colors.grey[300], thickness: 1)),
+        ],
+      ),
+    );
+  }
+
+  /// Construye una fila del checklist de requisitos de contraseña
+  /// Muestra un checkmark verde si se cumple, o un círculo vacío si no
+  Widget _buildPasswordRequirement(
+    String text,
+    bool isMet, {
+    bool isRecommended = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          // Checkmark o círculo
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: isMet
+                  ? Colors.green.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              border: Border.all(
+                color: isMet ? Colors.green : Colors.grey[300]!,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: isMet
+                ? const Icon(
+                    Icons.check,
+                    size: 14,
+                    color: Colors.green,
+                  )
+                : null,
+          ),
+          const SizedBox(width: 12),
+          // Texto
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                color: isMet ? Colors.green : AppColors.textGray,
+                fontWeight: isMet ? FontWeight.w500 : FontWeight.w400,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -215,11 +322,54 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
                     if (value == null || value.isEmpty) {
                       return AppStrings.requiredField;
                     }
-                    if (value.length < 8) return AppStrings.passwordInvalid;
+                    if (!_allRequirementsMet) {
+                      return 'La contraseña no cumple todos los requisitos';
+                    }
                     return null;
                   },
                   textCapitalization: TextCapitalization.none,
                 ),
+                const SizedBox(height: 16),
+                
+                // --- CHECKLIST DE REQUISITOS DE CONTRASEÑA ---
+                if (_passwordController.text.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Requisitos de contraseña:',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildPasswordRequirement(
+                        'Mínimo 8 caracteres',
+                        _hasMinLength,
+                      ),
+                      _buildPasswordRequirement(
+                        'Al menos una mayúscula (A-Z)',
+                        _hasUppercase,
+                      ),
+                      _buildPasswordRequirement(
+                        'Al menos una minúscula (a-z)',
+                        _hasLowercase,
+                      ),
+                      _buildPasswordRequirement(
+                        'Al menos un número (0-9)',
+                        _hasNumber,
+                      ),
+                      _buildPasswordRequirement(
+                        'Carácter especial (!@#\$...) — recomendado',
+                        _hasSpecial,
+                        isRecommended: true,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+                
                 const SizedBox(height: 12),
                 CustomInputField(
                   label: AppStrings.confirmPasswordLabel,

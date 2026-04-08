@@ -18,6 +18,7 @@ import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
 import '../../features/location/screens/prof_location_permission_screen.dart';
+import '../../features/location/screens/client_location_permission_screen.dart';
 
 import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
@@ -90,6 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/forgot-password',
         '/forgot-password-sent',
         '/reset-password',
+        '/client-location-permission',
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
@@ -324,6 +326,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       // TODO: Agregar GoRoute para '/cliente-home' aquí en el futuro
+      GoRoute(
+        path: '/client-location-permission',
+        name: 'client_location_permission',
+        builder: (context, state) =>
+            const ClientLocationPermissionScreen(),
+      ),
 
       // ------------------------------------
       //  RUTAS DE RECUPERACIÓN DE CONTRASEÑA

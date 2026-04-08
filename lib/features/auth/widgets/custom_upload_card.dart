@@ -1,5 +1,6 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 
 /// Tarjeta interactiva para la selección y carga de documentos individuales.
 ///
@@ -86,7 +87,7 @@ class CustomUploadCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    isUploaded ? 'Documento adjuntado' : subtitle,
+                    isUploaded ? AppStrings.docUploaded : subtitle,
                     style: TextStyle(
                       fontSize: 13,
                       color: isUploaded

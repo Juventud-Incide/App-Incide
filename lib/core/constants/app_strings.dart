@@ -98,6 +98,8 @@ class AppStrings {
   static const String docFotoSubtitle =
       'Foto de frente, clara y sin lentes oscuros.';
 
+  static const String docUploaded = 'Documento adjuntado';
+
   // --- Revisión de Documentos ---
   static const String reupload = 'Re-subir ';
   static const String takeNewPhoto = 'Tomar nueva Fotografía';

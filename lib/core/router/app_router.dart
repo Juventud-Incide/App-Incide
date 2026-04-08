@@ -25,6 +25,7 @@ import '../../features/provider/dashboard/models/opportunity_model.dart';
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 import '../../features/auth/cliente_verif_correo.dart';
+import '../../features/client/home/screens/client_home_screen.dart';
 import '../../features/auth/forgot_password_screen.dart';
 import '../../features/auth/forgot_password_sent_screen.dart';
 import '../../features/auth/reset_password_screen.dart';
@@ -60,6 +61,7 @@ class AppRouter {
         '/forgot-password-sent',
         '/reset-password',
         '/client-location-permission',
+        '/home-cliente', // TODO (Backend): Remover de 'publicRoutes' una vez que terminen de implementar su flujo con tokens reales para que vuelva a ser privado.
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
@@ -279,6 +281,11 @@ class AppRouter {
         name: 'client_location_permission',
         builder: (context, state) =>
             const ClientLocationPermissionScreen(),
+      ),
+      GoRoute(
+        path: '/home-cliente',
+        name: 'home-cliente',
+        builder: (context, state) => const ClientHomeScreen(),
       ),
 
       // ------------------------------------

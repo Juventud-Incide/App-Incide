@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets/custom_input_field.dart';
 import 'providers/auth_provider.dart';
 
@@ -37,13 +38,22 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
         if (!mounted) return;
 
         if (status == 'aceptado') {
+          // --- TODO (Backend) - GUARDADO DE TOKEN ---
+          // 1. Tu API te responderá con un JWT Token real cuando las credenciales sean válidas.
+          // 2. Debes guardarlo usando 'flutter_secure_storage' para cifrado (ahorita usa SharedPreferences de ejemplo).
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('jwt_token', 'dummy_client_jwt_token_12345'); // Aquí va tu token verdadero
+          await prefs.setString('user_role', 'client'); // Ayuda a identificar adonde mandar al usuario en el Splash
+
+          if (!mounted) return;
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('¡Bienvenido a INCIDE!'),
               backgroundColor: Colors.green,
             ),
           );
-          // TODO: context.go('/home-cliente');
+          context.go('/home-cliente');
         } else if (status == 'pendiente') {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

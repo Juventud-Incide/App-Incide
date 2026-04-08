@@ -148,53 +148,52 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
     );
   }
 
-  /// Construye una fila del checklist de requisitos de contraseña
-  /// Muestra un checkmark verde si se cumple, o un círculo vacío si no
-  Widget _buildPasswordRequirement(
-    String text,
-    bool isMet, {
-    bool isRecommended = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        children: [
-          // Checkmark o círculo
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: isMet
-                  ? Colors.green.withValues(alpha: 0.1)
-                  : Colors.transparent,
-              border: Border.all(
-                color: isMet ? Colors.green : Colors.grey[300]!,
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: isMet
-                ? const Icon(
-                    Icons.check,
-                    size: 14,
-                    color: Colors.green,
-                  )
-                : null,
+  Widget _buildPasswordRequirements() {
+    return AnimatedBuilder(
+      animation: _passwordController,
+      builder: (context, _) {
+        if (_passwordController.text.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          const SizedBox(width: 12),
-          // Texto
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 13,
-                color: isMet ? Colors.green : AppColors.textGray,
-                fontWeight: isMet ? FontWeight.w500 : FontWeight.w400,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Requisitos de contraseña:',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDark,
+                ),
               ),
-            ),
+              const SizedBox(height: 8),
+              _RequirementRow(met: _hasMinLength, text: 'Mínimo 8 caracteres'),
+              _RequirementRow(
+                met: _hasUppercase,
+                text: 'Al menos una mayúscula (A-Z)',
+              ),
+              _RequirementRow(
+                met: _hasLowercase,
+                text: 'Al menos una minúscula (a-z)',
+              ),
+              _RequirementRow(
+                met: _hasNumber,
+                text: 'Al menos un número (0-9)',
+              ),
+              _RequirementRow(
+                met: _hasSpecial,
+                text: 'Carácter especial (!@#\$...) — recomendado',
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -332,43 +331,7 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
                 const SizedBox(height: 16),
                 
                 // --- CHECKLIST DE REQUISITOS DE CONTRASEÑA ---
-                if (_passwordController.text.isNotEmpty)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Requisitos de contraseña:',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildPasswordRequirement(
-                        'Mínimo 8 caracteres',
-                        _hasMinLength,
-                      ),
-                      _buildPasswordRequirement(
-                        'Al menos una mayúscula (A-Z)',
-                        _hasUppercase,
-                      ),
-                      _buildPasswordRequirement(
-                        'Al menos una minúscula (a-z)',
-                        _hasLowercase,
-                      ),
-                      _buildPasswordRequirement(
-                        'Al menos un número (0-9)',
-                        _hasNumber,
-                      ),
-                      _buildPasswordRequirement(
-                        'Carácter especial (!@#\$...) — recomendado',
-                        _hasSpecial,
-                        isRecommended: true,
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
+                _buildPasswordRequirements(),
                 
                 const SizedBox(height: 12),
                 CustomInputField(
@@ -509,6 +472,45 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── FILA DE REQUISITO ────────────────────────────────────────────────────────
+class _RequirementRow extends StatelessWidget {
+  final bool met;
+  final String text;
+
+  const _RequirementRow({required this.met, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: Icon(
+              met ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+              key: ValueKey(met),
+              size: 16,
+              color: met ? AppColors.successGreen : const Color(0xFFD1D5DB),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                color: met ? AppColors.successGreen : AppColors.textGray,
+                fontWeight: met ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

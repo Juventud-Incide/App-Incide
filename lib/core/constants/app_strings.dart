@@ -67,6 +67,7 @@ class AppStrings {
       'Ingresa el código de 6 dígitos que enviamos a ';
   static const String emailOtpNotReceived = '¿No recibiste el código?';
   static const String emailOtpResendBtn = 'Reenviar código (00:45)';
+  static const String emailOtpIncomplete = 'Por favor, ingresa los 6 dígitos';
 
   // --- Documentos KYC ---
   static const String uploadText = 'Subir ';

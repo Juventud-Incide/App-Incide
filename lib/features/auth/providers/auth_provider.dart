@@ -11,7 +11,13 @@ class MockAuthRepository {
     await Future.delayed(const Duration(seconds: 2));
 
     // Casos de prueba:
-    if (email == 'admin@correo.com' && password == '12345678') {
+
+    // --- CREDENCIAL EXCLUSIVA PARA CLIENTES ---
+    if (email == 'cliente@correo.com' && password == 'cliente123') {
+      return 'aceptado';
+    } 
+    // --- CREDENCIALES GENERALES / PROFESIONISTAS ---
+    else if (email == 'admin@correo.com' && password == '12345678') {
       return 'aceptado';
     } else if (email == 'espera@correo.com') {
       return 'pendiente';

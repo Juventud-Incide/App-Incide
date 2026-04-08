@@ -56,7 +56,7 @@ class _ClienteVerifCorreoScreenState extends State<ClienteVerifCorreoScreen> {
     if (otpCode.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(AppStrings.otpIncomplete),
+          content: Text(AppStrings.emailOtpIncomplete),
           backgroundColor: Colors.red,
         ),
       );

@@ -4,8 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
 
+/// Pantalla final del flujo de Recuperación de Contraseña.
+///
+/// **Arquitectura (Deep Links):**
+/// Esta pantalla está diseñada para ser el punto de aterrizaje (landing) cuando
+/// el usuario hace clic en el enlace de recuperación enviado a su correo.
+///
+/// **Manejo de Estado y Seguridad:**
+/// - Realiza validación cruzada entre el campo de nueva contraseña y el de confirmación.
+/// - Implementa el borrado inmediato en memoria (`.clear()`) de los text controllers
+///   una vez que la petición es exitosa para prevenir fugas de datos sensibles.
 class ProfNewPasswordScreen extends StatefulWidget {
-  // Si usáramos Deep Links (URLs), aquí se recibe el token por parámetro
+  // TODO: (BACKEND) - Habilitar este parámetro cuando se configure el ruteo de Deep Links
+  // en `app_router.dart` para recibir el token dinámico generado por Firebase/Backend.
   // final String? token;
   const ProfNewPasswordScreen({super.key});
 
@@ -18,18 +29,23 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
 
+  /// Controla la UI para bloquear botones y mostrar loaders.
   bool _isLoading = false;
+
+  /// Estados independientes para los íconos del "Ojito" en cada campo.
   bool _isPasswordVisible = false;
   bool _isConfirmVisible = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
   @override
   void dispose() {
+    // LIMPIEZA: CRÍTICO para campos de contraseñas.
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
   }
 
+  /// Ejecuta la validación cruzada y lanza la petición al servidor.
   Future<void> _updatePassword() async {
     final isValid = _formKey.currentState!.validate();
 
@@ -41,13 +57,15 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Llamada al backend -> authService.updatePassword(token, _passwordController.text)
+      // TODO: (BACKEND) - Llamada real -> await authService.updatePassword(widget.token, _passwordController.text)
       await Future.delayed(const Duration(seconds: 2));
 
-      // Limpiamos las contraseñas de la memoria antes de salir
+      // SEGURIDAD: Limpiamos las contraseñas de la memoria RAM inmediatamente
+      // después de que el "servidor" procesa la respuesta exitosa.
       _passwordController.clear();
       _confirmController.clear();
 
+      // Muestra el Modal de Éxito irrompible (barrierDismissible: false)
       if (mounted) {
         showDialog(
           context: context,
@@ -78,8 +96,8 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
                     backgroundColor: AppColors.primaryBlue,
                   ),
                   onPressed: () {
-                    context.pop();
-                    context.goNamed('splash');
+                    context.pop(); // Cierra el diálogo
+                    context.goNamed('splash'); // Redirige al inicio absoluto
                   },
                   child: const Text(
                     AppStrings.goToLoginBtn,

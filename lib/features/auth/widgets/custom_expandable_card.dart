@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 
+/// Tarjeta interactiva para mostrar errores y solicitar correcciones al usuario.
+///
+/// **UX / UI Dinámica:**
+/// Este componente cambia drásticamente su diseño basado en el estado `isCompleted`.
+/// - **Incompleto (Error):** Bordes rojos, ícono de advertencia, muestra el mensaje de
+///   retroalimentación (feedback) del revisor y permite ser tocada para re-subir el archivo.
+/// - **Completado:** Cambia a colores primarios/verdes, deshabilita el onTap para prevenir
+///   múltiples subidas innecesarias, y oculta la caja de comentarios de error.
 class CustomExpandableCard extends StatelessWidget {
+  /// Nombre del requerimiento (ej. "Identificación Oficial").
   final String title;
+
+  /// Subtítulo indicando la acción requerida o el estado actual.
   final String subtitle;
+
+  /// El mensaje textual que el administrador dejó explicando por qué rechazó el documento.
   final String? feedbackMessage;
+
+  /// Define si la tarjeta debe mostrar el estado de error o el estado corregido.
   final bool isCompleted;
+
+  /// Callback que se dispara al tocar la tarjeta (generalmente para abrir la cámara/galería).
   final ValueChanged<bool> onActionTapped;
 
   const CustomExpandableCard({
@@ -35,7 +52,7 @@ class CustomExpandableCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-            // Pasamos el estado al callback
+            // Bloquea la interacción si el documento ya fue corregido
             onTap: isCompleted ? null : () => onActionTapped(true),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -47,8 +64,7 @@ class CustomExpandableCard extends StatelessWidget {
               backgroundColor: isCompleted
                   ? AppColors.primaryBlue
                   : Colors.red.withValues(alpha: 0.1),
-              radius:
-                  22, // Un radio relativo en lugar de width/height absolutos
+              radius: 22, // Radio relativo en lugar de width/height absolutos
               child: Icon(
                 isCompleted
                     ? Icons.check_circle_rounded
@@ -80,7 +96,7 @@ class CustomExpandableCard extends StatelessWidget {
                   ),
           ),
 
-          // Caja de comentarios expandible (Solo visible si hay feedback y no está completado)
+          // Caja de comentarios de retroalimentación (Solo visible si hay error)
           if (!isCompleted && feedbackMessage != null)
             Container(
               width: double.infinity,

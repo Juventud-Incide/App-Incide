@@ -11,10 +11,12 @@ namespace backend.Infraestructure.API_Services
     public class ProviderServices : IProviderServices
     {
         private readonly AppDbContext _context;
+        private readonly INotificationService _notifications;
 
-        public ProviderServices(AppDbContext context)
+        public ProviderServices(AppDbContext context, INotificationService notifications)
         {
             _context = context;
+            _notifications = notifications;
         }
 
         private static ProviderOutPutDTO ToOutputDTO(Provider provider) => new()
@@ -91,5 +93,88 @@ namespace backend.Infraestructure.API_Services
             await _context.SaveChangesAsync();
             return ToOutputDTO(provider);
         }
+
+        public async Task<List<ProviderReviewOutputDTO>> GetPendingAffiliationsAsync(CancellationToken ct)
+        {
+            var providers = await _context.Providers
+                .Include(p => p.User)
+                .Where(p => p.Status == ProviderStatus.AffiliationPending)
+                .ToListAsync(ct);
+
+            var providerIds = providers.Select(p => p.Id).ToList();
+            var docs = await _context.Documents
+                .Where(d => providerIds.Contains(d.ProviderId) && !d.IsDeleted)
+                .ToListAsync(ct);
+
+            return providers.Select(p => new ProviderReviewOutputDTO
+            {
+                Id = p.Id,
+                FullName = $"{p.User.FirstName} {p.User.LastName}",
+                Email = p.User.Email,
+                PhoneNumber = p.User.PhoneNumber ?? string.Empty,
+                Status = p.Status.ToString(),
+                InterviewDate = p.InterviewDate,
+                Documents = docs
+                    .Where(d => d.ProviderId == p.Id)
+                    .Select(ToDocumentDTO)
+                    .ToList()
+            }).ToList();
+        }
+
+        public async Task<ProviderOutPutDTO?> ApproveAffiliationAsync(int id, CancellationToken ct)
+        {
+            var provider = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id, ct);
+
+            if (provider == null) return null;
+
+            if (provider.Status != ProviderStatus.AffiliationPending)
+                throw new InvalidOperationException(
+                    $"No se puede aprobar la afiliación: el proveedor está en estado '{provider.Status}'. Solo se permite desde 'AffiliationPending'.");
+
+            provider.Status = ProviderStatus.Affiliated;
+            provider.AffiliationRejectionReason = null;
+            provider.LastUpdate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync(ct);
+            await _notifications.NotifyProviderAffiliationApprovedAsync(provider, ct);
+
+            return ToOutputDTO(provider);
+        }
+
+        public async Task<ProviderOutPutDTO?> RejectAffiliationAsync(int id, RejectAffiliationDTO dto, CancellationToken ct)
+        {
+            var provider = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == id, ct);
+
+            if (provider == null) return null;
+
+            if (provider.Status != ProviderStatus.AffiliationPending)
+                throw new InvalidOperationException(
+                    $"No se puede rechazar la afiliación: el proveedor está en estado '{provider.Status}'. Solo se permite desde 'AffiliationPending'.");
+
+            provider.Status = ProviderStatus.Rejected;
+            provider.AffiliationRejectionReason = dto.Reason;
+            provider.LastUpdate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync(ct);
+            await _notifications.NotifyProviderAffiliationRejectedAsync(provider, dto.Reason, ct);
+
+            return ToOutputDTO(provider);
+        }
+
+        private static DocumentOutputDTO ToDocumentDTO(Document d) => new()
+        {
+            Id = d.Id,
+            ProviderId = d.ProviderId,
+            DocumentType = d.DocumentType.ToString(),
+            DocumentStatus = d.DocumentStatus.ToString(),
+            FileUrl = d.FileUrl,
+            OriginalFileName = d.OriginalFileName,
+            SizeBytes = d.SizeBytes,
+            CreationDate = d.CreationDate
+        };
     }
 }

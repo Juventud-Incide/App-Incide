@@ -34,5 +34,33 @@ namespace backend.Infraestructure.API_Services
 
             return Task.CompletedTask;
         }
+
+        public Task NotifyProviderAffiliationApprovedAsync(Provider provider, CancellationToken ct)
+        {
+            var fullName = $"{provider.User.FirstName} {provider.User.LastName}";
+
+            _logger.LogInformation(
+                "[PROVIDER-NOTIF] Afiliación APROBADA. ProviderId={ProviderId}, Nombre={FullName}, Email={Email}. Mensaje: 'Tu afiliación ha sido aprobada, ya puedes operar en la plataforma.'",
+                provider.Id,
+                fullName,
+                provider.User.Email);
+
+            return Task.CompletedTask;
+        }
+
+        public Task NotifyProviderAffiliationRejectedAsync(Provider provider, string reason, CancellationToken ct)
+        {
+            var fullName = $"{provider.User.FirstName} {provider.User.LastName}";
+
+            _logger.LogInformation(
+                "[PROVIDER-NOTIF] Afiliación RECHAZADA. ProviderId={ProviderId}, Nombre={FullName}, Email={Email}, Motivo={Reason}. Mensaje: 'Tu afiliación fue rechazada por el siguiente motivo: {Reason}'",
+                provider.Id,
+                fullName,
+                provider.User.Email,
+                reason,
+                reason);
+
+            return Task.CompletedTask;
+        }
     }
 }

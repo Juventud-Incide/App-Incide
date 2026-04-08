@@ -6,7 +6,18 @@ import 'package:app_incide/features/provider/dashboard/models/opportunity_model.
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Vista de detalle inmersiva para una Oportunidad (Solicitud de trabajo).
+///
+/// Esta pantalla muestra la información completa del [OpportunityModel] seleccionado.
+///
+/// **Contrato de Navegación:**
+/// Esta pantalla actúa como una vista modal de pantalla completa. Al cerrarse
+/// mediante los botones de acción inferiores, hace un `pop` devolviendo un [String]:
+/// - `'discarded'`: Si el usuario descartó la oportunidad.
+/// - `'accepted'`: Si el usuario envió una cotización exitosamente.
+/// - `null`: Si el usuario simplemente retrocedió usando la flecha del sistema.
 class OpportunityDetailScreen extends StatelessWidget {
+  /// El modelo de datos inyectado por el enrutador al abrir la pantalla.
   final OpportunityModel opportunity;
 
   const OpportunityDetailScreen({super.key, required this.opportunity});
@@ -15,7 +26,8 @@ class OpportunityDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      // CustomScrollView permite animaciones complejas al hacer scroll
+      // Utiliza un CustomScrollView con arquitectura de Slivers para lograr
+      // animaciones de compresión en la cabecera (efecto Parallax) al hacer scroll.
       body: CustomScrollView(
         slivers: [
           // 1. La Cabecera Animada (El Mapa)
@@ -34,7 +46,7 @@ class OpportunityDetailScreen extends StatelessWidget {
                   shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
                 ),
               ),
-              // Aquí iría el widget de Google Maps.
+              // TODO: (MAPAS) - Reemplazar este Stack con GoogleMap() o FlutterMap() centrado en las coordenadas del cliente.
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -61,6 +73,8 @@ class OpportunityDetailScreen extends StatelessWidget {
           ),
 
           // 2. El Contenido de la Pantalla
+          // SliverToBoxAdapter nos permite incrustar widgets normales (Column, Row)
+          // dentro de un entorno de Slivers.
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -130,6 +144,8 @@ class OpportunityDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Desempaquetamos (spread operator) el mapa de respuestas del cliente
                   ...opportunity.clientAnswers.entries.map(
                     (entry) => _buildQuestionAnswer(entry.key, entry.value),
                   ),
@@ -147,7 +163,7 @@ class OpportunityDetailScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildPhotoGallery(),
 
-                  const SizedBox(height: 40), // Espacio extra al final
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -155,12 +171,12 @@ class OpportunityDetailScreen extends StatelessWidget {
         ],
       ),
 
-      // 3. Botones Fijos en la parte inferior (Siempre visibles)
+      // 3. BOTONES DE ACCIÓN (Siempre visibles)
       bottomNavigationBar: _buildStickyBottomBar(context),
     );
   }
 
-  // --- SUB-WIDGETS ---
+  // --- MÉTODOS DE CONSTRUCCIÓN INTERNOS (UI) ---
 
   Widget _buildQuickInfoRow(String category, String distance, String urgency) {
     return Wrap(
@@ -263,6 +279,10 @@ class OpportunityDetailScreen extends StatelessWidget {
     );
   }
 
+  /// Construye la galería de fotos adjuntas.
+  ///
+  /// TODO: (BACKEND) - Conectar con `opportunity.photoUrls` y usar `CachedNetworkImage`
+  /// para cargar las imágenes desde el Storage, reemplazando el placeholder estático.
   Widget _buildPhotoGallery() {
     return SizedBox(
       height: 100,
@@ -284,6 +304,7 @@ class OpportunityDetailScreen extends StatelessWidget {
     );
   }
 
+  /// Barra de acciones anclada a la parte inferior de la pantalla.
   Widget _buildStickyBottomBar(BuildContext context) {
     return SafeArea(
       child: Container(
@@ -300,6 +321,7 @@ class OpportunityDetailScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Botón Descartar: Notifica a la vista principal para remover la tarjeta
             Expanded(
               child: SizedBox(
                 height: 48,
@@ -320,11 +342,13 @@ class OpportunityDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
+            // Botón Interesado: Abre el flujo de cotización
             Expanded(
               child: SizedBox(
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () async {
+                    // Lanzamos el modal y esperamos a ver si el proveedor la completó
                     final result = await showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -333,10 +357,10 @@ class OpportunityDetailScreen extends StatelessWidget {
                       builder: (context) => const ProposalBottomSheet(),
                     );
 
+                    // Si el modal devolvió 'true' (éxito), cerramos esta pantalla
+                    // y le avisamos a la pantalla principal que aplique la animación verde.
                     if (result == true && context.mounted) {
-                      context.pop(
-                        'accepted',
-                      ); // Cierra la pantalla de detalle y vuelve a la lista
+                      context.pop('accepted');
                     }
                   },
                   style: ElevatedButton.styleFrom(

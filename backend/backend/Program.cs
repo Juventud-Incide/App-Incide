@@ -21,6 +21,8 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProviderServices, ProviderServices>();
+// Para Redis: reemplazar por RedisTokenRevocationStore manteniendo la misma interfaz.
+builder.Services.AddScoped<ITokenRevocationStore, EfTokenRevocationStore>();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtConfig["Key"];

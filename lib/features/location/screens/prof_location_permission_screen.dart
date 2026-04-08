@@ -6,6 +6,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_incide/features/auth/providers/auth_provider.dart';
 
+/// Pantalla de interceptación obligatoria para solicitar permisos de GPS.
+///
+/// Esta vista actúa como un "Muro de Contención" en el enrutador. Un proveedor
+/// no puede acceder al Dashboard (`/prof-home`) sin antes otorgar estos permisos.
+///
+/// **Arquitectura Reactiva:** /// Esta pantalla no utiliza `context.go()` para salir. Su única responsabilidad
+/// es interactuar con el SO (Sistema Operativo) y, en caso de éxito, notificar
+/// al [authControllerProvider]. El GoRouter detecta ese cambio y extrae
+/// al usuario automáticamente de esta pantalla.
 class ProfLocationPermissionScreen extends ConsumerStatefulWidget {
   const ProfLocationPermissionScreen({super.key});
 
@@ -14,25 +23,34 @@ class ProfLocationPermissionScreen extends ConsumerStatefulWidget {
       _ProfLocationPermissionScreenState();
 }
 
+/// Estado de la pantalla. Implementa [WidgetsBindingObserver] para "escuchar"
+/// cuando la aplicación pasa a segundo plano o regresa al primer plano.
 class _ProfLocationPermissionScreenState
     extends ConsumerState<ProfLocationPermissionScreen>
     with WidgetsBindingObserver {
+  /// Controla si se muestra un loader mientras verificamos los permisos en silencio.
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    // Suscribimos esta pantalla para que escuche los eventos del ciclo de vida del SO.
     WidgetsBinding.instance.addObserver(this);
     _checkInitialPermission();
   }
 
   @override
   void dispose() {
+    // LIMPIEZA: Es vital remover el observador para evitar Memory Leaks al destruir la vista.
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  // Esto detecta si el usuario fue a la configuración del celular y regresó a la app
+  /// Detecta si el usuario minimizó la app (ej. para ir a los ajustes del celular)
+  /// y acaba de regresar.
+  ///
+  /// Si el usuario regresa ([AppLifecycleState.resumed]), volvemos a evaluar
+  /// si ya nos dio el permiso desde la configuración nativa de Android/iOS.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -40,28 +58,35 @@ class _ProfLocationPermissionScreenState
     }
   }
 
+  /// Verifica silenciosamente el estado actual del permiso de ubicación.
+  ///
+  /// Se ejecuta al cargar la pantalla por primera vez o al regresar de los ajustes.
+  /// Si el permiso ya fue otorgado previamente, dispara el estado en Riverpod
+  /// para saltarse la interfaz gráfica por completo.
   Future<void> _checkInitialPermission() async {
     final status = await Permission.locationWhenInUse.status;
 
     if (status.isGranted) {
       // Si ya tiene permiso, lo mandamos directo al Dashboard sin mostrar esta UI
       if (mounted) {
+        // Disparador reactivo: GoRouter nos sacará de aquí.
         ref.read(authControllerProvider.notifier).grantLocation();
       }
     } else {
-      // Si no tiene permiso, quitamos el loader y mostramos nuestra UI para convencerlo
+      // Si no tiene permiso, apagamos el loader para mostrar la UI persuasiva
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  /// Lanza el diálogo nativo (Pop-up) del sistema operativo pidiendo acceso al GPS.
   Future<void> _requestPermission() async {
     final status = await Permission.locationWhenInUse.request();
 
     if (status.isGranted) {
       if (mounted) ref.read(authControllerProvider.notifier).grantLocation();
     } else if (status.isPermanentlyDenied) {
-      // Si le dio a "Nunca permitir", el sistema operativo ya no nos deja mostrar la alerta.
-      // Tenemos que mandarlo a la configuración de su celular.
+      // Si el usuario marcó "No volver a preguntar", el SO bloquea nuestro pop-up.
+      // La única solución es llevarlo a mano a la configuración de su dispositivo.
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -70,6 +95,7 @@ class _ProfLocationPermissionScreenState
             duration: Duration(seconds: 4),
           ),
         );
+        // Abre la pantalla de ajustes nativa de INCIDE en Android/iOS
         await openAppSettings();
       }
     }
@@ -78,6 +104,8 @@ class _ProfLocationPermissionScreenState
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
+      // PopScope(canPop: false) bloquea el botón físico de retroceso de Android
+      // para evitar que el usuario se salte este paso obligatorio.
       return const PopScope(
         canPop: false,
         child: Scaffold(
@@ -167,7 +195,7 @@ class _ProfLocationPermissionScreenState
                 ),
                 const SizedBox(height: 16),
 
-                // Plan B: Si el usuario es terco y no quiere dar su ubicación GPS
+                // Plan B: Si el usuario es terco y rechaza el primer intento
                 TextButton(
                   onPressed: () {
                     showDialog(

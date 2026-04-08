@@ -4,7 +4,19 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Pantalla de confirmación de envío de enlace de recuperación.
+///
+/// **Recepción de Datos:**
+/// Recibe el `email` proporcionado en la pantalla anterior para mostrarlo en el texto,
+/// dando certeza al usuario de a dónde se envió la información.
+///
+/// **Mecanismo Anti-Spam (Rate Limiting en UI):**
+/// Implementa un [Timer.periodic] de 60 segundos. Durante este tiempo,
+/// el botón de "Reenviar" permanece bloqueado y muestra una cuenta regresiva.
+/// Esto previene que el usuario sature el servidor o agote la cuota de correos
+/// de Firebase Auth pulsando repetidamente el botón.
 class ProfForgotPasswordSentScreen extends StatefulWidget {
+  /// El correo electrónico al que se acaba de enviar el enlace.
   final String email;
 
   const ProfForgotPasswordSentScreen({super.key, required this.email});
@@ -18,6 +30,8 @@ class _ProfForgotPasswordSentScreenState
     extends State<ProfForgotPasswordSentScreen> {
   Timer? _timer;
   int _secondsRemaining = 59;
+
+  /// Define si el temporizador ha terminado y se habilita el enlace de reenvío.
   bool _canResend = false;
 
   @override
@@ -28,18 +42,21 @@ class _ProfForgotPasswordSentScreenState
 
   @override
   void dispose() {
+    // LIMPIEZA: Los Timers huérfanos causan Memory Leaks y errores si intentan hacer setState en una pantalla destruida.
     _timer?.cancel();
     super.dispose();
   }
 
+  /// Inicia o reinicia la cuenta regresiva de bloqueo.
   void _startTimer() {
     setState(() {
       _secondsRemaining = 59;
       _canResend = false;
     });
 
-    _timer?.cancel();
+    _timer?.cancel(); // Limpia cualquier timer previo por seguridad
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // Prevención: Si el usuario sale de la pantalla antes de que el timer acabe.
       if (!mounted) return;
 
       setState(() {
@@ -47,15 +64,15 @@ class _ProfForgotPasswordSentScreenState
           _secondsRemaining--;
         } else {
           _canResend = true;
-          timer.cancel();
+          timer.cancel(); // Detiene la ejecución en bucle
         }
       });
     });
   }
 
+  /// Procesa el reenvío del correo y reinicia el bloqueo temporal.
   void _resendEmail() {
-    // TODO: Llamada al backend para reenviar el correo
-    // authService.sendPasswordResetEmail(widget.email);
+    // TODO: (BACKEND) - Llamada real: await FirebaseAuth.instance.sendPasswordResetEmail(email: widget.email)
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -64,10 +81,10 @@ class _ProfForgotPasswordSentScreenState
         duration: Duration(seconds: 2),
       ),
     );
-    _startTimer(); // Reiniciamos el reloj
+    _startTimer(); // Reiniciamos el reloj para imponer el "Cooldown" de nuevo
   }
 
-  // Helper para formatear los segundos como "00:0X"
+  /// Getter auxiliar para formatear los segundos de manera elegante (ej. "00:09").
   String get timerText {
     return '00:${_secondsRemaining.toString().padLeft(2, '0')}';
   }
@@ -177,7 +194,7 @@ class _ProfForgotPasswordSentScreenState
               ),
               const SizedBox(height: 30),
 
-              // --- 4. SECCIÓN DE REENVÍO ---
+              // --- 4. SECCIÓN DE REENVÍO (Manejo de Estado Dinámico) ---
               Text(
                 AppStrings.didNotReceiveEmail,
                 style: const TextStyle(color: AppColors.textGray, fontSize: 14),

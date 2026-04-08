@@ -3,6 +3,16 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Pantalla de celebración por la finalización del Registro del Proveedor.
+///
+/// **Rol en el Flujo:**
+/// Se muestra inmediatamente después de que la pantalla de `ProfExperienceScreen`
+/// hace el POST exitoso a la base de datos (creando la cuenta). Informa al usuario
+/// que sus datos están bajo revisión administrativa (SLA de validación).
+///
+/// **Enrutamiento Posterior:**
+/// El botón principal dirige a la "Sala de Espera" (`/prof_review_status`),
+/// donde el proveedor podrá consultar el avance de su trámite.
 class ProfSuccessScreen extends StatelessWidget {
   const ProfSuccessScreen({super.key});
 
@@ -129,6 +139,7 @@ class ProfSuccessScreen extends StatelessWidget {
                 height: 55,
                 child: OutlinedButton(
                   onPressed: () {
+                    // Transición a la vista persistente del estado de la cuenta
                     context.goNamed('prof_review_status');
                   },
                   style: OutlinedButton.styleFrom(

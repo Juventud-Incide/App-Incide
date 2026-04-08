@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 
-/// Indicador de pasos compartido para el flujo de recuperación de contraseña.
-/// [currentStep]: pasos completados/activos (1, 2 o 3).
+/// Barra de progreso animada para el flujo de Recuperación de Contraseña.
+///
+/// **Micro-Interacciones:**
+/// Utiliza [AnimatedContainer] en lugar de un [Container] clásico. Esto provoca
+/// que el cambio de color (de gris a azul) se renderice como una transición fluida
+/// de 300ms en lugar de un corte brusco, mejorando la percepción de calidad (UX).
 class ForgotPasswordStepIndicator extends StatelessWidget {
+  /// Representa la posición activa actual en el flujo (1, 2 o 3).
   final int currentStep;
   const ForgotPasswordStepIndicator({super.key, required this.currentStep});
 

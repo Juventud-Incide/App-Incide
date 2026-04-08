@@ -32,7 +32,16 @@ import '../../features/auth/forgot_password_screen.dart';
 import '../../features/auth/forgot_password_sent_screen.dart';
 import '../../features/auth/reset_password_screen.dart';
 
-// Esta clase convierte los cambios de Riverpod en notificaciones para GoRouter
+// ==========================================
+// 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER
+// ==========================================
+
+/// Puente de reactividad para el enrutamiento.
+///
+/// GoRouter requiere un [Listenable] para saber cuándo debe reevaluar sus rutas.
+/// Esta clase escucha los cambios del [authControllerProvider] (Riverpod) y
+/// notifica a GoRouter automáticamente, eliminando la necesidad de usar
+/// `context.go()` manualmente en los flujos de autenticación y permisos.
 class RouterNotifier extends ChangeNotifier {
   final Ref _ref;
 
@@ -50,6 +59,20 @@ final routerNotifierProvider = Provider<RouterNotifier>((ref) {
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+// ==========================================
+// 2. EL ENRUTADOR REACTIVO
+// ==========================================
+
+/// Proveedor global de navegación de la aplicación (GoRouter).
+///
+/// Define el árbol de rutas y actúa como el **Guardia de Seguridad Global**.
+/// En cada cambio de estado (o intento de navegación), ejecuta la función `redirect`
+/// evaluando en orden estricto:
+/// 1. Autenticación: ¿El usuario inició sesión?
+/// 2. Zonas Públicas: Previene que usuarios logueados regresen al Login.
+/// 3. Roles y Permisos (Muro de Separación):
+///    - Obliga a los 'proveedores' a otorgar permisos de ubicación.
+///    - Evita que los 'proveedores' accedan a rutas de 'clientes' y viceversa.
 final routerProvider = Provider<GoRouter>((ref) {
   final notifier = ref.watch(routerNotifierProvider);
 

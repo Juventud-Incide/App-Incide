@@ -5,7 +5,19 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 
+/// Pantalla de Verificación SMS (One-Time Password) para el Proveedor.
+///
+/// **Flujo de Registro (Wizard):**
+/// Recibe el `formData` (Nombre, Email, Password, Teléfono) de la pantalla anterior.
+/// Si el OTP es correcto, hereda este diccionario a la siguiente vista (`prof_experience`)
+/// para continuar construyendo el Payload final.
+///
+/// **UX de Campos Divididos:**
+/// Utiliza una lista de `FocusNode` para implementar el "Auto-Avance". Cuando el
+/// usuario escribe un dígito, el foco salta automáticamente a la siguiente caja,
+/// mejorando radicalmente la experiencia de usuario.
 class ProfOtpScreen extends StatefulWidget {
+  /// Diccionario acumulativo con los datos parciales del registro.
   final Map<String, dynamic> formData;
 
   const ProfOtpScreen({super.key, required this.formData});
@@ -15,11 +27,12 @@ class ProfOtpScreen extends StatefulWidget {
 }
 
 class _ProfOtpScreenState extends State<ProfOtpScreen> {
-  // Controladores y Nodos de Enfoque para las 4 cajitas
+  // Controladores y Nodos de Enfoque para las 4 cajas de texto individuales
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
   bool _isLoading = false;
 
+  /// Temporizador Anti-Spam para prevenir reenvíos masivos de SMS.
   Timer? _timer;
   int _secondsRemaining = 59;
   bool _canResend = false;
@@ -34,7 +47,9 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
 
   @override
   void dispose() {
-    // Limpieza profunda de memoria RAM (Security P0)
+    // SEGURIDAD P0: Limpieza profunda de memoria RAM.
+    // Previene que los dígitos del OTP o los manejadores de foco queden huérfanos,
+    // causando Memory Leaks o vulnerabilidades si la app es enviada a segundo plano.
     _timer?.cancel();
     for (var controller in _controllers) {
       controller.dispose();
@@ -45,6 +60,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     super.dispose();
   }
 
+  /// Inicia la cuenta regresiva que bloquea el botón de "Reenviar SMS".
   void _startTimer() {
     setState(() {
       _secondsRemaining = 59;
@@ -66,8 +82,9 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     });
   }
 
+  /// Solicita al servidor un nuevo código y reinicia el bloqueo temporal.
   void _resendOTP() {
-    // TODO: Llamada real al backend para reenviar el SMS
+    // TODO: (BACKEND) - Invocar authService.resendSms(widget.formData['phone'])
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Nuevo código SMS enviado'),
@@ -75,21 +92,25 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
       ),
     );
     _startTimer();
-    _focusNodes[0].requestFocus();
+    _focusNodes[0].requestFocus(); // Devuelve el cursor a la primera caja
   }
 
+  /// Formatea los segundos restantes (ej. "00:09").
   String get timerText => '00:${_secondsRemaining.toString().padLeft(2, '0')}';
 
+  /// Función de ofuscación para no mostrar el número completo en pantalla.
+  /// Ej: Si el número es 6621234567, retorna "**4567".
   String _getMaskedPhone() {
     final String phone = widget.formData['phone'] as String? ?? '';
     if (phone.length >= 4) {
-      return '**${phone.substring(phone.length - 4)}'; // Muestra los últimos 4
+      return '**${phone.substring(phone.length - 4)}';
     }
     return '**00';
   }
 
+  /// Concatena los 4 dígitos, valida y verifica contra el servidor.
   Future<void> _verifyCode() async {
-    // Juntamos el texto de las 4 cajitas
+    // Une el texto de todos los controladores en un solo String
     String otpCode = _controllers.map((c) => c.text).join();
 
     if (otpCode.length < 4) {
@@ -105,16 +126,17 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Simulación de llamada al backend (authService.verifyOTP)
+      // TODO: (BACKEND) - Llamada real: await authService.verifyOTP(otpCode)
       await Future.delayed(const Duration(seconds: 1));
-      bool isValid = otpCode == '1234'; // Código de prueba
+      bool isValid = otpCode == '1234'; // Mock de prueba (quitar en prod)
 
       if (isValid) {
-        // Limpiamos los datos sensibles de la RAM inmediatamente antes de navegar
+        // Limpiamos el OTP correcto de la RAM antes de navegar
         for (var controller in _controllers) {
           controller.clear();
         }
         if (mounted) {
+          // Éxito: Pasamos al siguiente formulario inyectando la data acumulada
           context.pushNamed('prof_experience', extra: widget.formData);
         }
       } else {
@@ -126,7 +148,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
             ),
           );
         }
-        // Si falla, también limpiamos para evitar intentos de extracción de memoria
+        // Si falla, borramos lo que escribió para obligarlo a teclear de nuevo
         for (var controller in _controllers) {
           controller.clear();
         }
@@ -193,7 +215,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
               ),
               const SizedBox(height: 30),
 
-              // --- 1. TÍTULOS ---
+              // --- 2. TÍTULOS ---
               const Text(
                 AppStrings.otpTitle,
                 style: TextStyle(
@@ -225,21 +247,22 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
               ),
               const SizedBox(height: 40),
 
-              // --- 2. CAJAS DE OTP ---
+              // --- 3. CAJAS DE OTP ---
               Row(
                 children: [
                   for (int i = 0; i < 4; i++) ...[
                     Expanded(
                       child: AspectRatio(
-                        aspectRatio: 1,
+                        aspectRatio:
+                            1, // Fuerza a que la caja sea un cuadrado perfecto
                         child: TextField(
                           controller: _controllers[i],
                           focusNode: _focusNodes[i],
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           textAlignVertical: TextAlignVertical.center,
-                          maxLength: 1,
-                          obscureText: true,
+                          maxLength: 1, // Solo admite un dígito por caja
+                          obscureText: true, // Oculta el dígito por seguridad
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -249,7 +272,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                           decoration: InputDecoration(
-                            counterText: "",
+                            counterText: "", // Esconde el indicador "0/1"
                             contentPadding: EdgeInsets.zero,
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -267,15 +290,19 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                             ),
                           ),
                           onChanged: (value) {
+                            // Lógica de "Auto-Avance" y "Auto-Retroceso"
                             if (value.isNotEmpty) {
                               if (i < 3) {
-                                _focusNodes[i + 1].requestFocus();
+                                _focusNodes[i + 1]
+                                    .requestFocus(); // Salta al siguiente
                               } else {
-                                _focusNodes[i].unfocus();
+                                _focusNodes[i]
+                                    .unfocus(); // Oculta teclado si es el último
                               }
                             } else {
                               if (i > 0) {
-                                _focusNodes[i - 1].requestFocus();
+                                _focusNodes[i - 1]
+                                    .requestFocus(); // Regresa si borró
                               }
                             }
                           },

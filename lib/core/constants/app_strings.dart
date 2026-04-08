@@ -42,7 +42,7 @@ class AppStrings {
   static const String invalidFormat = 'Formato inválido';
   static const String termsAndConditions =
       'Acepto los Términos y Condiciones y el aviso de privacidad. Entiendo que mi cuenta debe ser validada por un administrador.';
-      static const String termsAndConditionsCliente =
+  static const String termsAndConditionsCliente =
       'Acepto los Términos y Condiciones y el aviso de privacidad.';
   static const String termsNotAccepted =
       'Debes aceptar los Términos y Condiciones para continuar.';
@@ -97,6 +97,8 @@ class AppStrings {
   static const String docFotoShort = 'Foto';
   static const String docFotoSubtitle =
       'Foto de frente, clara y sin lentes oscuros.';
+
+  static const String docUploaded = 'Documento adjuntado';
 
   // --- Revisión de Documentos ---
   static const String reupload = 'Re-subir ';
@@ -226,6 +228,8 @@ class AppStrings {
   static const String waitingQuotesTitle = 'Cotizaciones en Espera';
   static const String acceptedQuotesTitle = 'Cotizaciones Aceptadas';
   static const String opportunitiesTitle = 'Oportunidades Cerca';
+  static const String noOpportunities =
+      'No hay oportunidades disponibles en este momento.';
   static const String viewMapBtn = 'Ver Mapa';
   static const String filterAll = 'Todas';
   static const String filterExclusive = 'Exclusivas';
@@ -284,7 +288,7 @@ class AppStrings {
       'Tu contraseña ha sido actualizada correctamente. Ahora puedes iniciar sesión con tu nueva contraseña.';
   static const String goToLoginBtn = 'Ir a Iniciar Sesión';
 
-   // --- Pantalla de Solicitud de Permisos de Ubicación ---
+  // --- Pantalla de Solicitud de Permisos de Ubicación ---
   static const String locationTitle = 'Encuentra trabajo en tu zona';
   static const String locationSubtitle =
       'Para enviarte cotizaciones y solicitudes de clientes cercanos a ti, necesitamos acceso a tu ubicación.';

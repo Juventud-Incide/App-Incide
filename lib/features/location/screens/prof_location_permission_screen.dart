@@ -3,17 +3,19 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
 
-class ProfLocationPermissionScreen extends StatefulWidget {
+class ProfLocationPermissionScreen extends ConsumerStatefulWidget {
   const ProfLocationPermissionScreen({super.key});
 
   @override
-  State<ProfLocationPermissionScreen> createState() =>
+  ConsumerState<ProfLocationPermissionScreen> createState() =>
       _ProfLocationPermissionScreenState();
 }
 
 class _ProfLocationPermissionScreenState
-    extends State<ProfLocationPermissionScreen>
+    extends ConsumerState<ProfLocationPermissionScreen>
     with WidgetsBindingObserver {
   bool _isLoading = true;
 
@@ -44,7 +46,7 @@ class _ProfLocationPermissionScreenState
     if (status.isGranted) {
       // Si ya tiene permiso, lo mandamos directo al Dashboard sin mostrar esta UI
       if (mounted) {
-        context.goNamed('prof_home');
+        ref.read(authControllerProvider.notifier).grantLocation();
       }
     } else {
       // Si no tiene permiso, quitamos el loader y mostramos nuestra UI para convencerlo
@@ -56,7 +58,7 @@ class _ProfLocationPermissionScreenState
     final status = await Permission.locationWhenInUse.request();
 
     if (status.isGranted) {
-      if (mounted) context.goNamed('prof_home');
+      if (mounted) ref.read(authControllerProvider.notifier).grantLocation();
     } else if (status.isPermanentlyDenied) {
       // Si le dio a "Nunca permitir", el sistema operativo ya no nos deja mostrar la alerta.
       // Tenemos que mandarlo a la configuración de su celular.

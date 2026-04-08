@@ -1,18 +1,57 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ==========================================
-// 1. EL REPOSITORIO (Simulador de Backend)
+// 1. EL ESTADO INMUTABLE (La Memoria)
+// ==========================================
+class AuthState {
+  final bool isLoading;
+  final bool isAuthenticated;
+  final String? role; // 'cliente' o 'proveedor'
+  final bool hasLocationPermission;
+
+  AuthState({
+    this.isLoading = false,
+    this.isAuthenticated = false,
+    this.role,
+    this.hasLocationPermission = false,
+  });
+
+  AuthState copyWith({
+    bool? isLoading,
+    bool? isAuthenticated,
+    String? role,
+    bool? hasLocationPermission,
+  }) {
+    return AuthState(
+      isLoading: isLoading ?? this.isLoading,
+      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      role: role ?? this.role,
+      hasLocationPermission:
+          hasLocationPermission ?? this.hasLocationPermission,
+    );
+  }
+}
+
+// ==========================================
+// 2. EL REPOSITORIO (Simulador de Backend)
 // ==========================================
 final authRepositoryProvider = Provider((ref) => MockAuthRepository());
 
 class MockAuthRepository {
-  Future<String> login(String email, String password) async {
-    // Simulamos la espera de 2 segundos de internet
+  // Ahora pedimos el rol intentado para simular la separación de apps
+  Future<String> login(
+    String email,
+    String password,
+    String requestedRole,
+  ) async {
+    // TODO: (BACKEND) - Reemplazar con llamada real a Firebase Auth o API PaaS
     await Future.delayed(const Duration(seconds: 2));
 
-    // Casos de prueba:
+    // Casos de prueba actualizados para soportar roles:
     if (email == 'admin@correo.com' && password == '12345678') {
       return 'aceptado';
+    } else if (email == 'cliente@correo.com' && password == '12345678') {
+      return 'aceptado'; // Cuenta de prueba para el cliente
     } else if (email == 'espera@correo.com') {
       return 'pendiente';
     } else if (email == 'rechazado@correo.com') {
@@ -24,34 +63,52 @@ class MockAuthRepository {
 }
 
 // ==========================================
-// 2. EL CONTROLADOR DE ESTADO (Sintaxis Moderna)
+// 3. EL CONTROLADOR DE ESTADO
 // ==========================================
-// Usamos NotifierProvider en lugar de StateNotifierProvider
-final authControllerProvider = NotifierProvider<AuthController, bool>(() {
+final authControllerProvider = NotifierProvider<AuthController, AuthState>(() {
   return AuthController();
 });
 
-// Usamos Notifier en lugar de StateNotifier
-class AuthController extends Notifier<bool> {
+class AuthController extends Notifier<AuthState> {
   @override
-  bool build() {
-    // El método build define el estado inicial (false = no está cargando)
-    return false;
+  AuthState build() {
+    // TODO: (BACKEND) - Al iniciar la app, revisar SharedPreferences/SecureStorage
+    // para ver si ya había un token guardado y restaurar la sesión automáticamente.
+    return AuthState();
   }
 
-  Future<String?> login(String email, String password) async {
-    state = true; // Encendemos la ruedita de carga en la UI
+  Future<String?> login(String email, String password, String role) async {
+    state = state.copyWith(isLoading: true); // Encendemos la ruedita de carga
 
     try {
-      // En la sintaxis moderna, usamos ref.read directamente adentro del Notifier
       final repository = ref.read(authRepositoryProvider);
-      final result = await repository.login(email, password);
+      final result = await repository.login(email, password, role);
 
-      state = false; // Apagamos la ruedita
+      if (result == 'aceptado') {
+        // TODO: (BACKEND) - Guardar el token JWT y el rol en almacenamiento local
+        state = state.copyWith(
+          isLoading: false,
+          isAuthenticated: true,
+          role: role, // Guardamos si entró como cliente o proveedor
+        );
+      } else {
+        state = state.copyWith(isLoading: false);
+      }
       return result;
     } catch (e) {
-      state = false; // Apagamos la ruedita aunque haya error
+      state = state.copyWith(isLoading: false);
       throw e.toString().replaceAll('Exception: ', '');
     }
+  }
+
+  void logout() {
+    // TODO: (BACKEND) - Eliminar tokens del almacenamiento local
+    state =
+        AuthState(); // Esto resetea todo a falso y nulo, pateándolo al login
+  }
+
+  void grantLocation() {
+    // TODO: (BACKEND) - Guardar en base de datos que el proveedor ya aceptó permisos
+    state = state.copyWith(hasLocationPermission: true);
   }
 }

@@ -7,16 +7,18 @@ void main() {
   runApp(const ProviderScope(child: IncideApp()));
 }
 
-class IncideApp extends StatelessWidget {
+class IncideApp extends ConsumerWidget {
   const IncideApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
     return MaterialApp.router(
       title: 'INCIDE',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      routerConfig: AppRouter.router,
+      routerConfig: router,
     );
   }
 }

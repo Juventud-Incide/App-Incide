@@ -5,6 +5,7 @@ using backend.Domain.Enum;
 using backend.Domain.OutPutDTOs;
 using backend.Infraestructure.API_Services_Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace backend.Infraestructure.API_Services
 {
@@ -25,15 +26,18 @@ namespace backend.Infraestructure.API_Services
         private readonly AppDbContext _context;
         private readonly IFileStorageService _storage;
         private readonly INotificationService _notifications;
+        private readonly ILogger<DocumentService> _logger;
 
         public DocumentService(
             AppDbContext context,
             IFileStorageService storage,
-            INotificationService notifications)
+            INotificationService notifications,
+            ILogger<DocumentService> logger)
         {
             _context = context;
             _storage = storage;
             _notifications = notifications;
+            _logger = logger;
         }
 
         public async Task<DocumentOutputDTO> UploadAsync(int userId, UploadDocumentDTO dto, CancellationToken ct)
@@ -60,14 +64,16 @@ namespace backend.Infraestructure.API_Services
                     d.DocumentType == dto.DocumentType &&
                     !d.IsDeleted, ct);
 
+            string? oldFileUrl = null;
             if (existing != null)
             {
                 existing.IsDeleted = true;
                 existing.IsActive = false;
                 existing.LastUpdate = DateTime.UtcNow;
-                await _storage.DeleteAsync(existing.FileUrl, ct);
+                oldFileUrl = existing.FileUrl;
             }
 
+            // 1) Guardar archivo nuevo en disco.
             var relativePath = await _storage.SaveAsync(
                 dto.File,
                 $"uploads/providers/{provider.Id}",
@@ -89,7 +95,45 @@ namespace backend.Infraestructure.API_Services
             };
 
             _context.Documents.Add(document);
-            await _context.SaveChangesAsync(ct);
+
+            // 2) Confirmar en BD. Si falla, compensamos borrando el archivo recién guardado
+            //    para evitar archivos huérfanos en disco sin fila correspondiente.
+            try
+            {
+                await _context.SaveChangesAsync(ct);
+            }
+            catch
+            {
+                try
+                {
+                    await _storage.DeleteAsync(relativePath, CancellationToken.None);
+                }
+                catch (Exception cleanupEx)
+                {
+                    _logger.LogWarning(cleanupEx,
+                        "No se pudo limpiar el archivo huérfano tras fallo de BD. Path={Path}",
+                        relativePath);
+                }
+                throw;
+            }
+
+            // 3) BD consistente. Ahora sí borramos físicamente el archivo viejo.
+            //    Si este paso falla, el estado de la BD sigue siendo correcto: el registro
+            //    viejo ya está marcado IsDeleted y no afecta funcionalmente. Solo queda
+            //    un archivo huérfano en disco que puede limpiarse con un job de mantenimiento.
+            if (!string.IsNullOrWhiteSpace(oldFileUrl))
+            {
+                try
+                {
+                    await _storage.DeleteAsync(oldFileUrl, ct);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex,
+                        "No se pudo borrar archivo viejo tras reemplazo. Path={Path}",
+                        oldFileUrl);
+                }
+            }
 
             await CheckCompletionAndNotifyAsync(provider, ct);
 

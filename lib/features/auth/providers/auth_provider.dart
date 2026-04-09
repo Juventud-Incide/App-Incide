@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ==========================================
 // 1. EL REPOSITORIO (Simulador de Backend)
@@ -29,35 +30,87 @@ class MockAuthRepository {
   }
 }
 
-// ==========================================
-// 2. EL CONTROLADOR DE ESTADO (Sintaxis Moderna)
-// ==========================================
-// Usamos NotifierProvider en lugar de StateNotifierProvider
+class AuthState {
+  final String? token;
+  final String? role;
+
+  AuthState({this.token, this.role});
+
+  bool get isAuthenticated => token != null;
+}
+
+// 2. PROVEEDOR DE SESIÓN (Nuevo - Para el Router y Clientes)
+final sessionProvider = NotifierProvider<SessionController, AuthState>(() {
+  return SessionController();
+});
+
+class SessionController extends Notifier<AuthState> {
+  @override
+  AuthState build() => AuthState();
+
+  void updateSession(String? token, String? role) {
+    state = AuthState(token: token, role: role);
+  }
+
+  void clearSession() {
+    state = AuthState();
+  }
+}
+
+// 3. EL CONTROLADOR DE CARGA (Para compatibilidad con Profesionales)
 final authControllerProvider = NotifierProvider<AuthController, bool>(() {
   return AuthController();
 });
 
-// Usamos Notifier en lugar de StateNotifier
 class AuthController extends Notifier<bool> {
   @override
-  bool build() {
-    // El método build define el estado inicial (false = no está cargando)
-    return false;
+  bool build() => false; // false = no está cargando
+
+  /// Carga inicial del estado desde almacenamiento local
+  Future<void> initialize() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    final role = prefs.getString('user_role');
+
+    if (token != null) {
+      ref.read(sessionProvider.notifier).updateSession(token, role);
+    }
   }
 
   Future<String?> login(String email, String password) async {
-    state = true; // Encendemos la ruedita de carga en la UI
+    state = true; // Empieza carga
 
     try {
-      // En la sintaxis moderna, usamos ref.read directamente adentro del Notifier
       final repository = ref.read(authRepositoryProvider);
       final result = await repository.login(email, password);
 
-      state = false; // Apagamos la ruedita
+      if (result == 'aceptado') {
+        final role = email == 'cliente@correo.com' ? 'client' : 'professional';
+        final token = 'dummy_token_${DateTime.now().millisecondsSinceEpoch}';
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('jwt_token', token);
+        await prefs.setString('user_role', role);
+
+        // Actualizamos el proveedor de sesión
+        ref.read(sessionProvider.notifier).updateSession(token, role);
+      }
+
+      state = false;
       return result;
     } catch (e) {
-      state = false; // Apagamos la ruedita aunque haya error
-      throw e.toString().replaceAll('Exception: ', '');
+      state = false;
+      rethrow;
     }
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('jwt_token');
+    await prefs.remove('user_role');
+    
+    // Limpiamos sesión
+    ref.read(sessionProvider.notifier).clearSession();
+    state = false;
   }
 }

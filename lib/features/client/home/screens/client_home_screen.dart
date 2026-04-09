@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/providers/auth_provider.dart';
 
-class ClientHomeScreen extends StatefulWidget {
+class ClientHomeScreen extends ConsumerStatefulWidget {
   const ClientHomeScreen({super.key});
 
   @override
-  State<ClientHomeScreen> createState() => _ClientHomeScreenState();
+  ConsumerState<ClientHomeScreen> createState() => _ClientHomeScreenState();
 }
 
-class _ClientHomeScreenState extends State<ClientHomeScreen> {
+class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   int _currentIndex = 0;
 
   // --- VARIABLES DE ESTADO (Listas para el Backend) ---
@@ -322,15 +323,10 @@ class _ProfileTab extends StatelessWidget {
           const SizedBox(height: 40),
           ElevatedButton.icon(
             onPressed: () async {
-              // --- TODO (Backend) - CIERRE DE SESIÓN ---
-              // 1. Invalidar token remoto.
-              // 2. Limpiar cache local (SharedPreferences).
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.remove('jwt_token');
-              await prefs.remove('user_role');
-              if (context.mounted) {
-                context.go('/roles');
-              }
+              // --- CIERRE DE SESIÓN (Lógica Riverpod) ---
+              // Al ejecutar logout(), el authControllerProvider cambia su estado a isAuthenticated = false.
+              // Como el router watch() a ese provider, nos expulsará automáticamente.
+              await ref.read(authControllerProvider.notifier).logout();
             },
             icon: const Icon(Icons.logout),
             label: const Text(

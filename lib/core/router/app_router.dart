@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/splash_screen.dart';
 import '../../features/roles/role_selection_screen.dart';
 
@@ -32,14 +34,16 @@ import '../../features/auth/reset_password_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-class AppRouter {
-  static final GoRouter router = GoRouter(
+final routerProvider = Provider<GoRouter>((ref) {
+  final session = ref.watch(sessionProvider);
+
+  return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/', // Cambia esto para probar diferentes pantallas
+    initialLocation: '/',
     redirect: (context, state) {
-      // 1. EL ESTADO DEL USUARIO
-      //lo cambie a false ALAN
-      final bool isAuthenticated = false; // TODO: Cambiar por estado real
+      // 1. EL ESTADO DEL USUARIO (Sacado del sessionProvider)
+      final bool isAuthenticated = session.isAuthenticated;
+      final String? userRole = session.role;
       final bool hasLocationPermission = false; // TODO: Cambiar por estado real
 
       // 2. ¿A DÓNDE QUIERE IR?
@@ -47,7 +51,7 @@ class AppRouter {
       final isGoingToSplash = targetPath == '/';
       final isGoingToLocationScreen = targetPath == '/location-permission';
 
-      // Rutas "Públicas" (no ocupan login)
+      // Rutas "Púbicas" (no ocupan login)
       final publicRoutes = [
         '/',
         '/roles',
@@ -61,36 +65,47 @@ class AppRouter {
         '/forgot-password-sent',
         '/reset-password',
         '/client-location-permission',
-        '/home-cliente', // TODO (Backend): Remover de 'publicRoutes' una vez que terminen de implementar su flujo con tokens reales para que vuelva a ser privado.
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
       // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden de importancia)
 
       // Regla 0: SIEMPRE deja que se muestre el Splash Screen al abrir la app
-      if (isGoingToSplash) {
-        return null;
-      }
+      if (isGoingToSplash) return null;
+
+      // Excepción para pruebas de frontend (si es necesario)
+      // if (targetPath == '/home-cliente') return null;
 
       // Regla A: Si NO está autenticado y quiere ir a una zona privada
       if (!isAuthenticated && !isGoingToPublicRoute) {
-        return '/roles'; // Lo pateamos al login
+        return '/roles';
       }
 
       // Regla B: Si ya hizo login, PERO intenta ir a las pantallas de login/registro otra vez
       if (isAuthenticated && isGoingToPublicRoute) {
-        // Lo mandamos al dashboard o a pedir permisos
+        if (userRole == 'client') return '/home-cliente';
         return hasLocationPermission ? '/prof-home' : '/location-permission';
       }
 
-      // Regla C: Si está autenticado, NO tiene ubicación, y no está en la pantalla de pedirla
+      // Regla C: SEPARACIÓN POR ROLES (Seguridad Crítica)
+      // Si un cliente intenta entrar a una ruta de profesionista o viceversa
+      if (isAuthenticated) {
+        if (userRole == 'client' && targetPath.startsWith('/prof-')) {
+          return '/home-cliente';
+        }
+        if (userRole == 'professional' && targetPath.startsWith('/home-cliente')) {
+          return '/prof-home';
+        }
+      }
+
+      // Regla D: Si está autenticado, NO tiene ubicación, y no está en la pantalla de pedirla
       if (isAuthenticated &&
+          userRole == 'professional' &&
           !hasLocationPermission &&
           !isGoingToLocationScreen) {
         return '/location-permission';
       }
 
-      // Si pasó todas las reglas, déjalo continuar su camino
       return null;
     },
     routes: [
@@ -320,4 +335,4 @@ class AppRouter {
       ),
     ],
   );
-}
+});

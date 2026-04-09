@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../models/quote_model.dart';
@@ -45,7 +46,7 @@ class QuotePendingCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
-                  'EN ESPERA',
+                  AppStrings.quotePendingTitle,
                   style: TextStyle(
                     color: Color(0xFFD97706),
                     fontSize: 10,
@@ -57,7 +58,7 @@ class QuotePendingCard extends StatelessWidget {
               Text(
                 quote.estimatedPrice != null
                     ? '\$${quote.estimatedPrice!.toStringAsFixed(0)} MXN'
-                    : 'Por definir',
+                    : AppStrings.quotePriceNotDefined,
                 style: const TextStyle(
                   color: Color(0xFF6B7280),
                   fontSize: 13,
@@ -80,7 +81,7 @@ class QuotePendingCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             // TODO: Calcular las horas reales usando quote.dateQuoteSent
-            'Enviaste tu propuesta recientemente. Esperando respuesta del cliente.',
+            AppStrings.quoteSentTitle,
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 13,
@@ -105,7 +106,7 @@ class QuotePendingCard extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Retirar Propuesta',
+                    AppStrings.quoteRemoveBtn,
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -126,7 +127,7 @@ class QuotePendingCard extends StatelessWidget {
                       size: 18,
                     ),
                     label: const Text(
-                      'Abrir Chat',
+                      AppStrings.quoteOpenChatBtn,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,

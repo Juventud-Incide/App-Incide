@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../models/quote_model.dart';
@@ -48,7 +49,7 @@ class QuoteActiveCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
-                  'ACEPTADA / EN PROGRESO',
+                  AppStrings.quoteAcceptedTitle,
                   style: TextStyle(
                     color: Color(0xFF059669),
                     fontSize: 10,
@@ -60,7 +61,7 @@ class QuoteActiveCard extends StatelessWidget {
               Text(
                 quote.estimatedPrice != null
                     ? '\$${quote.estimatedPrice!.toStringAsFixed(0)} MXN'
-                    : 'Por definir',
+                    : AppStrings.quotePriceNotDefined,
                 style: const TextStyle(
                   color: Color(0xFF10B981),
                   fontSize: 13,
@@ -105,7 +106,7 @@ class QuoteActiveCard extends StatelessWidget {
                 onPressed: onOpenChat,
                 icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
                 label: const Text(
-                  'Abrir Chat',
+                  AppStrings.quoteOpenChatBtn,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(

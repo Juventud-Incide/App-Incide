@@ -265,6 +265,17 @@ class AppStrings {
   static const String emailNotFound =
       'No encontramos una cuenta con este correo.';
 
+  // --- Pantalla de Cotizaciones ---
+  static const String quoteAcceptedTitle = 'ACEPTADA / EN PROGRESO';
+  static const String quotePendingTitle = 'EN ESPERA';
+  static const String quotePriceNotDefined = 'Por definir';
+  static const String quoteOpenChatBtn = 'Abrir Chat';
+  static const String quoteRemoveBtn = 'Retirar Propuesta';
+  static const String quoteCompletedTitle = 'COMPLETADA';
+  static const String quoteRejectedTitle = 'RECHAZADA';
+  static const String quoteSentTitle =
+      'Enviaste tu propuesta recientemente. Esperando respuesta del cliente.';
+
   // --- Pantalla de Envío de Enlace de Recuperación ---
   static const String linkSentTitle = '¡Enlace enviado!';
   static const String linkSentSubtitle1 = 'Hemos enviado las instrucciones a';
@@ -312,8 +323,7 @@ class AppStrings {
   static const String clientLocationModalTitle = 'Tu ubicación, tu ventaja';
   static const String clientLocationModalBody =
       'Necesitamos tu ubicación para mostrarte profesionistas cerca de ti y calcular distancias en tus cotizaciones.';
-  static const String clientLocationModalContinueBtn =
-      'Entendido, continuar';
+  static const String clientLocationModalContinueBtn = 'Entendido, continuar';
   static const String clientLocationModalLaterBtn = 'Ahora no';
 
   // Caso 2: Denegado una vez

@@ -1,7 +1,14 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
+/// Tarjeta de solo lectura para indicar un estado de éxito/aprobación.
+///
+/// **Propósito:**
+/// Componente visual "tonto" (Dumb Component) utilizado en listas de requisitos
+/// para mostrarle al usuario qué elementos ya han sido validados por el sistema
+/// o por un administrador, brindando tranquilidad visual (check verde).
 class CustomApprovedCard extends StatelessWidget {
+  /// El nombre del documento o requisito aprobado (ej. "Identificación Oficial").
   final String title;
 
   const CustomApprovedCard({super.key, required this.title});

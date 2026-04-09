@@ -1,16 +1,47 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 
+/// Campo de entrada de texto universal (Input Field) estandarizado.
+///
+/// **Sistema de Diseño (Design System):**
+/// Centraliza el diseño de los bordes, colores, márgenes y tipografías
+/// de los `TextFormField`. Esto garantiza consistencia visual en toda la app
+/// y facilita cambios globales de UI desde un solo archivo.
+///
+/// **Capacidades Especiales:**
+/// - **Contraseñas:** Si [isPassword] es `true`, oculta el texto y añade automáticamente
+///   un botón interactivo de "Ojo" (suffixIcon) para revelar la contraseña.
+/// - **Validación Inyectada:** Acepta una función [validator] para integrarse
+///   perfectamente con las llaves globales `FormState` de las pantallas padre.
 class CustomInputField extends StatelessWidget {
+  /// Texto que aparece arriba de la caja.
   final String label;
+
+  /// Texto fantasma de ayuda dentro de la caja.
   final String hintText;
+
+  /// Define si el campo debe ofuscar el texto (modo contraseña).
   final bool isPassword;
+
+  /// Estado actual de visibilidad de la contraseña.
   final bool isPasswordVisible;
+
+  /// Disparador del estado visual del "Ojo". Requerido si [isPassword] es true.
   final VoidCallback? onToggleVisibility;
+
+  /// Controlador para extraer o inyectar texto al campo.
   final TextEditingController controller;
+
+  /// Regla de negocio inyectada para mostrar errores en rojo.
   final String? Function(String?)? validator;
+
+  /// Tipo de teclado nativo a mostrar (ej. numérico, email, teléfono).
   final TextInputType keyboardType;
+
+  /// Reglas de mayúsculas automáticas (ej. para Nombres o CURP).
   final TextCapitalization textCapitalization;
+
+  /// Número de líneas para campos de texto largos (ej. Descripciones).
   final int maxLines;
 
   const CustomInputField({

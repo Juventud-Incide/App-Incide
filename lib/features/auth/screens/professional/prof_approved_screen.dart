@@ -3,6 +3,16 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Pantalla de éxito tras la validación manual del perfil del Proveedor.
+///
+/// Esta vista es un paso intermedio en el embudo de incorporación (Onboarding).
+/// Se muestra al usuario una vez que el equipo de administración aprueba su
+/// solicitud inicial, indicándole que el siguiente paso es la carga de documentos legales.
+///
+/// **Flujos de Navegación:**
+/// - Botón Primario: Navega al formulario de carga (`/prof-upload-docs`).
+/// - Botón Secundario: Cierra la sesión/flujo llevándolo al inicio (`/splash`)
+///   permitiendo al usuario continuar en otro momento.
 class ProfApprovedScreen extends StatelessWidget {
   const ProfApprovedScreen({super.key});
 

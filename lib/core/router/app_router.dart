@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../features/auth/splash_screen.dart';
 import '../../features/roles/role_selection_screen.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
 
 import '../../features/auth/screens/professional/prof_register_screen.dart';
 import '../../features/auth/screens/professional/prof_login_screen.dart';
@@ -29,17 +32,62 @@ import '../../features/auth/forgot_password_screen.dart';
 import '../../features/auth/forgot_password_sent_screen.dart';
 import '../../features/auth/reset_password_screen.dart';
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+// ==========================================
+// 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER
+// ==========================================
 
-class AppRouter {
-  static final GoRouter router = GoRouter(
+/// Puente de reactividad para el enrutamiento.
+///
+/// GoRouter requiere un [Listenable] para saber cuándo debe reevaluar sus rutas.
+/// Esta clase escucha los cambios del [authControllerProvider] (Riverpod) y
+/// notifica a GoRouter automáticamente, eliminando la necesidad de usar
+/// `context.go()` manualmente en los flujos de autenticación y permisos.
+class RouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+
+  RouterNotifier(this._ref) {
+    // Escuchamos el authControllerProvider. Cada vez que cambie, notificamos al Router
+    _ref.listen(authControllerProvider, (_, __) {
+      notifyListeners();
+    });
+  }
+}
+
+final routerNotifierProvider = Provider<RouterNotifier>((ref) {
+  return RouterNotifier(ref);
+});
+
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+// ==========================================
+// 2. EL ENRUTADOR REACTIVO
+// ==========================================
+
+/// Proveedor global de navegación de la aplicación (GoRouter).
+///
+/// Define el árbol de rutas y actúa como el **Guardia de Seguridad Global**.
+/// En cada cambio de estado (o intento de navegación), ejecuta la función `redirect`
+/// evaluando en orden estricto:
+/// 1. Autenticación: ¿El usuario inició sesión?
+/// 2. Zonas Públicas: Previene que usuarios logueados regresen al Login.
+/// 3. Roles y Permisos (Muro de Separación):
+///    - Obliga a los 'proveedores' a otorgar permisos de ubicación.
+///    - Evita que los 'proveedores' accedan a rutas de 'clientes' y viceversa.
+final routerProvider = Provider<GoRouter>((ref) {
+  final notifier = ref.watch(routerNotifierProvider);
+
+  return GoRouter(
     navigatorKey: _rootNavigatorKey,
+    refreshListenable: notifier, // Conectamos el puente aquí
     initialLocation: '/', // Cambia esto para probar diferentes pantallas
+
     redirect: (context, state) {
-      // 1. EL ESTADO DEL USUARIO
-      //lo cambie a false ALAN
-      final bool isAuthenticated = false; // TODO: Cambiar por estado real
-      final bool hasLocationPermission = false; // TODO: Cambiar por estado real
+      // 1. EL ESTADO DEL USUARIO (Autenticación, Rol, Permisos)
+      final authState = ref.read(authControllerProvider);
+      final bool isAuthenticated = authState.isAuthenticated;
+      final String? role = authState.role;
+      final String? status = authState.profileStatus;
+      final bool hasLocationPermission = authState.hasLocationPermission;
 
       // 2. ¿A DÓNDE QUIERE IR?
       final targetPath = state.matchedLocation;
@@ -53,6 +101,14 @@ class AppRouter {
         '/prof-login',
         '/prof-register',
         '/prof-otp',
+        '/prof-experience',
+        '/prof-review-status',
+        '/prof-success',
+        '/prof-approved',
+        '/prof-upload-docs',
+        '/prof-docs-success',
+        '/prof-rejected',
+        '/prof-docs-revision',
         '/login-cliente',
         '/registro-cliente',
         '/verif-correo-cliente',
@@ -63,32 +119,60 @@ class AppRouter {
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
-      // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden de importancia)
+      // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden)
 
       // Regla 0: SIEMPRE deja que se muestre el Splash Screen al abrir la app
-      if (isGoingToSplash) {
-        return null;
-      }
+      if (isGoingToSplash) return null;
 
       // Regla A: Si NO está autenticado y quiere ir a una zona privada
       if (!isAuthenticated && !isGoingToPublicRoute) {
         return '/roles'; // Lo pateamos al login
       }
 
-      // Regla B: Si ya hizo login, PERO intenta ir a las pantallas de login/registro otra vez
+      // Regla B: Si ya hizo login, PERO intenta ir a pantallas públicas (login/registro)
       if (isAuthenticated && isGoingToPublicRoute) {
-        // Lo mandamos al dashboard o a pedir permisos
-        return hasLocationPermission ? '/prof-home' : '/location-permission';
+        if (role == 'proveedor') {
+          switch (status) {
+            case 'pendiente':
+              return '/prof-review-status';
+            case 'rechazado':
+              return '/prof-rejected';
+            case 'aceptado':
+            default:
+              return hasLocationPermission
+                  ? '/prof-home'
+                  : '/location-permission';
+          }
+        } else if (role == 'cliente') {
+          // TODO: Modificar la ruta a '/cliente-home' una vez que esté implementada
+          return '/login-cliente';
+        }
       }
 
-      // Regla C: Si está autenticado, NO tiene ubicación, y no está en la pantalla de pedirla
-      if (isAuthenticated &&
-          !hasLocationPermission &&
-          !isGoingToLocationScreen) {
-        return '/location-permission';
+      // Regla C: El muro de separación (Proveedores vs Clientes) y Permisos
+      if (isAuthenticated) {
+        // Flujo del PROVEEDOR
+        if (role == 'proveedor') {
+          // Si intenta ir a zona de clientes, lo regresamos a su inicio
+          if (targetPath.contains('client')) return '/prof-home';
+
+          // Flujo estricto de permisos de ubicación
+          if (hasLocationPermission && isGoingToLocationScreen) {
+            return '/prof-home';
+          }
+        }
+
+        // Flujo del CLIENTE
+        if (role == 'cliente') {
+          // Si intenta ir a zona de proveedor o pedir ubicación, lo regresamos a su inicio
+          if (targetPath.contains('prof') || isGoingToLocationScreen) {
+            // TODO: Modificar la ruta a '/cliente-home' una vez que esté implementada
+            return '/login-cliente';
+          }
+        }
       }
 
-      // Si pasó todas las reglas, déjalo continuar su camino
+      // Si pasó todas las aduanas, déjalo continuar su camino
       return null;
     },
     routes: [
@@ -124,6 +208,7 @@ class AppRouter {
           final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
           // Le pasamos todo el paquete al OTP
+
           return ProfOtpScreen(formData: formData);
         },
       ),
@@ -274,11 +359,11 @@ class AppRouter {
           return ClienteVerifCorreoScreen(formData: formData);
         },
       ),
+      // TODO: Agregar GoRoute para '/cliente-home' aquí en el futuro
       GoRoute(
         path: '/client-location-permission',
         name: 'client_location_permission',
-        builder: (context, state) =>
-            const ClientLocationPermissionScreen(),
+        builder: (context, state) => const ClientLocationPermissionScreen(),
       ),
 
       // ------------------------------------
@@ -298,19 +383,14 @@ class AppRouter {
           return ForgotPasswordSentScreen(data: data);
         },
       ),
-      // La ruta acepta el token como query param para deep links:
-      // Ejemplo: incide://reset-password?token=abc123xyz
-      // TODO (Backend): Configurar deep link en AndroidManifest / Info.plist
-      //                 apuntando a esta ruta con el esquema de la app.
       GoRoute(
         path: '/reset-password',
         name: 'reset-password',
         builder: (context, state) {
-          final String token =
-              state.uri.queryParameters['token'] ?? '';
+          final String token = state.uri.queryParameters['token'] ?? '';
           return ResetPasswordScreen(token: token);
         },
       ),
     ],
   );
-}
+});

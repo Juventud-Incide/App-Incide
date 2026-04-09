@@ -3,13 +3,27 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/opportunity_badge.dart';
 import 'package:flutter/material.dart';
 
+/// Tarjeta principal para mostrar oportunidades de trabajo en el feed.
+///
+/// Encapsula un resumen de la información y provee accesos rápidos (Descartar/Interesado).
+/// Implementa un [Stack] para dibujar una línea lateral indicadora de exclusividad
+/// sin alterar el padding interno del contenido.
 class OpportunityCard extends StatelessWidget {
+  /// Define si se dibuja la línea lateral ámbar y el badge de "Exclusiva".
   final bool isExclusive;
   final String title;
+
+  /// Descripción truncada automáticamente a 2 líneas.
   final String description;
   final String distance;
+
+  /// Navega al detalle de la tarjeta.
   final VoidCallback onTap;
+
+  /// Dispara el flujo de "Eliminación Suave" en la vista padre.
   final VoidCallback onDiscard;
+
+  /// Abre el BottomSheet para enviar una cotización.
   final VoidCallback onInterested;
 
   const OpportunityCard({
@@ -46,7 +60,7 @@ class OpportunityCard extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          // 2. Usamos Stack para sobreponer la línea de color si es exclusiva
+          // Usamos Stack para sobreponer la línea de color si es exclusiva
           child: Stack(
             children: [
               // --- EL CONTENIDO DE LA TARJETA ---

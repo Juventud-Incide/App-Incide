@@ -6,6 +6,17 @@ import '../../../../core/theme/app_colors.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../providers/auth_provider.dart';
 
+/// Pantalla de Inicio de Sesión para el rol de Proveedor.
+///
+/// **Arquitectura Reactiva (Riverpod):**
+/// Esta pantalla es un `ConsumerStatefulWidget` que se comunica con el
+/// [AuthController]. Observa la propiedad `isLoading` del estado global para
+/// alternar visualmente entre el botón de "Iniciar Sesión" y un indicador de carga.
+///
+/// **Enrutamiento Dinámico:**
+/// Dependiendo del estado de la cuenta devuelto por el backend (aceptado, pendiente
+/// de revisión, o rechazado), el usuario es redirigido dinámicamente a la
+/// pantalla correspondiente dentro de su flujo de acceso o sala de espera.
 class ProfLoginScreen extends ConsumerStatefulWidget {
   const ProfLoginScreen({super.key});
 
@@ -14,45 +25,45 @@ class ProfLoginScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
-  // Llave maestra para validar el formulario
+  /// Llave maestra para validar que el correo y contraseña no estén vacíos
+  /// ni rompan el formato esperado antes de enviar peticiones a la red.
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores para extraer el texto que el usuario escribe
+  // Controladores de texto para extraer las credenciales
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  /// Controla la visibilidad (ofuscación) del campo de contraseña.
   bool _isPasswordVisible = false;
 
   @override
   void dispose() {
+    // LIMPIEZA: Evitamos fugas de memoria (Memory Leaks) y aseguramos
+    // que datos sensibles como la contraseña se borren de la RAM al salir de la vista.
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
+  /// Despacha las credenciales al Provider e intercepta la respuesta.
   Future<void> _submitForm() async {
+    // Oculta el teclado nativo para despejar la pantalla
     FocusScope.of(context).unfocus();
 
     if (_formKey.currentState!.validate()) {
       try {
-        // Llamamos al controlador de Riverpod
-        final status = await ref
+        // Dispara la mutación del estado en Riverpod (Activa el loader y llama al API)
+        await ref
             .read(authControllerProvider.notifier)
-            .login(_emailController.text.trim(), _passwordController.text);
-
-        if (!mounted) return;
-
-        // Evaluamos la respuesta de nuestro Mock Backend
-        if (status == 'aceptado') {
-          context.goNamed('location_permission');
-        } else if (status == 'pendiente') {
-          context.goNamed('prof_review_status');
-        } else if (status == 'rechazado') {
-          context.goNamed('prof_rejected');
-        }
+            .login(
+              _emailController.text.trim(),
+              _passwordController.text,
+              'proveedor',
+            );
       } catch (e) {
         if (!mounted) return;
-        // Si arroja error (contraseña incorrecta)
+        // Captura excepciones (ej. "Contraseña incorrecta" o "Usuario no encontrado")
+        // y las muestra amigablemente a través del SnackBar del sistema.
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
         );
@@ -62,7 +73,9 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authControllerProvider);
+    // Observador Reactivo: Desata una reconstrucción rápida del botón
+    // cada vez que el AuthProvider entra en modo de carga (API Request).
+    final isLoading = ref.watch(authControllerProvider).isLoading;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -111,11 +124,12 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return AppStrings.emailLoginEmpty;
                     }
+                    // Expresión regular estándar del W3C para correos electrónicos
                     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
                     if (!emailRegex.hasMatch(value)) {
                       return AppStrings.emailLoginError;
                     }
-                    return null; // Null significa que pasó la validación
+                    return null; // Null confirma que el campo es válido
                   },
                 ),
 
@@ -145,7 +159,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // --- OLVIDASTE CONTRASEÑA ---
+                // --- ENLACE: OLVIDASTE CONTRASEÑA ---
                 Align(
                   alignment: Alignment.center,
                   child: TextButton(
@@ -165,8 +179,10 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
                 const SizedBox(height: 24),
 
-                // --- BOTÓN PRINCIPAL VERDE ---
+                // --- BOTÓN PRINCIPAL (REACTIVO A CARGA) ---
                 ElevatedButton(
+                  // Si isLoading es true, anulamos el onPressed (se vuelve null)
+                  // lo que previene que el usuario dispare múltiples peticiones de red simultáneas.
                   onPressed: isLoading ? null : () => _submitForm(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF16A34A),
@@ -220,7 +236,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                 // --- BOTÓN DE GOOGLE ---
                 OutlinedButton.icon(
                   onPressed: () {
-                    // TODO: Lógica de Google Sign-In
+                    // TODO: (BACKEND) - Integrar el paquete google_sign_in
                   },
                   icon: Image.asset('assets/images/logo_google.png', width: 32),
                   label: const Text(
@@ -242,7 +258,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
                 const SizedBox(height: 48),
 
-                // --- FOOTER REGISTRO ---
+                // --- FOOTER REDIRECCIÓN A REGISTRO ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -252,6 +268,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
+                        // Navegamos empujando (push) para permitir volver atrás
                         context.push('/prof-register');
                       },
                       child: const Text(

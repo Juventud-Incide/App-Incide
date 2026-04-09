@@ -1,11 +1,30 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 
+/// Tarjeta interactiva para la selección y carga de documentos individuales.
+///
+/// **Comportamiento Visual Dinámico:**
+/// El diseño muta drásticamente basado en el parámetro [isUploaded].
+/// Cuando cambia a `true`, la tarjeta altera su paleta a verde (éxito),
+/// reemplaza el icono original por un "Check" y oculta el botón de "Añadir (+)",
+/// brindando retroalimentación de éxito al usuario.
+///
+/// **Inversión de Control (Inversion of Control):**
+/// Este widget es "tonto" (Stateless). No contiene lógica nativa para abrir
+/// la cámara o la galería. Delega esa responsabilidad a la vista padre a través
+/// del callback [onTap], manteniéndose altamente reutilizable.
 class CustomUploadCard extends StatelessWidget {
   final String title;
   final String subtitle;
+
+  /// Icono contextual por defecto (ej. Un birrete para la cédula profesional).
   final IconData icon;
+
+  /// Define si el documento ya fue seleccionado/subido.
   final bool isUploaded;
+
+  /// Función inyectada para invocar el selector de archivos del Sistema Operativo.
   final VoidCallback onTap;
 
   const CustomUploadCard({
@@ -36,6 +55,7 @@ class CustomUploadCard extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Círculo del Ícono
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -67,7 +87,7 @@ class CustomUploadCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    isUploaded ? 'Documento adjuntado' : subtitle,
+                    isUploaded ? AppStrings.docUploaded : subtitle,
                     style: TextStyle(
                       fontSize: 13,
                       color: isUploaded
@@ -78,6 +98,7 @@ class CustomUploadCard extends StatelessWidget {
                 ],
               ),
             ),
+            // Indicador de acción (solo si falta el documento)
             if (!isUploaded)
               const Icon(
                 Icons.add_circle_outline_rounded,

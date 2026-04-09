@@ -47,7 +47,7 @@ class RouterNotifier extends ChangeNotifier {
 
   RouterNotifier(this._ref) {
     // Escuchamos el authControllerProvider. Cada vez que cambie, notificamos al Router
-    _ref.listen(authControllerProvider, (_, __) {
+    _ref.listen(authControllerProvider, (_, _) {
       notifyListeners();
     });
   }
@@ -216,10 +216,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/prof-experience',
         name: 'prof_experience',
         builder: (context, state) {
-          // Extraemos TODO el mapa de datos que nos aventó el OTP
           final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
-          // Se lo damos a la pantalla final
           return ProfExperienceScreen(formData: formData);
         },
       ),

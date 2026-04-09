@@ -56,7 +56,7 @@ namespace backend.Infraestructure.API_Services
             if (dto.DocumentType == DocumentType.None)
                 throw new InvalidOperationException("Debe especificar un tipo de documento válido.");
 
-            ValidateFile(dto.File);
+            await ValidateFileAsync(dto.File, ct);
 
             var existing = await _context.Documents
                 .FirstOrDefaultAsync(d =>
@@ -140,7 +140,15 @@ namespace backend.Infraestructure.API_Services
             return ToOutputDTO(document);
         }
 
-        private static void ValidateFile(IFormFile file)
+        private enum DetectedFileSignature
+        {
+            Unknown,
+            Pdf,
+            Jpeg,
+            Png
+        }
+
+        private static async Task ValidateFileAsync(IFormFile file, CancellationToken ct)
         {
             if (file == null || file.Length == 0)
                 throw new InvalidOperationException("El archivo está vacío.");
@@ -154,7 +162,48 @@ namespace backend.Infraestructure.API_Services
 
             if (string.IsNullOrWhiteSpace(file.ContentType) || !AllowedContentTypes.Contains(file.ContentType))
                 throw new InvalidOperationException("Tipo de contenido no permitido. Solo se aceptan PDF, JPG y PNG.");
+
+            // Validación por magic numbers: garantiza que el contenido del archivo
+            // realmente corresponde al formato declarado por la extensión/content-type.
+            // Defiende contra MIME spoofing (ej. .exe renombrado a .png).
+            var detected = await DetectSignatureAsync(file, ct);
+            var expected = ExpectedSignatureFor(extension);
+
+            if (detected == DetectedFileSignature.Unknown || detected != expected)
+                throw new InvalidOperationException(
+                    "El contenido del archivo no corresponde a un PDF, JPG o PNG válido o no coincide con su extensión.");
         }
+
+        private static async Task<DetectedFileSignature> DetectSignatureAsync(IFormFile file, CancellationToken ct)
+        {
+            await using var stream = file.OpenReadStream();
+            var header = new byte[8];
+            var read = await stream.ReadAsync(header.AsMemory(0, 8), ct);
+
+            if (read >= 4 &&
+                header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46)
+                return DetectedFileSignature.Pdf;
+
+            if (read >= 3 &&
+                header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF)
+                return DetectedFileSignature.Jpeg;
+
+            if (read >= 8 &&
+                header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47 &&
+                header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A)
+                return DetectedFileSignature.Png;
+
+            return DetectedFileSignature.Unknown;
+        }
+
+        private static DetectedFileSignature ExpectedSignatureFor(string extension) => extension.ToLowerInvariant() switch
+        {
+            ".pdf" => DetectedFileSignature.Pdf,
+            ".jpg" => DetectedFileSignature.Jpeg,
+            ".jpeg" => DetectedFileSignature.Jpeg,
+            ".png" => DetectedFileSignature.Png,
+            _ => DetectedFileSignature.Unknown
+        };
 
         private async Task CheckCompletionAndNotifyAsync(Provider provider, CancellationToken ct)
         {

@@ -276,6 +276,15 @@ class AppStrings {
   static const String quoteSentTitle =
       'Enviaste tu propuesta recientemente. Esperando respuesta del cliente.';
 
+  static const String quoteTitle = 'Mis Cotizaciones';
+  static const String quoteNoQuotes = 'No tienes cotizaciones en esta sección.';
+  static const String quoteAlertTitle = '¿Retirar Propuesta?';
+  static const String quoteAlertContent =
+      'Esta acción cancelará tu postulación y no podrá deshacerse.';
+  static const String quoteCancelLbl = 'Cancelar';
+  static const String quoteRetiredLbl = 'Propuesta retirada con éxito';
+  static const String quoteRetireLbl = 'Sí, retirar';
+
   // --- Pantalla de Envío de Enlace de Recuperación ---
   static const String linkSentTitle = '¡Enlace enviado!';
   static const String linkSentSubtitle1 = 'Hemos enviado las instrucciones a';

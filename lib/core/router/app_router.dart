@@ -1,3 +1,4 @@
+import 'package:app_incide/features/provider/quotes/screens/prof_quotes_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -296,11 +297,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/prof-quotes',
                 name: 'prof_quotes',
-                builder: (context, state) => const Scaffold(
-                  body: Center(
-                    child: Text('Pantalla de Cotizaciones en construcción'),
-                  ),
-                ),
+                builder: (context, state) => const ProfQuotesScreen(),
               ),
             ],
           ),

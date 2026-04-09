@@ -12,12 +12,14 @@ class AuthState {
   final bool isLoading;
   final bool isAuthenticated;
   final String? role; // 'cliente' o 'proveedor'
+  final String? profileStatus; // 'aceptado', 'pendiente', 'rechazado' o null
   final bool hasLocationPermission;
 
   AuthState({
     this.isLoading = false,
     this.isAuthenticated = false,
     this.role,
+    this.profileStatus,
     this.hasLocationPermission = false,
   });
 
@@ -27,12 +29,14 @@ class AuthState {
     bool? isLoading,
     bool? isAuthenticated,
     String? role,
+    String? profileStatus,
     bool? hasLocationPermission,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       role: role ?? this.role,
+      profileStatus: profileStatus ?? this.profileStatus,
       hasLocationPermission:
           hasLocationPermission ?? this.hasLocationPermission,
     );
@@ -109,24 +113,22 @@ class AuthController extends Notifier<AuthState> {
   ///
   /// Lanza una [Exception] limpiada si las credenciales fallan, la cual
   /// debe ser capturada por la UI para mostrar un SnackBar.
-  Future<String?> login(String email, String password, String role) async {
+  Future<void> login(String email, String password, String role) async {
     state = state.copyWith(isLoading: true); // Encendemos la ruedita de carga
 
     try {
       final repository = ref.read(authRepositoryProvider);
-      final result = await repository.login(email, password, role);
+      final resultStatus = await repository.login(email, password, role);
 
-      if (result == 'aceptado') {
-        // TODO: (BACKEND) - Guardar el token JWT y el rol en almacenamiento local
-        state = state.copyWith(
-          isLoading: false,
-          isAuthenticated: true,
-          role: role, // Guardamos si entró como cliente o proveedor
-        );
-      } else {
-        state = state.copyWith(isLoading: false);
-      }
-      return result;
+      // TODO: (BACKEND) - Guardar el token JWT en almacenamiento local
+
+      // Actualizamos el estado.
+      state = state.copyWith(
+        isLoading: false,
+        isAuthenticated: true,
+        role: role,
+        profileStatus: resultStatus, // 'aceptado', 'pendiente' o 'rechazado'
+      );
     } catch (e) {
       state = state.copyWith(isLoading: false);
       throw e.toString().replaceAll('Exception: ', '');

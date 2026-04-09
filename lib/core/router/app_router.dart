@@ -86,6 +86,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authControllerProvider);
       final bool isAuthenticated = authState.isAuthenticated;
       final String? role = authState.role;
+      final String? status = authState.profileStatus;
       final bool hasLocationPermission = authState.hasLocationPermission;
 
       // 2. ¿A DÓNDE QUIERE IR?
@@ -131,10 +132,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Regla B: Si ya hizo login, PERO intenta ir a pantallas públicas (login/registro)
       if (isAuthenticated && isGoingToPublicRoute) {
         if (role == 'proveedor') {
-          return hasLocationPermission ? '/prof-home' : '/location-permission';
+          switch (status) {
+            case 'pendiente':
+              return '/prof-review-status';
+            case 'rechazado':
+              return '/prof-rejected';
+            case 'aceptado':
+            default:
+              return hasLocationPermission
+                  ? '/prof-home'
+                  : '/location-permission';
+          }
         } else if (role == 'cliente') {
-          // TODO: Asegurarse de tener la ruta definida en las routes
-          // return '/cliente-home';
+          // TODO: Modificar la ruta a '/cliente-home' una vez que esté implementada
+          return '/login-cliente';
         }
       }
 
@@ -155,8 +166,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (role == 'cliente') {
           // Si intenta ir a zona de proveedor o pedir ubicación, lo regresamos a su inicio
           if (targetPath.contains('prof') || isGoingToLocationScreen) {
-            // TODO: Asegurarse de tener la ruta definida en las routes
-            // return '/cliente-home';
+            // TODO: Modificar la ruta a '/cliente-home' una vez que esté implementada
+            return '/login-cliente';
           }
         }
       }
@@ -352,8 +363,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/client-location-permission',
         name: 'client_location_permission',
-        builder: (context, state) =>
-            const ClientLocationPermissionScreen(),
+        builder: (context, state) => const ClientLocationPermissionScreen(),
       ),
 
       // ------------------------------------

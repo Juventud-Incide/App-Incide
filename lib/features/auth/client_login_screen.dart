@@ -30,7 +30,8 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
 
     if (_formKey.currentState!.validate()) {
       try {
-        final status = await ref
+        /*final status =*/
+        await ref
             .read(authControllerProvider.notifier)
             .login(
               _emailController.text.trim(),
@@ -40,7 +41,7 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
 
         if (!mounted) return;
 
-        if (status == 'aceptado') {
+        /*if (status == 'aceptado') {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('¡Bienvenido a INCIDE!'),
@@ -62,7 +63,7 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
               backgroundColor: Colors.red,
             ),
           );
-        }
+        }*/
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

@@ -53,27 +53,13 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         // Dispara la mutación del estado en Riverpod (Activa el loader y llama al API)
-        final status = await ref
+        await ref
             .read(authControllerProvider.notifier)
             .login(
-              _emailController.text
-                  .trim(), // Removemos espacios accidentales en el correo
+              _emailController.text.trim(),
               _passwordController.text,
-              'proveedor', // Etiqueta estricta de seguridad
+              'proveedor',
             );
-
-        if (!mounted) return;
-
-        // Evaluación de estado de cuenta (Muro de Contención)
-        if (status == 'aceptado') {
-          // El usuario está activo; procedemos a la validación de hardware (GPS)
-          context.goNamed('location_permission');
-        } else if (status == 'pendiente') {
-          // La cuenta fue creada pero el Admin aún no valida los documentos
-          context.goNamed('prof_review_status');
-        } else if (status == 'rechazado') {
-          context.goNamed('prof_rejected');
-        }
       } catch (e) {
         if (!mounted) return;
         // Captura excepciones (ej. "Contraseña incorrecta" o "Usuario no encontrado")

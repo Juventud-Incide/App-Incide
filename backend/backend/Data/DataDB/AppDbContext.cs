@@ -1,4 +1,4 @@
-﻿using backend.Data.Entities;
+using backend.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Data.DataDB
@@ -52,6 +52,8 @@ namespace backend.Data.DataDB
                 e.HasKey(rt => rt.Id);
                 e.Property(rt => rt.Jti).IsRequired().HasMaxLength(64);
                 e.HasIndex(rt => rt.Jti).IsUnique();
+            });
+
             modelBuilder.Entity<Document>(e =>
             {
                 e.HasKey(d => d.Id);

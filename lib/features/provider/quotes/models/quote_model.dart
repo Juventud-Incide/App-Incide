@@ -46,4 +46,44 @@ class QuoteModel {
     this.providerMarkedCompleted = false,
     this.clientMarkedCompleted = false,
   });
+
+  /// Crea una copia exacta de este objeto, permitiendo modificar campos específicos.
+  /// Crucial para el manejo de estado inmutable con Riverpod.
+  QuoteModel copyWith({
+    String? id,
+    String? clientId,
+    String? clientName,
+    String? clientAvatarUrl,
+    String? clientPhoneNumber,
+    String? serviceCategory,
+    String? problemDescription,
+    DateTime? requestDate,
+    DateTime? dateQuoteSent,
+    double? estimatedPrice,
+    QuoteStatus? status,
+    String? clientAddress,
+    int? unreadMessagesCount,
+    bool? providerMarkedCompleted,
+    bool? clientMarkedCompleted,
+  }) {
+    return QuoteModel(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      clientName: clientName ?? this.clientName,
+      clientAvatarUrl: clientAvatarUrl ?? this.clientAvatarUrl,
+      clientPhoneNumber: clientPhoneNumber ?? this.clientPhoneNumber,
+      serviceCategory: serviceCategory ?? this.serviceCategory,
+      problemDescription: problemDescription ?? this.problemDescription,
+      requestDate: requestDate ?? this.requestDate,
+      dateQuoteSent: dateQuoteSent ?? this.dateQuoteSent,
+      estimatedPrice: estimatedPrice ?? this.estimatedPrice,
+      status: status ?? this.status,
+      clientAddress: clientAddress ?? this.clientAddress,
+      unreadMessagesCount: unreadMessagesCount ?? this.unreadMessagesCount,
+      providerMarkedCompleted:
+          providerMarkedCompleted ?? this.providerMarkedCompleted,
+      clientMarkedCompleted:
+          clientMarkedCompleted ?? this.clientMarkedCompleted,
+    );
+  }
 }

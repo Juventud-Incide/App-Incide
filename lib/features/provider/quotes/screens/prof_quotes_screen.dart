@@ -1,64 +1,20 @@
-import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app_incide/core/constants/app_strings.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../models/quote_model.dart';
 import '../widgets/quote_pending_card.dart';
 import '../widgets/quote_active_card.dart';
+import '../providers/quotes_provider.dart';
 
-class ProfQuotesScreen extends StatefulWidget {
+class ProfQuotesScreen extends ConsumerStatefulWidget {
   const ProfQuotesScreen({super.key});
 
   @override
-  State<ProfQuotesScreen> createState() => _ProfQuotesScreenState();
+  ConsumerState<ProfQuotesScreen> createState() => _ProfQuotesScreenState();
 }
 
-class _ProfQuotesScreenState extends State<ProfQuotesScreen> {
-  // ==========================================
-  // MOCK DATA
-  // ==========================================
-  final List<QuoteModel> _mockQuotes = [
-    QuoteModel(
-      id: 'Q-001',
-      clientId: 'C-001',
-      clientName: 'Cliente Anónimo',
-      clientPhoneNumber: '6620000000',
-      serviceCategory: 'Construcción de Habitación',
-      problemDescription:
-          'Necesito ampliar mi casa con un cuarto extra de 4x4m.',
-      requestDate: DateTime.now().subtract(const Duration(days: 1)),
-      dateQuoteSent: DateTime.now().subtract(const Duration(hours: 2)),
-      estimatedPrice: 8000,
-      status: QuoteStatus.pending,
-    ),
-    QuoteModel(
-      id: 'Q-002',
-      clientId: 'C-002',
-      clientName: 'Angie Serna',
-      clientPhoneNumber: '6621234567',
-      serviceCategory: 'Instalación de 4 Minisplits (2 Ton)',
-      problemDescription:
-          'El centro de carga hizo un chispazo y la mitad de la casa se quedó sin energía.',
-      requestDate: DateTime.now().subtract(const Duration(days: 3)),
-      dateQuoteSent: DateTime.now().subtract(const Duration(days: 2)),
-      estimatedPrice: 3200,
-      status: QuoteStatus.accepted,
-      unreadMessagesCount: 1,
-    ),
-    // NUEVA COTIZACIÓN DE PRUEBA: Terminada
-    QuoteModel(
-      id: 'Q-003',
-      clientId: 'C-003',
-      clientName: 'Carlos López',
-      clientPhoneNumber: '6629998888',
-      serviceCategory: 'Reparación de Tubería',
-      problemDescription: 'Fuga de agua en el baño principal. Inundación leve.',
-      requestDate: DateTime.now().subtract(const Duration(days: 10)),
-      dateQuoteSent: DateTime.now().subtract(const Duration(days: 9)),
-      estimatedPrice: 850,
-      status: QuoteStatus.completed,
-    ),
-  ];
-
+class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
   // ==========================================
   // LÓGICA DE INTERACCIÓN
   // ==========================================
@@ -80,7 +36,7 @@ class _ProfQuotesScreenState extends State<ProfQuotesScreen> {
           ),
           TextButton(
             onPressed: () {
-              // TODO: (BACKEND) Llamar a Riverpod para actualizar el status a Cancelled
+              ref.read(quotesProvider.notifier).retractProposal(quote.id);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text(AppStrings.quoteRetiredLbl)),
@@ -110,7 +66,7 @@ class _ProfQuotesScreenState extends State<ProfQuotesScreen> {
     if (quotes.isEmpty) {
       return const Center(
         child: Text(
-          'No hay cotizaciones en esta categoría.',
+          AppStrings.quoteNoQuotes,
           style: TextStyle(color: Colors.grey, fontSize: 16),
         ),
       );
@@ -145,14 +101,15 @@ class _ProfQuotesScreenState extends State<ProfQuotesScreen> {
   // ==========================================
   @override
   Widget build(BuildContext context) {
+    final allQuotes = ref.watch(quotesProvider);
     // Filtramos las listas en vivo
-    final pendingQuotes = _mockQuotes
+    final pendingQuotes = allQuotes
         .where((q) => q.status == QuoteStatus.pending)
         .toList();
-    final activeQuotes = _mockQuotes
+    final activeQuotes = allQuotes
         .where((q) => q.status == QuoteStatus.accepted)
         .toList();
-    final completedQuotes = _mockQuotes
+    final completedQuotes = allQuotes
         .where((q) => q.status == QuoteStatus.completed)
         .toList();
 
@@ -205,7 +162,7 @@ class _ProfQuotesScreenState extends State<ProfQuotesScreen> {
                 ),
                 dividerColor: Colors.transparent,
                 tabs: [
-                  Tab(text: 'Todas (${_mockQuotes.length})'),
+                  Tab(text: 'Todas (${allQuotes.length})'),
                   Tab(text: 'En Espera (${pendingQuotes.length})'),
                   Tab(text: 'Aceptadas (${activeQuotes.length})'),
                   Tab(text: 'Terminadas (${completedQuotes.length})'),
@@ -218,7 +175,7 @@ class _ProfQuotesScreenState extends State<ProfQuotesScreen> {
         // --- CONTENIDO DE LAS PESTAÑAS ---
         body: TabBarView(
           children: [
-            _buildList(_mockQuotes), // TODAS
+            _buildList(allQuotes), // TODAS
             _buildList(pendingQuotes), // EN ESPERA
             _buildList(activeQuotes), // ACEPTADAS
             _buildList(completedQuotes), // TERMINADAS

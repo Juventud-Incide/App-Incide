@@ -6,6 +6,7 @@ import '../models/quote_model.dart';
 import '../widgets/quote_pending_card.dart';
 import '../widgets/quote_active_card.dart';
 import '../providers/quotes_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfQuotesScreen extends ConsumerStatefulWidget {
   const ProfQuotesScreen({super.key});
@@ -82,6 +83,7 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
         if (quote.status == QuoteStatus.pending) {
           return QuotePendingCard(
             quote: quote,
+            onTap: () => _navigateToDetail(quote),
             onRetractProposal: () => _handleRetractProposal(quote),
             onOpenChat: () => _handleOpenChat(quote),
           );
@@ -89,11 +91,18 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
           // Reutilizamos QuoteActiveCard para Aceptadas y Terminadas (cambia colores solita)
           return QuoteActiveCard(
             quote: quote,
+            onTap: () => _navigateToDetail(quote),
             onOpenChat: () => _handleOpenChat(quote),
           );
         }
       },
     );
+  }
+
+  void _navigateToDetail(QuoteModel quote) {
+    // Aquí usamos el router para ir a la pantalla de detalles
+    // pasándole la cotización completa a través de 'extra'
+    context.pushNamed('quote_detail', extra: quote);
   }
 
   // ==========================================

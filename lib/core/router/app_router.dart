@@ -25,6 +25,8 @@ import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
 import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart';
 import '../../features/provider/dashboard/models/opportunity_model.dart';
+import '../../features/provider/quotes/models/quote_model.dart';
+import '../../features/provider/quotes/screens/quote_detail_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -298,6 +300,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/prof-quotes',
                 name: 'prof_quotes',
                 builder: (context, state) => const ProfQuotesScreen(),
+                routes: [
+                  // <-- Rutas hijas de Cotizaciones
+                  GoRoute(
+                    path: 'detail', // La URL será /prof-quotes/detail
+                    name: 'quote_detail',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      final quote = state.extra as QuoteModel;
+                      return QuoteDetailScreen(quote: quote);
+                    },
+                  ),
+                ],
               ),
             ],
           ),

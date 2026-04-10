@@ -35,3 +35,38 @@ Thumbs.db
 .env.*
 *.key
 *.pem
+
+# ----------------------------------
+# .NET / Visual Studio
+# ----------------------------------
+# Carpetas de compilación
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+
+# Logs y temporales
+*.log
+*.tmp
+*.temp
+
+# Entity Framework / config local
+appsettings.Development.json
+appsettings.Local.json
+
+# Archivos generados
+*.pdb
+*.exe
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Claude Code
+.claude/
+CLAUDE.md

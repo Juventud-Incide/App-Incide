@@ -3,6 +3,17 @@ import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Pantalla de "Callejón sin salida" para usuarios bloqueados/rechazados.
+///
+/// **Rol en la Arquitectura:**
+/// Esta vista es el destino final para cuentas que el Administrador ha marcado
+/// como `rechazado` en la base de datos (por fraude, documentos falsos, etc.).
+///
+/// **Manejo de Seguridad:**
+/// - Carece de AppBar con botón de retroceso (`Scaffold` sin `appBar`).
+/// - La única acción permitida es cerrar sesión, la cual utiliza `context.goNamed('splash')`
+///   para limpiar la pila de navegación y regresar al usuario al punto de partida
+///   (o invocar la limpieza del token en el AuthProvider).
 class ProfRejectedScreen extends StatelessWidget {
   const ProfRejectedScreen({super.key});
 
@@ -73,6 +84,7 @@ class ProfRejectedScreen extends StatelessWidget {
                 height: 55,
                 child: OutlinedButton(
                   onPressed: () =>
+                      // TODO: (BACKEND) - Invocar authController.logout() antes de navegar
                       context.goNamed('splash'), // Regresa al inicio
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.redAccent,

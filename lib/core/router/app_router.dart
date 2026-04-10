@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
+
 import '../../features/auth/splash_screen.dart';
 import '../../features/roles/role_selection_screen.dart';
 
@@ -13,13 +17,178 @@ import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
+import '../../features/location/screens/prof_location_permission_screen.dart';
+import '../../features/location/screens/client_location_permission_screen.dart';
+
+import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
+import '../../features/provider/dashboard/screens/prof_home_screen.dart';
+import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart';
+import '../../features/provider/dashboard/models/opportunity_model.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
+import '../../features/auth/cliente_verif_correo.dart';
+import '../../features/client/home/screens/client_home_screen.dart';
+import '../../features/auth/forgot_password_screen.dart';
+import '../../features/auth/forgot_password_sent_screen.dart';
+import '../../features/auth/reset_password_screen.dart';
 
-class AppRouter {
-  static final GoRouter router = GoRouter(
+// ==========================================
+// 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER
+// ==========================================
+
+/// Puente de reactividad para el enrutamiento.
+///
+/// GoRouter requiere un [Listenable] para saber cuándo debe reevaluar sus rutas.
+/// Esta clase escucha los cambios del [authControllerProvider] (Riverpod) y
+/// notifica a GoRouter automáticamente, eliminando la necesidad de usar
+/// `context.go()` manualmente en los flujos de autenticación y permisos.
+class RouterNotifier extends ChangeNotifier {
+  final Ref _ref;
+
+  RouterNotifier(this._ref) {
+    // Escuchamos el authControllerProvider. Cada vez que cambie, notificamos al Router
+    _ref.listen(authControllerProvider, (_, __) {
+      notifyListeners();
+    });
+  }
+}
+
+final routerNotifierProvider = Provider<RouterNotifier>((ref) {
+  return RouterNotifier(ref);
+});
+
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+// ==========================================
+// 2. EL ENRUTADOR REACTIVO
+// ==========================================
+
+/// Proveedor global de navegación de la aplicación (GoRouter).
+///
+/// Define el árbol de rutas y actúa como el **Guardia de Seguridad Global**.
+/// En cada cambio de estado (o intento de navegación), ejecuta la función `redirect`
+/// evaluando en orden estricto:
+/// 1. Autenticación: ¿El usuario inició sesión?
+/// 2. Zonas Públicas: Previene que usuarios logueados regresen al Login.
+/// 3. Roles y Permisos (Muro de Separación):
+///    - Obliga a los 'proveedores' a otorgar permisos de ubicación.
+///    - Evita que los 'proveedores' accedan a rutas de 'clientes' y viceversa.
+final routerProvider = Provider<GoRouter>((ref) {
+  final notifier = ref.watch(routerNotifierProvider);
+
+  return GoRouter(
+    navigatorKey: _rootNavigatorKey,
+    refreshListenable: notifier, // Conectamos el puente aquí
     initialLocation: '/', // Cambia esto para probar diferentes pantallas
+
+    redirect: (context, state) {
+      // 1. EL ESTADO DEL USUARIO (Autenticación, Rol, Permisos)
+      final authState = ref.read(authControllerProvider);
+      final bool isInitialized = authState.isInitialized;
+      final bool isAuthenticated = authState.isAuthenticated;
+      final String? role = authState.role;
+      final String? status = authState.profileStatus;
+      final bool hasLocationPermission = authState.hasLocationPermission;
+
+      // 2. ¿A DÓNDE QUIERE IR?
+      final targetPath = state.matchedLocation;
+      final isGoingToSplash = targetPath == '/';
+      final isGoingToLocationScreen = targetPath == '/location-permission';
+
+      // Rutas "Púbicas" (no ocupan login)
+      final publicRoutes = [
+        '/',
+        '/roles',
+        '/prof-login',
+        '/prof-register',
+        '/prof-otp',
+        '/prof-experience',
+        '/prof-review-status',
+        '/prof-success',
+        '/prof-approved',
+        '/prof-upload-docs',
+        '/prof-docs-success',
+        '/prof-rejected',
+        '/prof-docs-revision',
+        '/login-cliente',
+        '/registro-cliente',
+        '/verif-correo-cliente',
+        '/forgot-password',
+        '/forgot-password-sent',
+        '/reset-password',
+        '/client-location-permission',
+      ];
+      final isGoingToPublicRoute = publicRoutes.contains(targetPath);
+
+      // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden)
+
+      // Regla 0: Manejo del Splash Screen
+      if (isGoingToSplash) {
+        if (!isInitialized) {
+          // Sigue corriendo la animación o cargando token de disco
+          return null; 
+        }
+        // Ya sabemos si tiene sesión o no
+        if (isAuthenticated) {
+          return role == 'cliente' ? '/home-cliente' : '/prof-home';
+        } else {
+          return '/roles';
+        }
+      }
+
+      // Excepción para pruebas de frontend (si es necesario)
+      // if (targetPath == '/home-cliente') return null;
+
+      // Regla A: Si NO está autenticado y quiere ir a una zona privada
+      if (!isAuthenticated && !isGoingToPublicRoute) {
+        return '/roles';
+      }
+
+      // Regla B: Si ya hizo login, PERO intenta ir a pantallas públicas (login/registro)
+      if (isAuthenticated && isGoingToPublicRoute) {
+        if (role == 'proveedor') {
+          switch (status) {
+            case 'pendiente':
+              return '/prof-review-status';
+            case 'rechazado':
+              return '/prof-rejected';
+            case 'aceptado':
+            default:
+              return hasLocationPermission
+                  ? '/prof-home'
+                  : '/location-permission';
+          }
+        } else if (role == 'cliente') {
+          return '/home-cliente';
+        }
+      }
+
+      // Regla C: El muro de separación (Proveedores vs Clientes) y Permisos
+      if (isAuthenticated) {
+        // Flujo del PROVEEDOR
+        if (role == 'proveedor') {
+          // Si intenta ir a zona de clientes, lo regresamos a su inicio
+          if (targetPath.contains('client')) return '/prof-home';
+
+          // Flujo estricto de permisos de ubicación
+          if (hasLocationPermission && isGoingToLocationScreen) {
+            return '/prof-home';
+          }
+        }
+
+        // Flujo del CLIENTE
+        if (role == 'cliente') {
+          // Si intenta ir a zona de proveedor o pedir ubicación, lo regresamos a su inicio
+          if (targetPath.contains('prof') || isGoingToLocationScreen) {
+            return '/home-cliente';
+          }
+        }
+      }
+
+      // Si pasó todas las aduanas, déjalo continuar su camino
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/',
@@ -53,6 +222,7 @@ class AppRouter {
           final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
           // Le pasamos todo el paquete al OTP
+
           return ProfOtpScreen(formData: formData);
         },
       ),
@@ -102,6 +272,84 @@ class AppRouter {
         name: 'prof_docs_revision',
         builder: (context, state) => const ProfDocsRevisionScreen(),
       ),
+      GoRoute(
+        path: '/location-permission',
+        name: 'location_permission',
+        builder: (context, state) => const ProfLocationPermissionScreen(),
+      ),
+
+      // --- DASHBOARD DEL PROFESIONISTA (SHELL ROUTE) ---
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return ProfDashboardShell(navigationShell: navigationShell);
+        },
+        branches: [
+          // RAMA 0: Inicio
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/prof-home',
+                name: 'prof_home',
+                builder: (context, state) => const ProfHomeScreen(),
+                routes: [
+                  // <-- Rutas hijas de Inicio
+                  GoRoute(
+                    path: 'detail', // La URL será /prof-home/detail
+                    name: 'opportunity_detail',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      final opportunity = state.extra as OpportunityModel;
+                      return OpportunityDetailScreen(opportunity: opportunity);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // RAMA 1: Cotizaciones (Placeholder temporal)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/prof-quotes',
+                name: 'prof_quotes',
+                builder: (context, state) => const Scaffold(
+                  body: Center(
+                    child: Text('Pantalla de Cotizaciones en construcción'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // RAMA 2: Billetera (Placeholder temporal)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/prof-wallet',
+                name: 'prof_wallet',
+                builder: (context, state) => const Scaffold(
+                  body: Center(
+                    child: Text('Pantalla de Billetera en construcción'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // RAMA 3: Perfil (Placeholder temporal)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/prof-profile',
+                name: 'prof_profile',
+                builder: (context, state) => const Scaffold(
+                  body: Center(
+                    child: Text('Pantalla de Perfil en construcción'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
 
       // ------------------------------------
       //  RUTAS DEL CLIENTE
@@ -116,6 +364,52 @@ class AppRouter {
         name: 'registro-cliente',
         builder: (context, state) => const ClienteRegisterScreen(),
       ),
+      GoRoute(
+        path: '/verif-correo-cliente',
+        name: 'verif-correo-cliente',
+        builder: (context, state) {
+          final Map<String, dynamic> formData =
+              state.extra as Map<String, dynamic>? ?? {};
+          return ClienteVerifCorreoScreen(formData: formData);
+        },
+      ),
+      // TODO: Agregar GoRoute para '/cliente-home' aquí en el futuro
+      GoRoute(
+        path: '/client-location-permission',
+        name: 'client_location_permission',
+        builder: (context, state) => const ClientLocationPermissionScreen(),
+      ),
+      GoRoute(
+        path: '/home-cliente',
+        name: 'home-cliente',
+        builder: (context, state) => const ClientHomeScreen(),
+      ),
+
+      // ------------------------------------
+      //  RUTAS DE RECUPERACIÓN DE CONTRASEÑA
+      // ------------------------------------
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password-sent',
+        name: 'forgot-password-sent',
+        builder: (context, state) {
+          final Map<String, dynamic> data =
+              state.extra as Map<String, dynamic>? ?? {};
+          return ForgotPasswordSentScreen(data: data);
+        },
+      ),
+      GoRoute(
+        path: '/reset-password',
+        name: 'reset-password',
+        builder: (context, state) {
+          final String token = state.uri.queryParameters['token'] ?? '';
+          return ResetPasswordScreen(token: token);
+        },
+      ),
     ],
   );
-} 
+});

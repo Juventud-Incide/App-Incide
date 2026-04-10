@@ -1,4 +1,5 @@
 using backend.Domain.Enum;
+using NetTopologySuite.Geometries;
 
 namespace backend.Data.Entities
 {
@@ -14,7 +15,11 @@ namespace backend.Data.Entities
 
         public UserRole UserRole { get; set; }
 
-        
+        public decimal? LastLat { get; set; }
+        public decimal? LastLng { get; set; }
+        public DateTime? LocationUpdatedAt { get; set; }
+        public Point? Location { get; set; }
+
         public Client? Client { get; set; }
         public Provider? Provider { get; set; }
 

@@ -140,6 +140,10 @@ class QuoteDetailScreen extends ConsumerWidget {
 
   Widget _buildClientInfoCard(QuoteModel q) {
     final isAccepted = q.status == QuoteStatus.accepted;
+    final bool showPhoto =
+        isAccepted &&
+        q.clientAvatarUrl != null &&
+        q.clientAvatarUrl!.isNotEmpty;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -150,14 +154,21 @@ class QuoteDetailScreen extends ConsumerWidget {
       child: Row(
         children: [
           CircleAvatar(
+            radius: 24,
             backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-            child: Text(
-              q.clientName[0].toUpperCase(),
-              style: const TextStyle(
-                color: AppColors.primaryBlue,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            backgroundImage: showPhoto
+                ? NetworkImage(q.clientAvatarUrl!)
+                : null,
+            child: !showPhoto
+                ? Text(
+                    q.clientName[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: AppColors.primaryBlue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  )
+                : null,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -165,7 +176,9 @@ class QuoteDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  q.clientName,
+                  isAccepted
+                      ? q.clientName
+                      : AppStrings.quoteDetailClientNameProtected,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(

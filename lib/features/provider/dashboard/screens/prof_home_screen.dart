@@ -452,7 +452,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                 isScrollControlled: true,
                 useRootNavigator: true,
                 backgroundColor: Colors.transparent,
-                builder: (context) => const ProposalBottomSheet(),
+                builder: (context) => ProposalBottomSheet(opportunity: opp),
               );
 
               // Si recibimos el éxito, ejecutamos la acción de aceptar

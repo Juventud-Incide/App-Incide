@@ -249,6 +249,7 @@ class AppStrings {
   static const String sendProposalBtn = 'Enviar Propuesta';
   static const String opportunityDiscarded = 'Oportunidad descartada';
   static const String undoDiscard = 'Deshacer';
+  static const String invalidPriceError = 'Por favor, ingresa un precio válido';
 
   // --- Pantalla de Detalle de Oportunidad ---
   static const String detailTitle = 'Detalle de la Solicitud';
@@ -287,6 +288,7 @@ class AppStrings {
 
   static const String quoteDetailTitle = 'Detalles del Trabajo';
   static const String quoteDetailClientTitle = 'Información del Cliente';
+  static const String quoteDetailClientNameProtected = 'Nombre protegido';
   static const String quoteDetailClientProtected = 'Número protegido';
 
   // --- Pantalla de Envío de Enlace de Recuperación ---

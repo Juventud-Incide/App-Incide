@@ -149,7 +149,8 @@ class OpportunityDetailScreen extends StatelessWidget {
                       isScrollControlled: true,
                       useRootNavigator: true,
                       backgroundColor: Colors.transparent,
-                      builder: (context) => const ProposalBottomSheet(),
+                      builder: (context) =>
+                          ProposalBottomSheet(opportunity: opportunity),
                     );
 
                     // Si el modal devolvió 'true' (éxito), cerramos esta pantalla

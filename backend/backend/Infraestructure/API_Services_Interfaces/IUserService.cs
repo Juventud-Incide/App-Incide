@@ -11,6 +11,7 @@ namespace backend.Infraestructure.API_Services_Interfaces
         Task<List<UserOutPutDTO>> GetAllAsync();
         Task<UserOutPutDTO?> UpdateAsync(int id, UserDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<bool> UpdateLocationAsync(int id, UpdateLocationDTO dto, CancellationToken ct);
 
     }
 }

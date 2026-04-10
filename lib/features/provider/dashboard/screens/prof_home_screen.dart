@@ -5,10 +5,12 @@ import 'package:app_incide/features/provider/dashboard/widgets/custom_filter_chi
 import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
+import 'package:app_incide/features/provider/profile/providers/provider_profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Pantalla principal del Dashboard para el rol de Proveedor.
 ///
@@ -16,18 +18,14 @@ import 'dart:async';
 /// de trabajo del profesional. Es responsable de mostrar las oportunidades locales,
 /// gestionar los filtros de búsqueda, y orquestar la navegación hacia la vista
 /// de detalles o el envío de cotizaciones.
-class ProfHomeScreen extends StatefulWidget {
+class ProfHomeScreen extends ConsumerStatefulWidget {
   const ProfHomeScreen({super.key});
 
   @override
-  State<ProfHomeScreen> createState() => _ProfHomeScreenState();
+  ConsumerState<ProfHomeScreen> createState() => _ProfHomeScreenState();
 }
 
-class _ProfHomeScreenState extends State<ProfHomeScreen> {
-  /// Controla el estado visual del Radar.
-  /// TODO: (BACKEND) Sincronizar este booleano con la base de datos para pausar/reanudar notificaciones push.
-  bool _isRadarActive = true;
-
+class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
   /// Almacena el filtro actual seleccionado por el usuario.
   String _selectedFilter = AppStrings.filterAll;
 
@@ -75,12 +73,6 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
     ),
   ];
 
-  // TODO: (BACKEND) - Extraer esta información del AuthProvider o de un UserProfileModel
-  final String _userName = 'Ángel Apáez';
-  final String _userInitials = 'AA';
-  final bool _hasUnreadNotifications = true;
-  final bool _isCertified = true;
-
   @override
   Widget build(BuildContext context) {
     // AnnotatedRegion se asegura de que los íconos del sistema operativo (batería, hora)
@@ -115,6 +107,8 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   // --- WIDGET: CABECERA AZUL ---
   /// Construye la cabecera principal con el perfil de usuario y el control del Radar.
   Widget _buildHeader(BuildContext context) {
+    final profile = ref.watch(providerProfileProvider);
+
     final topPadding = MediaQuery.paddingOf(context).top + 20;
 
     return Container(
@@ -143,16 +137,63 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.white.withValues(alpha: 0.9),
-                    child: Text(
-                      _userInitials,
-                      style: const TextStyle(
-                        color: AppColors.primaryBlue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+
+                      // 1. EVALUAMOS SI HAY URL DE FOTO
+                      child:
+                          (profile.avatarUrl != null &&
+                              profile.avatarUrl!.isNotEmpty)
+                          ? Image.network(
+                              profile.avatarUrl!,
+                              fit: BoxFit.cover,
+                              width: 56,
+                              height: 56,
+
+                              // 2. MIENTRAS CARGA (Spinner)
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return const Center(
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.primaryBlue,
+                                        ),
+                                      ),
+                                    );
+                                  },
+
+                              // 3. SI HAY ERROR DE INTERNET (Plan B: Iniciales)
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Text(
+                                    profile.initials,
+                                    style: const TextStyle(
+                                      color: AppColors.primaryBlue,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          // 4. SI NO HAY URL DEFINIDA (Plan B: Iniciales)
+                          : Center(
+                              child: Text(
+                                profile.initials,
+                                style: const TextStyle(
+                                  color: AppColors.primaryBlue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
                     ),
                   ),
-                  if (_isCertified)
+                  if (profile.isCertified)
                     Positioned(
                       bottom: -4,
                       right: -4,
@@ -188,7 +229,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _userName,
+                      profile.name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -212,7 +253,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                       // TODO: Navegar a pantalla de notificaciones
                     },
                   ),
-                  if (_hasUnreadNotifications)
+                  if (profile.hasUnreadNotifications)
                     Positioned(
                       top: 12,
                       right: 12,
@@ -246,7 +287,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _isRadarActive
+                        profile.isRadarActive
                             ? AppStrings.radarTitleOn
                             : AppStrings.radarTitleOff,
                         style: const TextStyle(
@@ -257,7 +298,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _isRadarActive
+                        profile.isRadarActive
                             ? AppStrings.radarSubtitleOn
                             : AppStrings.radarSubtitleOff,
                         style: TextStyle(
@@ -270,15 +311,15 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                 ),
                 // Switch interactivo
                 Switch.adaptive(
-                  value: _isRadarActive,
+                  value: profile.isRadarActive,
                   activeThumbColor: Colors.white,
                   activeTrackColor: Colors.green,
                   inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
                   inactiveThumbColor: Colors.white,
                   onChanged: (value) {
-                    setState(() {
-                      _isRadarActive = value;
-                    });
+                    ref
+                        .read(providerProfileProvider.notifier)
+                        .toggleRadar(value);
                     // TODO: Notificar al backend el cambio de estado de disponibilidad
                   },
                 ),

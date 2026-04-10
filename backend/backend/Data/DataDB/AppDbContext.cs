@@ -11,6 +11,7 @@ namespace backend.Data.DataDB
         public DbSet<User> Users => Set<User>();
         public DbSet<Client> Clients => Set<Client>();
         public DbSet<Provider> Providers => Set<Provider>();
+        public DbSet<Document> Documents => Set<Document>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -43,6 +44,23 @@ namespace backend.Data.DataDB
                  .WithOne(u => u.Provider)
                  .HasForeignKey<Provider>(p => p.UserId)
                  .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Document>(e =>
+            {
+                e.HasKey(d => d.Id);
+                e.Property(d => d.FileUrl).IsRequired().HasMaxLength(500);
+                e.Property(d => d.OriginalFileName).IsRequired().HasMaxLength(255);
+                e.Property(d => d.ContentType).IsRequired().HasMaxLength(100);
+
+                e.HasOne(d => d.Provider)
+                 .WithMany()
+                 .HasForeignKey(d => d.ProviderId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(d => new { d.ProviderId, d.DocumentType })
+                 .IsUnique()
+                 .HasFilter("[IsDeleted] = 0");
             });
         }
     }

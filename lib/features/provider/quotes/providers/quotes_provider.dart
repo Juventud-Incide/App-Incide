@@ -15,6 +15,16 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
   @override
   List<QuoteModel> build() {
     // Inicializamos el estado con los datos de prueba
+    const String mockPhoto1 = 'https://picsum.photos/200?random=1';
+    const String mockPhoto2 = 'https://picsum.photos/200?random=2';
+    const String mockPhoto3 = 'https://picsum.photos/200?random=3';
+    const String mockPhoto4 = 'https://picsum.photos/200?random=4';
+    const String mockPhoto5 = 'https://picsum.photos/200?random=5';
+    const String mockPhoto6 = 'https://picsum.photos/200?random=6';
+
+    const String mockAvatar1 = 'https://picsum.photos/id/64/200/200';
+    const String mockAvatar2 = 'https://picsum.photos/id/338/200/200';
+
     return [
       QuoteModel(
         id: 'Q-001',
@@ -37,7 +47,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
               'No, requiero presupuesto con material incluido.',
           '¿El terreno está nivelado?': 'Sí, ya cuenta con firme de concreto.',
         },
-        photoUrls: const ['https://ejemplo.com/patio.jpg'],
+        photoUrls: const [mockPhoto1, mockPhoto2, mockPhoto3],
 
         // DATOS DE COTIZACIÓN
         requestDate: DateTime.now().subtract(const Duration(days: 1)),
@@ -54,8 +64,8 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         opportunityId: 'Opp-002',
         clientId: 'C-002',
         clientName: 'Angie Serna',
-        clientAvatarUrl: null,
-        clientPhoneNumber: '6621234567',
+        clientAvatarUrl: mockAvatar1,
+        clientPhoneNumber: '3245499695',
         clientAddress:
             'Colonia Modelo, Hermosillo', // Revelado porque está Aceptada
         // DATOS HEREDADOS
@@ -71,7 +81,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
           '¿En qué piso será la instalación?': 'Segundo piso',
           '¿Los equipos son nuevos?': 'Sí, en caja sellada.',
         },
-        photoUrls: const ['foto1.jpg', 'foto2.jpg'],
+        photoUrls: const [mockPhoto4, mockPhoto5],
 
         // DATOS DE COTIZACIÓN
         requestDate: DateTime.now().subtract(const Duration(days: 3)),
@@ -88,8 +98,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         opportunityId: 'Opp-003',
         clientId: 'C-003',
         clientName: 'Carlos López',
-        clientAvatarUrl:
-            'https://ejemplo.com/avatar_carlos.jpg', // Este sí tiene foto
+        clientAvatarUrl: mockAvatar2,
         clientPhoneNumber: '6629998888',
         clientAddress:
             'Fracc. Puerta Real, Hermosillo', // Revelado porque está Completada
@@ -143,7 +152,13 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
           '¿Cuenta con manguera de agua cerca?':
               'Sí, hay una toma en el patio.',
         },
-        photoUrls: const ['https://ejemplo.com/split1.jpg'],
+        photoUrls: const [
+          mockPhoto6,
+          mockPhoto4,
+          mockPhoto3,
+          mockPhoto5,
+          mockPhoto1,
+        ],
 
         // Datos de la cotización
         requestDate: DateTime.now().subtract(const Duration(hours: 12)),

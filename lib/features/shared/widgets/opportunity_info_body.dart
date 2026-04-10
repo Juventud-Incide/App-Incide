@@ -239,15 +239,41 @@ class OpportunityInfoBody extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: photoUrls.length,
         itemBuilder: (context, index) {
+          final imageUrl = photoUrls[index];
+
           return Container(
             width: 100,
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
-              // Aquí en el futuro usarás: image: DecorationImage(image: NetworkImage(photoUrls[index]), fit: BoxFit.cover)
             ),
-            child: const Icon(Icons.image, color: Colors.grey),
+            // Usamos ClipRRect para redondear las esquinas de la imagen
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.cover, // Llena el contenedor
+                // Mientras la imagen se descarga de internet...
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                },
+
+                // Si la URL está rota o no hay internet...
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(Icons.broken_image, color: Colors.grey),
+                  );
+                },
+              ),
+            ),
           );
         },
       ),

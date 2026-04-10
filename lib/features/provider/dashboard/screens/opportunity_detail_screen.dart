@@ -1,6 +1,5 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/provider/dashboard/widgets/opportunity_badge.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:flutter/material.dart';

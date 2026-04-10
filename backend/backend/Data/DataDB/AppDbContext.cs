@@ -68,7 +68,7 @@ namespace backend.Data.DataDB
 
                 e.HasIndex(d => new { d.ProviderId, d.DocumentType })
                  .IsUnique()
-                 .HasFilter("[IsDeleted] = 0");
+                 .HasFilter("\"IsDeleted\" = false");
             });
         }
     }

@@ -5,6 +5,15 @@ import 'package:go_router/go_router.dart';
 import '../../widgets/custom_approved_card.dart';
 import '../../widgets/custom_expandable_card.dart';
 
+/// Pantalla interactiva para la corrección de documentos rechazados.
+///
+/// Muestra al proveedor una lista de documentos que no pasaron la validación
+/// administrativa, junto con la retroalimentación del revisor.
+///
+/// **Gestión de Estado (Form Validation):**
+/// Utiliza variables de estado locales para rastrear qué documentos han sido
+/// reemplazados en la sesión actual. El botón principal se activa dinámicamente
+/// a través del getter `_canResubmit` solo cuando todos los errores han sido atendidos.
 class ProfDocsRevisionScreen extends StatefulWidget {
   const ProfDocsRevisionScreen({super.key});
 
@@ -13,13 +22,23 @@ class ProfDocsRevisionScreen extends StatefulWidget {
 }
 
 class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
-  // --- MOCK DATA: Simulamos qué documentos pidió el equipo que se corrijan ---
+  // TODO: (BACKEND) - Sustituir estos booleanos por un modelo de datos dinámico devuelto por la API que indique exactamente qué documentos fallaron.
+
+  /// Estado: Indica si el usuario ya actualizó la foto del INE.
   bool _ineFixed = false;
+
+  /// Estado: Indica si el usuario ya actualizó la carta de antecedentes.
   bool _antecedentesFixed = false;
 
-  // El botón final solo se activa si los documentos con error ya fueron actualizados
+  /// Getter reactivo. Valida que todos los documentos requeridos estén marcados como fijos.
+  /// Se inyecta en la propiedad `onPressed` del botón inferior para activarlo/desactivarlo.
   bool get _canResubmit => _ineFixed && _antecedentesFixed;
 
+  /// Muestra un modal deslizable para capturar el nuevo documento.
+  ///
+  /// [docName] Nombre del documento a mostrar en el título del modal.
+  /// [onSuccess] Callback ejecutado si el usuario completa la captura exitosamente,
+  /// utilizado para actualizar el estado del documento específico a `true`.
   void _showUploadBottomSheet(String docName, VoidCallback onSuccess) {
     showModalBottomSheet(
       context: context,
@@ -41,6 +60,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                // TODO: (BACKEND) - Conectar con el paquete image_picker para abrir la cámara real.
                 ListTile(
                   leading: const Icon(
                     Icons.camera_alt_rounded,
@@ -49,7 +69,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                   title: const Text(AppStrings.takeNewPhoto),
                   onTap: () {
                     Navigator.pop(context);
-                    onSuccess();
+                    onSuccess(); // Dispara el cambio de estado en la vista padre
                   },
                 ),
               ],
@@ -194,6 +214,8 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
+                  // Si _canResubmit es false, pasamos null.
+                  // Flutter automáticamente desactiva y vuelve gris el botón si onPressed es null.
                   onPressed: _canResubmit
                       ? () {
                           // Lo mandamos a la pantalla de éxito de documentos que ya hicimos

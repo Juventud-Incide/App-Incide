@@ -3,6 +3,18 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Pantalla de éxito al cargar documentos legales (Paso Final del Onboarding).
+///
+/// **Rol en la Arquitectura:**
+/// Funciona como una pantalla de confirmación visual (Confirmation View).
+/// Se muestra al usuario inmediatamente después de que el servidor confirma la
+/// recepción exitosa de sus documentos (ej. INE, Comprobante de domicilio).
+///
+/// **Navegación:**
+/// El único camino hacia adelante es la "Sala de Espera" (`/prof_review_status`).
+/// Nota de Seguridad: Al enrutar hacia aquí, se recomienda usar `context.go()`
+/// en lugar de `push()` para limpiar la pila de navegación y evitar que el usuario
+/// presione "Atrás" para reenviar los mismos documentos.
 class ProfDocsSuccessScreen extends StatelessWidget {
   const ProfDocsSuccessScreen({super.key});
 
@@ -65,7 +77,7 @@ class ProfDocsSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
-              // --- 3. TARJETA DE INFORMACIÓN ---
+              // --- 3. TARJETA DE INFORMACIÓN (Contexto de Próximos Pasos) ---
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -117,7 +129,7 @@ class ProfDocsSuccessScreen extends StatelessWidget {
                 height: 55,
                 child: OutlinedButton(
                   onPressed: () {
-                    // Lo mandamos a la Sala de Espera (que ahora mostrará el estado Final)
+                    // Lo mandamos a la Sala de Espera
                     context.goNamed('prof_review_status');
                   },
                   style: OutlinedButton.styleFrom(

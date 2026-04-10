@@ -4,6 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
 
+/// Pantalla inicial del flujo de Recuperación de Contraseña.
+///
+/// Permite al usuario ingresar su correo electrónico para solicitar un enlace
+/// de restablecimiento.
+///
+/// **Manejo de Estado y Validación:**
+/// Utiliza un [GlobalKey<FormState>] para validar el formato del correo usando
+/// una Expresión Regular (RegExp) antes de intentar la petición de red.
+/// Controla un estado local `_isLoading` para deshabilitar el botón y mostrar
+/// un indicador de progreso, previniendo múltiples envíos simultáneos.
 class ProfForgotPasswordScreen extends StatefulWidget {
   const ProfForgotPasswordScreen({super.key});
 
@@ -16,15 +26,21 @@ class _ProfForgotPasswordScreenState extends State<ProfForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 
+  /// Bloquea el botón de envío mientras se resuelve la petición asíncrona.
   bool _isLoading = false;
+
+  /// Controla la aparición de mensajes de error. Solo se activa si el usuario
+  /// intenta enviar un formulario inválido.
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
   @override
   void dispose() {
+    // LIMPIEZA: Previene fugas de memoria al destruir el controlador.
     _emailController.dispose();
     super.dispose();
   }
 
+  /// Ejecuta la validación y procesa la solicitud de recuperación.
   Future<void> _submitEmail() async {
     final isValid = _formKey.currentState!.validate();
 
@@ -36,10 +52,10 @@ class _ProfForgotPasswordScreenState extends State<ProfForgotPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: Aquí irá la llamada real a authService.sendPasswordResetEmail(_emailController.text)
+      // TODO: (BACKEND) - Conectar con Firebase Auth: `await FirebaseAuth.instance.sendPasswordResetEmail(email: _emailController.text)`
       await Future.delayed(const Duration(seconds: 2)); // Simulamos carga
 
-      // Pasamos el correo como 'extra' a la siguiente pantalla para mostrarlo en el mensaje de éxito
+      // ÉXITO: Pasamos el correo como argumento 'extra' al enrutador para personalizar el mensaje en la siguiente pantalla.
       if (mounted) {
         context.pushNamed(
           'prof_forgot_password_sent',

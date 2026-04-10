@@ -2,6 +2,18 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
+/// Modal deslizante inferior (Bottom Sheet) para enviar una cotización.
+///
+/// Permite al proveedor ingresar un mensaje descriptivo y un precio estimado.
+///
+/// **UX Resiliente al Teclado:** Utiliza `MediaQuery.viewInsetsOf(context).bottom`
+/// para empujar el contenido hacia arriba dinámicamente cuando el teclado nativo
+/// del sistema operativo aparece, evitando que los campos de texto queden ocultos.
+///
+/// **Contrato de Navegación:**
+/// Al presionar "Enviar Propuesta", hace un `pop` devolviendo `true`. La pantalla
+/// que invocó este modal debe estar a la escucha de este booleano para ejecutar
+/// la animación de éxito (SnackBar) y remover la tarjeta localmente.
 class ProposalBottomSheet extends StatefulWidget {
   const ProposalBottomSheet({super.key});
 
@@ -15,6 +27,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
 
   @override
   void dispose() {
+    // LIMPIEZA: Los controladores de texto deben destruirse para evitar Memory Leaks
     _messageController.dispose();
     _priceController.dispose();
     super.dispose();
@@ -31,7 +44,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
         left: 24,
         right: 24,
         top: 16,
-        bottom: bottomInset > 0 ? bottomInset + 16 : 32, // Respiro dinámico
+        bottom: bottomInset > 0 ? bottomInset + 16 : 32,
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -42,7 +55,7 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
       ),
       child: SingleChildScrollView(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min, // Se adapta al contenido interno
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. La "Píldora" superior para arrastrar
@@ -157,8 +170,10 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: (BACKEND) - Enviar la propuesta al servidor
-                  Navigator.pop(context, true); // Cierra el modal
+                  // TODO: (BACKEND) - Preparar _messageController.text y _priceController.text y enviarlos al API.
+
+                  // Retornamos 'true' para avisarle a la vista padre que fue exitoso
+                  Navigator.pop(context, true);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,

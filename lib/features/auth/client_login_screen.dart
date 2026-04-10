@@ -31,9 +31,14 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
 
     if (_formKey.currentState!.validate()) {
       try {
-        final status = await ref
+        /*final status =*/
+        await ref
             .read(authControllerProvider.notifier)
-            .login(_emailController.text.trim(), _passwordController.text);
+            .login(
+              _emailController.text.trim(),
+              _passwordController.text,
+              'cliente',
+            );
 
         if (!mounted) return;
 
@@ -68,7 +73,7 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
               backgroundColor: Colors.red,
             ),
           );
-        }
+        }*/
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -80,7 +85,7 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(authControllerProvider);
+    final isLoading = ref.watch(authControllerProvider).isLoading;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -97,8 +102,10 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new,
-                        color: AppColors.primaryBlue),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColors.primaryBlue,
+                    ),
                     onPressed: () => context.pop(),
                   ),
                 ),

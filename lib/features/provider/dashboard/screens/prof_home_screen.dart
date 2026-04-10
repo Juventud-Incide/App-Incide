@@ -10,6 +10,12 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 
+/// Pantalla principal del Dashboard para el rol de Proveedor.
+///
+/// Esta vista actúa como el controlador principal (View-Controller) del flujo
+/// de trabajo del profesional. Es responsable de mostrar las oportunidades locales,
+/// gestionar los filtros de búsqueda, y orquestar la navegación hacia la vista
+/// de detalles o el envío de cotizaciones.
 class ProfHomeScreen extends StatefulWidget {
   const ProfHomeScreen({super.key});
 
@@ -18,12 +24,18 @@ class ProfHomeScreen extends StatefulWidget {
 }
 
 class _ProfHomeScreenState extends State<ProfHomeScreen> {
-  // Estado para controlar el Switch del Radar
+  /// Controla el estado visual del Radar.
+  /// TODO: (BACKEND) Sincronizar este booleano con la base de datos para pausar/reanudar notificaciones push.
   bool _isRadarActive = true;
+
+  /// Almacena el filtro actual seleccionado por el usuario.
   String _selectedFilter = AppStrings.filterAll;
+
+  /// Temporizador controlado para la gestión de SnackBars.
+  /// Previene condiciones de carrera cuando el usuario descarta múltiples tarjetas rápidamente.
   Timer? _snackBarTimer;
 
-  // TODO: (BACKEND) - Reemplazar esta lista con un llamado API
+  // TODO: (BACKEND) - Reemplazar esta lista dura con un [FutureBuilder] o Riverpod [AsyncValue] que consuma el repositorio real (ej. `fetchOpportunities()`).
   // Future<void> fetchOpportunities() async { ... }
   final List<OpportunityModel> _opportunities = [
     OpportunityModel(
@@ -61,7 +73,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
     ),
   ];
 
-  // TODO: Esto vendrá del backend/provider en el futuro
+  // TODO: (BACKEND) - Extraer esta información del AuthProvider o de un UserProfileModel
   final String _userName = 'Ángel Apáez';
   final String _userInitials = 'AA';
   final bool _hasUnreadNotifications = true;
@@ -69,7 +81,8 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // AnnotatedRegion controla el color del reloj y batería del sistema operativo
+    // AnnotatedRegion se asegura de que los íconos del sistema operativo (batería, hora)
+    // sean legibles sobre nuestro fondo azul primario.
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -98,6 +111,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   }
 
   // --- WIDGET: CABECERA AZUL ---
+  /// Construye la cabecera principal con el perfil de usuario y el control del Radar.
   Widget _buildHeader(BuildContext context) {
     final topPadding = MediaQuery.paddingOf(context).top + 20;
 
@@ -263,7 +277,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
                     setState(() {
                       _isRadarActive = value;
                     });
-                    // TODO: Notificar al backend el cambio de estado
+                    // TODO: Notificar al backend el cambio de estado de disponibilidad
                   },
                 ),
               ],
@@ -284,10 +298,10 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             child: StatCard(
               icon: Icons.hourglass_bottom_rounded,
               iconColor: AppColors.primaryBlue,
-              count: '3', // TODO: Conectar a la base de datos
+              count: '3', // TODO: Conectar a la base de datos de contadores
               label: AppStrings.waitingQuotesTitle,
               onTap: () {
-                // TODO: Filtrar la vista inferior
+                // TODO: Navegar o filtrar hacia la vista de cotizaciones en espera
               },
             ),
           ),
@@ -296,10 +310,10 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             child: StatCard(
               icon: Icons.handshake_rounded,
               iconColor: Colors.green,
-              count: '1', // TODO: Conectar a la base de datos
+              count: '1', // TODO: Conectar a la base de datos de contadores
               label: AppStrings.acceptedQuotesTitle,
               onTap: () {
-                // TODO: Filtrar la vista inferior
+                // TODO: Navegar o filtrar hacia la vista de trabajos ganados
               },
             ),
           ),
@@ -326,7 +340,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
           ),
           GestureDetector(
             onTap: () {
-              // TODO: Navegar a la vista de mapa completo
+              // TODO: (MAPAS) Integrar vista de Google Maps / Mapbox
             },
             child: const Text(
               AppStrings.viewMapBtn,
@@ -343,6 +357,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   }
 
   // --- WIDGET: FILTROS HORIZONTALES ---
+  /// Construye el selector horizontal de filtros (Todos, Exclusivos, Abiertos).
   Widget _buildFilterChips() {
     final filters = [
       AppStrings.filterAll,
@@ -375,6 +390,11 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   }
 
   // --- WIDGET: LISTA DE OPORTUNIDADES ---
+  /// Construye y filtra la lista vertical de oportunidades mostradas al usuario.
+  ///
+  /// Actúa como el receptor de acciones de las tarjetas, procesando cuando
+  /// el usuario presiona "Descartar" o cuando regresa de enviar una cotización
+  /// desde el modal o la vista de detalles.
   Widget _buildOpportunitiesList() {
     // 1. Filtramos la lista según el chip seleccionado
     final filteredList = _opportunities.where((opp) {
@@ -390,7 +410,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
         padding: EdgeInsets.all(24.0),
         child: Center(
           child: Text(
-            'No hay oportunidades en esta categoría.',
+            AppStrings.noOpportunities,
             style: TextStyle(color: Colors.grey),
           ),
         ),
@@ -407,6 +427,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             description: opp.description,
             distance: opp.formattedDistance,
             onTap: () async {
+              // Navegamos al detalle esperando un String de resultado
               final result = await context.pushNamed<String>(
                 'opportunity_detail',
                 extra:
@@ -414,6 +435,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
               );
               if (!context.mounted) return;
 
+              // Evaluamos qué decidió hacer el usuario en la otra pantalla
               if (result == 'discarded') {
                 _handleDiscard(opp.id);
               } else if (result == 'accepted') {
@@ -422,7 +444,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
             },
             onDiscard: () => _handleDiscard(opp.id),
             onInterested: () async {
-              // TODO: (BACKEND) - Preparar datos para abrir modal asociado a opp.id
+              // TODO: (BACKEND) - Enviar datos de `opp` al controlador de cotizaciones
               final result = await showModalBottomSheet<bool>(
                 context: context,
                 isScrollControlled: true,
@@ -443,6 +465,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   }
 
   // Manejador para cuando se acepta una oportunidad
+  /// Remueve visualmente una oportunidad tras haber enviado una cotización exitosa.
   void _handleAccept(String opportunityId) {
     setState(() {
       _opportunities.removeWhere((opp) => opp.id == opportunityId);
@@ -459,11 +482,17 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
   }
 
   // Lógica del SnackBar de Descartar
+  /// Implementa un patrón de "Eliminación Suave" con opción a deshacer.
+  ///
+  /// Remueve la tarjeta del feed local y muestra un SnackBar. Si el usuario
+  /// presiona "Deshacer", restaura el objeto en su posición original.
   void _handleDiscard(String opportunityId) {
     // 1. Encontrar y guardar la tarjeta antes de borrarla
     final index = _opportunities.indexWhere((opp) => opp.id == opportunityId);
     if (index == -1) return;
-    final deletedOpportunity = _opportunities[index]; // Guardamos una copia
+
+    // Respaldamos el objeto en caso de que el usuario quiera deshacer la acción
+    final deletedOpportunity = _opportunities[index];
 
     // 2. Borrarla de la vista principal
     setState(() {
@@ -493,6 +522,8 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
       ),
     );
 
+    // El Timer asegura que si el usuario realiza múltiples descartes rápidos,
+    // solo el último temporizador tenga el control del cierre visual.
     _snackBarTimer = Timer(const Duration(milliseconds: 3500), () {
       if (mounted) {
         messenger.hideCurrentSnackBar();
@@ -502,6 +533,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
 
   @override
   void dispose() {
+    // LIMPIEZA: Es mandatorio destruir el Timer para evitar fugas de memoria (Memory Leaks)
     _snackBarTimer?.cancel();
     super.dispose();
   }

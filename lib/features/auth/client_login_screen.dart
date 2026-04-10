@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets/custom_input_field.dart';
 import 'providers/auth_provider.dart';
 
@@ -30,7 +31,6 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
 
     if (_formKey.currentState!.validate()) {
       try {
-        /*final status =*/
         await ref
             .read(authControllerProvider.notifier)
             .login(
@@ -38,32 +38,6 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
               _passwordController.text,
               'cliente',
             );
-
-        if (!mounted) return;
-
-        /*if (status == 'aceptado') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('¡Bienvenido a INCIDE!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // TODO: context.go('/home-cliente');
-        } else if (status == 'pendiente') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tu cuenta está en revisión por un administrador.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        } else if (status == 'rechazado') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tu solicitud fue rechazada. Contacta a soporte.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }*/
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

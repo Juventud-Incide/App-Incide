@@ -1,15 +1,16 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'providers/auth_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
@@ -27,15 +28,20 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
-    _navigateToRoles();
+    _initializeApp();
   }
 
-  Future<void> _navigateToRoles() async {
+  Future<void> _initializeApp() async {
+    // Esperamos un poco para que se vea la animación
     await Future.delayed(const Duration(seconds: 3));
 
-    if (mounted) {
-      context.go('/roles');
-    }
+    if (!mounted) return;
+
+    // --- INICIALIZACIÓN DE SESIÓN (Lógica Riverpod) ---
+    // Le pedimos al controlador que lea el storage local (SharedPreferences).
+    // Al actualizarse el estado de authControllerProvider, el RouterNotifier 
+    // reaccionará automáticamente y nos llevará a donde corresponda.
+    await ref.read(authControllerProvider.notifier).initialize();
   }
 
   @override

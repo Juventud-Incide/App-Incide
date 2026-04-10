@@ -4,6 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
 
+/// Primer paso del Asistente (Wizard) de Registro para Proveedores.
+///
+/// **Arquitectura de Recolección de Datos:**
+/// Esta pantalla actúa como el recolector inicial. En lugar de hacer llamadas
+/// parciales a la base de datos, recopila la Información Personal, de Cuenta
+/// y Legal, empaquetándola en un [Map] (`formData`). Este mapa es inyectado y
+/// transportado a las siguientes pantallas (OTP, Experiencia) a través del
+/// enrutador, permitiendo un registro atómico (todo o nada) al final del flujo.
 class ProfRegisterScreen extends StatefulWidget {
   const ProfRegisterScreen({super.key});
 
@@ -12,9 +20,10 @@ class ProfRegisterScreen extends StatefulWidget {
 }
 
 class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
+  /// Llave maestra para disparar la validación de todos los campos a la vez.
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores exactos de la imagen
+  // Controladores de estado para cada campo de texto
   final _nameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -23,12 +32,17 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
   final _curpController = TextEditingController();
   final _rfcController = TextEditingController();
 
+  /// Controla la visibilidad del campo de contraseña.
   bool _isPasswordVisible = false;
+
+  /// Seguro booleano: Previene el avance si no se aceptan las políticas.
   bool _termsAccepted = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
   @override
   void dispose() {
+    // LIMPIEZA: Evitamos fugas de memoria y destruimos información personal
+    // identificable (PII) de la memoria RAM del dispositivo.
     _nameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
@@ -39,10 +53,12 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
     super.dispose();
   }
 
+  /// Evalúa el formulario, verifica políticas y orquesta la transición de datos.
   void _submitForm() {
     final isValidForm = _formKey.currentState!.validate();
 
     if (!isValidForm) {
+      // Activa las alertas rojas en vivo si el usuario intentó avanzar con errores
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
       return;
     } else if (!_termsAccepted) {
@@ -55,8 +71,9 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
         ),
       );
     } else {
-      // Solución P0 COMPLETA: Empaquetamos todo el estado del formulario
-      // para que no se pierda al navegar con GoRouter.
+      // SOLUCIÓN P0 COMPLETA: Empaquetamos todo el estado del formulario.
+      // Al ser un mapa dinámico, nos aseguramos de que no se pierda nada al
+      // navegar con GoRouter hacia el validador OTP.
       final formData = {
         'name': _nameController.text,
         'lastName': _lastNameController.text,
@@ -67,11 +84,12 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
         'rfc': _rfcController.text,
       };
 
-      // Inyectamos todo el mapa de datos en la ruta
+      // Inyectamos todo el mapa de datos en la ruta hacia el Paso 2 (OTP)
       context.pushNamed('prof_otp', extra: formData);
     }
   }
 
+  /// Constructor auxiliar para mantener la UI limpia al crear los divisores de sección.
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 25.0, bottom: 15.0),
@@ -243,6 +261,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   textCapitalization: TextCapitalization.none,
                 ),
 
+                // SECCIÓN: DATOS LEGALES (Validación Oficial MX)
                 _buildSectionTitle(AppStrings.legalData),
                 CustomInputField(
                   label: AppStrings.curpLabel,
@@ -278,6 +297,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                     if (value.length != 13) {
                       return AppStrings.rfcInvalid;
                     }
+                    // Validación oficial de formato RFC Persona Física
                     final rfcRegex = RegExp(r'^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$');
                     if (!rfcRegex.hasMatch(value.toUpperCase())) {
                       return AppStrings.invalidFormat;

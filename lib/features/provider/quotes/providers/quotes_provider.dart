@@ -21,18 +21,34 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         opportunityId: 'Opp-001',
         clientId: 'C-001',
         clientName: 'Cliente Anónimo',
+        clientAvatarUrl: null, // Sin foto
         clientPhoneNumber: '6620000000',
+        clientAddress: null, // Nulo porque sigue "En Espera" (Privacidad)
+        // DATOS HEREDADOS
         title: 'Construcción de Habitación',
         category: 'Albañilería',
-        description: 'Necesito ampliar mi casa con un cuarto extra de 4x4m.',
+        description:
+            'Necesito ampliar mi casa con un cuarto extra de 4x4m en el patio trasero.',
         distance: '2.5 km',
-        urgency: 'Proxima Semana',
+        urgency: 'Próxima Semana',
+        isExclusive: true,
+        clientAnswers: const {
+          '¿Cuenta con los materiales?':
+              'No, requiero presupuesto con material incluido.',
+          '¿El terreno está nivelado?': 'Sí, ya cuenta con firme de concreto.',
+        },
+        photoUrls: const ['https://ejemplo.com/patio.jpg'],
+
+        // DATOS DE COTIZACIÓN
         requestDate: DateTime.now().subtract(const Duration(days: 1)),
         dateQuoteSent: DateTime.now().subtract(const Duration(hours: 2)),
-        finalPrice: 8000,
+        finalPrice: 8000.0,
         status: QuoteStatus.pending,
-        isExclusive: true,
+        unreadMessagesCount: 0,
+        providerMarkedCompleted: false,
+        clientMarkedCompleted: false,
       ),
+
       QuoteModel(
         id: 'Q-002',
         opportunityId: 'Opp-002',
@@ -40,12 +56,14 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         clientName: 'Angie Serna',
         clientAvatarUrl: null,
         clientPhoneNumber: '6621234567',
-
-        // DATOS HEREDADOS (Ahora empatan perfecto)
+        clientAddress:
+            'Colonia Modelo, Hermosillo', // Revelado porque está Aceptada
+        // DATOS HEREDADOS
         title: 'Instalación de 4 Minisplits (2 Ton)',
         category: 'Climatización',
+        // Corregí la descripción para que coincida con el título
         description:
-            'El centro de carga hizo un chispazo y la mitad de la casa se quedó sin energía.',
+            'Se requiere instalar 4 equipos Mirage Inverter de 2 toneladas. La casa ya cuenta con la preparación eléctrica y tuberías ocultas.',
         distance: 'Aprox. 4.2 km',
         urgency: 'Urgente',
         isExclusive: false,
@@ -58,25 +76,46 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         // DATOS DE COTIZACIÓN
         requestDate: DateTime.now().subtract(const Duration(days: 3)),
         dateQuoteSent: DateTime.now().subtract(const Duration(days: 2)),
-        finalPrice: 3200,
+        finalPrice: 3200.0,
         status: QuoteStatus.accepted,
-        unreadMessagesCount: 1,
+        unreadMessagesCount: 1, // Simula que Angie te mandó un mensaje
+        providerMarkedCompleted: false,
+        clientMarkedCompleted: false,
       ),
+
       QuoteModel(
         id: 'Q-003',
         opportunityId: 'Opp-003',
         clientId: 'C-003',
         clientName: 'Carlos López',
+        clientAvatarUrl:
+            'https://ejemplo.com/avatar_carlos.jpg', // Este sí tiene foto
         clientPhoneNumber: '6629998888',
+        clientAddress:
+            'Fracc. Puerta Real, Hermosillo', // Revelado porque está Completada
+        // DATOS HEREDADOS
         title: 'Reparación de Tubería',
         category: 'Plomería',
-        description: 'Fuga de agua en el baño principal. Inundación leve.',
+        description:
+            'Fuga de agua en el baño principal. Inundación leve debajo del lavabo.',
         distance: '3.1 km',
         urgency: 'Normal',
+        isExclusive: false,
+        clientAnswers: const {
+          '¿Es tubería de PVC o Cobre?': 'Es de Cobre',
+          '¿Hay que romper pared?':
+              'No, la fuga está expuesta en la llave angular.',
+        },
+        photoUrls: const [], // Sin fotos
+        // DATOS DE COTIZACIÓN
         requestDate: DateTime.now().subtract(const Duration(days: 10)),
         dateQuoteSent: DateTime.now().subtract(const Duration(days: 9)),
-        finalPrice: 850,
+        finalPrice: 850.0,
         status: QuoteStatus.completed,
+        unreadMessagesCount: 0,
+        // Como ya está completada, ambas banderas deben estar en true
+        providerMarkedCompleted: true,
+        clientMarkedCompleted: true,
       ),
       QuoteModel(
         id: 'Q-004',

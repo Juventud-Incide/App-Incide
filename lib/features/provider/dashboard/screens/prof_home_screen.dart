@@ -53,6 +53,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
         '¿Tienes material comprado?': 'Solo el cemento, falta la varilla.',
         '¿El terreno está nivelado?': 'Sí, listo para cimentar.',
       },
+      photoUrls: const ['mock1', 'mock2', 'mock3'],
     ),
     OpportunityModel(
       id: 'OPP-002',
@@ -70,6 +71,7 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
         '¿Hay preparación eléctrica previa?':
             'Sí, ya cuenta con pastillas a 220v.',
       },
+      photoUrls: const ['mock1', 'mock2', 'mock3'],
     ),
   ];
 

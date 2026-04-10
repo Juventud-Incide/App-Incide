@@ -285,6 +285,10 @@ class AppStrings {
   static const String quoteRetiredLbl = 'Propuesta retirada con éxito';
   static const String quoteRetireLbl = 'Sí, retirar';
 
+  static const String quoteDetailTitle = 'Detalles del Trabajo';
+  static const String quoteDetailClientTitle = 'Información del Cliente';
+  static const String quoteDetailClientProtected = 'Número protegido';
+
   // --- Pantalla de Envío de Enlace de Recuperación ---
   static const String linkSentTitle = '¡Enlace enviado!';
   static const String linkSentSubtitle1 = 'Hemos enviado las instrucciones a';

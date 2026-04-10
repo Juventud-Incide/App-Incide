@@ -92,8 +92,8 @@ class QuoteActiveCard extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              quote.estimatedPrice != null
-                                  ? '\$${quote.estimatedPrice!.toStringAsFixed(0)} MXN'
+                              quote.finalPrice != null
+                                  ? '\$${quote.finalPrice!.toStringAsFixed(0)} MXN'
                                   : AppStrings.quotePriceNotDefined,
                               style: TextStyle(
                                 color: statusColor,
@@ -107,7 +107,7 @@ class QuoteActiveCard extends StatelessWidget {
 
                         // --- CUERPO: Título y Descripción ---
                         Text(
-                          quote.serviceCategory,
+                          quote.title,
                           style: const TextStyle(
                             color: AppColors.textDark,
                             fontSize: 16,
@@ -116,7 +116,7 @@ class QuoteActiveCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          quote.problemDescription,
+                          quote.description,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(

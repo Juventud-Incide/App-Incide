@@ -71,8 +71,8 @@ class QuotePendingCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      quote.estimatedPrice != null
-                          ? '\$${quote.estimatedPrice!.toStringAsFixed(0)} MXN'
+                      quote.finalPrice != null
+                          ? '\$${quote.finalPrice!.toStringAsFixed(0)} MXN'
                           : AppStrings.quotePriceNotDefined,
                       style: const TextStyle(
                         color: Color(0xFF6B7280),
@@ -86,7 +86,7 @@ class QuotePendingCard extends StatelessWidget {
 
                 // --- CUERPO: Título y Descripción ---
                 Text(
-                  quote.serviceCategory,
+                  quote.title,
                   style: const TextStyle(
                     color: AppColors.textDark,
                     fontSize: 16,

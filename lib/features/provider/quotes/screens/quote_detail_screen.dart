@@ -37,7 +37,7 @@ class QuoteDetailScreen extends ConsumerWidget {
             iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               title: const Text(
-                'Detalles del Trabajo',
+                AppStrings.quoteDetailTitle,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -81,14 +81,14 @@ class QuoteDetailScreen extends ConsumerWidget {
                   _buildStatusBadge(activeQuote),
                   const SizedBox(height: 16),
                   OpportunityInfoBody(
-                    title: activeQuote.serviceCategory,
-                    category: 'Categoría Técnica',
-                    distance: 'Aprox. 2.5 km',
-                    urgency: 'Normal',
-                    priceRange: activeQuote.estimatedPrice != null
-                        ? '\$${activeQuote.estimatedPrice!.toStringAsFixed(0)} MXN'
+                    title: activeQuote.title,
+                    category: activeQuote.category,
+                    distance: activeQuote.distance,
+                    urgency: activeQuote.urgency,
+                    priceRange: activeQuote.finalPrice != null
+                        ? '\$${activeQuote.finalPrice!.toStringAsFixed(0)} MXN'
                         : null,
-                    description: activeQuote.problemDescription,
+                    description: activeQuote.description,
                     clientAnswers: activeQuote.clientAnswers,
                     photoUrls: activeQuote.photoUrls,
                     isExclusive: activeQuote.isExclusive,
@@ -96,7 +96,7 @@ class QuoteDetailScreen extends ConsumerWidget {
 
                   // Información del Cliente (Exclusivo de Mis Cotizaciones)
                   const Text(
-                    'Cliente',
+                    AppStrings.quoteDetailClientTitle,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -126,7 +126,9 @@ class QuoteDetailScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        isAccepted ? 'ACEPTADA / EN PROGRESO' : 'EN ESPERA',
+        isAccepted
+            ? AppStrings.acceptedQuotesTitle
+            : AppStrings.quotePendingTitle,
         style: TextStyle(
           color: isAccepted ? const Color(0xFF059669) : const Color(0xFFD97706),
           fontWeight: FontWeight.bold,
@@ -167,7 +169,9 @@ class QuoteDetailScreen extends ConsumerWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  isAccepted ? q.clientPhoneNumber : "Número protegido",
+                  isAccepted
+                      ? q.clientPhoneNumber
+                      : AppStrings.quoteDetailClientProtected,
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                 ),
               ],
@@ -217,7 +221,7 @@ class QuoteDetailScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Retirar Propuesta'),
+                    child: const Text(AppStrings.quoteRemoveBtn),
                   ),
                 ),
               ),
@@ -229,7 +233,7 @@ class QuoteDetailScreen extends ConsumerWidget {
                 child: ElevatedButton.icon(
                   onPressed: () {}, // Abrir chat
                   icon: const Icon(Icons.chat_bubble_outline),
-                  label: const Text('Abrir Chat'),
+                  label: const Text(AppStrings.quoteOpenChatBtn),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,
                     foregroundColor: Colors.white,

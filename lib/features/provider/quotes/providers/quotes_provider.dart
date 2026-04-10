@@ -27,6 +27,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         dateQuoteSent: DateTime.now().subtract(const Duration(hours: 2)),
         estimatedPrice: 8000,
         status: QuoteStatus.pending,
+        isExclusive: true,
       ),
       QuoteModel(
         id: 'Q-002',
@@ -41,6 +42,12 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         estimatedPrice: 3200,
         status: QuoteStatus.accepted,
         unreadMessagesCount: 1,
+        clientAnswers: const {
+          '¿En qué piso será la instalación?': 'Segundo piso',
+          '¿Los equipos son nuevos en caja sellada?': 'Sí, comprados ayer.',
+          '¿Hay acceso a balcón o techo?': 'Sí, hay un balcón amplio.',
+        },
+        photoUrls: const ['url1', 'url2', 'url3'],
       ),
       QuoteModel(
         id: 'Q-003',

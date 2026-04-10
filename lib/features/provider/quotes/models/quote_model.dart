@@ -22,6 +22,10 @@ class QuoteModel {
   final QuoteStatus status;
   final String? clientAddress;
 
+  final Map<String, String> clientAnswers;
+  final List<String> photoUrls;
+  final bool isExclusive;
+
   /// Indicador para la "burbujita" de notificaciones en el botón del chat
   final int unreadMessagesCount;
 
@@ -42,9 +46,12 @@ class QuoteModel {
     this.estimatedPrice,
     this.status = QuoteStatus.pending,
     this.clientAddress,
+    this.clientAnswers = const {},
+    this.photoUrls = const [],
     this.unreadMessagesCount = 0, // Por defecto no hay mensajes sin leer
     this.providerMarkedCompleted = false,
     this.clientMarkedCompleted = false,
+    this.isExclusive = false,
   });
 
   /// Crea una copia exacta de este objeto, permitiendo modificar campos específicos.
@@ -62,9 +69,12 @@ class QuoteModel {
     double? estimatedPrice,
     QuoteStatus? status,
     String? clientAddress,
+    Map<String, String>? clientAnswers,
+    List<String>? photoUrls,
     int? unreadMessagesCount,
     bool? providerMarkedCompleted,
     bool? clientMarkedCompleted,
+    bool? isExclusive,
   }) {
     return QuoteModel(
       id: id ?? this.id,
@@ -79,11 +89,14 @@ class QuoteModel {
       estimatedPrice: estimatedPrice ?? this.estimatedPrice,
       status: status ?? this.status,
       clientAddress: clientAddress ?? this.clientAddress,
+      clientAnswers: clientAnswers ?? this.clientAnswers,
+      photoUrls: photoUrls ?? this.photoUrls,
       unreadMessagesCount: unreadMessagesCount ?? this.unreadMessagesCount,
       providerMarkedCompleted:
           providerMarkedCompleted ?? this.providerMarkedCompleted,
       clientMarkedCompleted:
           clientMarkedCompleted ?? this.clientMarkedCompleted,
+      isExclusive: isExclusive ?? this.isExclusive,
     );
   }
 }

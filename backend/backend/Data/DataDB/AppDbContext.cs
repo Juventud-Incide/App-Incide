@@ -25,6 +25,11 @@ namespace backend.Data.DataDB
                 e.Property(u => u.FirstName).IsRequired().HasMaxLength(100);
                 e.Property(u => u.LastName).IsRequired().HasMaxLength(100);
                 e.Property(u => u.PasswordHash).IsRequired();
+
+                e.Property(u => u.LastLat).HasColumnType("decimal(9,6)");
+                e.Property(u => u.LastLng).HasColumnType("decimal(9,6)");
+                e.Property(u => u.Location).HasColumnType("geography (Point, 4326)");
+                e.HasIndex(u => u.Location).HasMethod("GIST");
             });
 
             modelBuilder.Entity<Client>(e =>

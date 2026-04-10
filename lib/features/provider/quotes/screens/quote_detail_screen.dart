@@ -1,4 +1,5 @@
 import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -10,39 +11,6 @@ class QuoteDetailScreen extends ConsumerWidget {
   final QuoteModel quote; // Recibimos el modelo desde el router
 
   const QuoteDetailScreen({super.key, required this.quote});
-
-  void _confirmRetract(BuildContext context, WidgetRef ref, String quoteId) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(AppStrings.quoteAlertTitle),
-        content: const Text(AppStrings.quoteAlertContent),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              AppStrings.quoteCancelLbl,
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(quotesProvider.notifier).retractProposal(quoteId);
-              Navigator.pop(context); // Cierra el dialogo
-              Navigator.pop(context); // Vuelve a la lista de cotizaciones
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Propuesta retirada.')),
-              );
-            },
-            child: const Text(
-              'Sí, retirar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -235,10 +203,19 @@ class QuoteDetailScreen extends ConsumerWidget {
                 child: SizedBox(
                   height: 48,
                   child: OutlinedButton(
-                    onPressed: () => _confirmRetract(context, ref, q.id),
+                    onPressed: () => QuoteDialogs.showRetractConfirmation(
+                      context: context,
+                      ref: ref,
+                      quoteId: q.id,
+                      popScreenAfter:
+                          true, // Importante para que regrese a la lista
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.redAccent,
                       side: BorderSide(color: Colors.red.shade200),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: const Text('Retirar Propuesta'),
                   ),

@@ -7,6 +7,7 @@ import '../widgets/quote_pending_card.dart';
 import '../widgets/quote_active_card.dart';
 import '../providers/quotes_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
 
 class ProfQuotesScreen extends ConsumerStatefulWidget {
   const ProfQuotesScreen({super.key});
@@ -19,39 +20,6 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
   // ==========================================
   // LÓGICA DE INTERACCIÓN
   // ==========================================
-
-  void _handleRetractProposal(QuoteModel quote) {
-    // Alerta de confirmación (Doble Check)
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(AppStrings.quoteAlertTitle),
-        content: const Text(AppStrings.quoteAlertContent),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              AppStrings.quoteCancelLbl,
-              style: TextStyle(color: Colors.grey),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              ref.read(quotesProvider.notifier).retractProposal(quote.id);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text(AppStrings.quoteRetiredLbl)),
-              );
-            },
-            child: const Text(
-              AppStrings.quoteRetireLbl,
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _handleOpenChat(QuoteModel quote) {
     // TODO: (ROUTING) Navegar a la pantalla de Chat pasando el quote.id
@@ -84,7 +52,11 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
           return QuotePendingCard(
             quote: quote,
             onTap: () => _navigateToDetail(quote),
-            onRetractProposal: () => _handleRetractProposal(quote),
+            onRetractProposal: () => QuoteDialogs.showRetractConfirmation(
+              context: context,
+              ref: ref,
+              quoteId: quote.id,
+            ),
             onOpenChat: () => _handleOpenChat(quote),
           );
         } else {

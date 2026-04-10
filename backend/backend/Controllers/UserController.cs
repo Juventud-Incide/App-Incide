@@ -7,7 +7,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -18,6 +18,7 @@ namespace backend.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -77,7 +78,31 @@ namespace backend.Controllers
             }
         }
 
+        [HttpPatch("{id}/ubicacion")]
+        [Authorize(Roles = "Admin,Client,Provider")]
+        public async Task<IActionResult> UpdateLocation(int id, [FromBody] UpdateLocationDTO dto, CancellationToken ct)
+        {
+            var currentUserId = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (currentUserId != id.ToString())
+                return Forbid();
+
+            try
+            {
+                var updated = await _userService.UpdateLocationAsync(id, dto, ct);
+                if (!updated)
+                    return NotFound(new { message = "Usuario no encontrado." });
+
+                return Ok(new { message = "Ubicación actualizada." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

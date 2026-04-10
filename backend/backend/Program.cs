@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProviderServices, ProviderServices>();
+// Para Redis: reemplazar por RedisTokenRevocationStore manteniendo la misma interfaz.
+builder.Services.AddScoped<ITokenRevocationStore, EfTokenRevocationStore>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<INotificationService, LoggingNotificationService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
@@ -45,6 +48,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtConfig["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             RoleClaimType = System.Security.Claims.ClaimTypes.Role
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async ctx =>
+            {
+                var jti = ctx.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                if (string.IsNullOrEmpty(jti)) return;
+
+                var store = ctx.HttpContext.RequestServices
+                    .GetRequiredService<ITokenRevocationStore>();
+
+                if (await store.IsRevokedAsync(jti, ctx.HttpContext.RequestAborted))
+                    ctx.Fail("Token revocado.");
+            }
         };
     });
 

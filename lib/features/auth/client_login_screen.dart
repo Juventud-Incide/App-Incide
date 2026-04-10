@@ -31,7 +31,6 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
 
     if (_formKey.currentState!.validate()) {
       try {
-        /*final status =*/
         await ref
             .read(authControllerProvider.notifier)
             .login(
@@ -39,41 +38,6 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
               _passwordController.text,
               'cliente',
             );
-
-        if (!mounted) return;
-
-        if (status == 'aceptado') {
-          // --- TODO (Backend) - GUARDADO DE TOKEN ---
-          // 1. Tu API te responderá con un JWT Token real cuando las credenciales sean válidas.
-          // 2. Debes guardarlo usando 'flutter_secure_storage' para cifrado (ahorita usa SharedPreferences de ejemplo).
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('jwt_token', 'dummy_client_jwt_token_12345'); // Aquí va tu token verdadero
-          await prefs.setString('user_role', 'client'); // Ayuda a identificar adonde mandar al usuario en el Splash
-
-          if (!mounted) return;
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('¡Bienvenido a INCIDE!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          context.go('/home-cliente');
-        } else if (status == 'pendiente') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tu cuenta está en revisión por un administrador.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        } else if (status == 'rechazado') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tu solicitud fue rechazada. Contacta a soporte.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }*/
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

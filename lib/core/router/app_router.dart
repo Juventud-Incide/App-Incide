@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/providers/auth_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
 
 import '../../features/auth/splash_screen.dart';
 import '../../features/roles/role_selection_screen.dart';
-import 'package:app_incide/features/auth/providers/auth_provider.dart';
 
 import '../../features/auth/screens/professional/prof_register_screen.dart';
 import '../../features/auth/screens/professional/prof_login_screen.dart';
@@ -87,6 +85,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       // 1. EL ESTADO DEL USUARIO (Autenticación, Rol, Permisos)
       final authState = ref.read(authControllerProvider);
+      final bool isInitialized = authState.isInitialized;
       final bool isAuthenticated = authState.isAuthenticated;
       final String? role = authState.role;
       final String? status = authState.profileStatus;
@@ -124,8 +123,19 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden)
 
-      // Regla 0: SIEMPRE deja que se muestre el Splash Screen al abrir la app
-      if (isGoingToSplash) return null;
+      // Regla 0: Manejo del Splash Screen
+      if (isGoingToSplash) {
+        if (!isInitialized) {
+          // Sigue corriendo la animación o cargando token de disco
+          return null; 
+        }
+        // Ya sabemos si tiene sesión o no
+        if (isAuthenticated) {
+          return role == 'cliente' ? '/home-cliente' : '/prof-home';
+        } else {
+          return '/roles';
+        }
+      }
 
       // Excepción para pruebas de frontend (si es necesario)
       // if (targetPath == '/home-cliente') return null;
@@ -150,8 +160,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                   : '/location-permission';
           }
         } else if (role == 'cliente') {
-          // TODO: Modificar la ruta a '/cliente-home' una vez que esté implementada
-          return '/login-cliente';
+          return '/home-cliente';
         }
       }
 
@@ -172,8 +181,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (role == 'cliente') {
           // Si intenta ir a zona de proveedor o pedir ubicación, lo regresamos a su inicio
           if (targetPath.contains('prof') || isGoingToLocationScreen) {
-            // TODO: Modificar la ruta a '/cliente-home' una vez que esté implementada
-            return '/login-cliente';
+            return '/home-cliente';
           }
         }
       }

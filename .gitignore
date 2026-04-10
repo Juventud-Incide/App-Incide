@@ -6,6 +6,7 @@
 .pub-cache/
 .pub/
 /build/
+devtools_options.yaml
 
 # Artefactos de Android e iOS
 /android/app/debug

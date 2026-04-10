@@ -23,6 +23,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProviderServices, ProviderServices>();
 // Para Redis: reemplazar por RedisTokenRevocationStore manteniendo la misma interfaz.
 builder.Services.AddScoped<ITokenRevocationStore, EfTokenRevocationStore>();
+builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+builder.Services.AddScoped<INotificationService, LoggingNotificationService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtConfig["Key"];
@@ -110,6 +113,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,12 +1,31 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
+/// Campo de selección desplegable (Dropdown) estandarizado.
+///
+/// **Arquitectura Genérica (`<T>`):**
+/// Esta clase utiliza genéricos de Dart para permitir que el valor seleccionado
+/// sea de cualquier tipo (String, int, o un Modelo de Datos complejo), no solo texto.
+///
+/// Integra automáticamente el diseño de la aplicación (bordes, colores de foco)
+/// y soporta validación nativa de [FormState].
 class CustomDropdownField<T> extends StatelessWidget {
+  /// Título superior fuera de la caja de texto. Si está vacío, no se renderiza.
   final String label;
+
+  /// Texto de ayuda mostrado cuando no hay ningún elemento seleccionado.
   final String hintText;
+
+  /// El valor actualmente seleccionado. Debe coincidir con el valor de uno de los [items].
   final T? value;
+
+  /// Lista de opciones renderizadas en el menú desplegable.
   final List<DropdownMenuItem<T>> items;
+
+  /// Callback ejecutado cuando el usuario elige una nueva opción.
   final void Function(T?)? onChanged;
+
+  /// Función inyectada para validar si la selección actual cumple con las reglas de negocio.
   final String? Function(T?)? validator;
 
   const CustomDropdownField({

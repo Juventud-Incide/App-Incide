@@ -6,7 +6,18 @@ import '../../widgets/custom_input_field.dart';
 import '../../widgets/custom_dropdown_field.dart';
 import 'dart:developer' as developer;
 
+/// Paso Final del Asistente (Wizard) de Registro del Proveedor.
+///
+/// **Manejo de Estado (Multi-Step Form):**
+/// Esta pantalla recibe un [Map<String, dynamic>] llamado `formData` inyectado
+/// por GoRouter a través del atributo `extra`. Este mapa contiene los datos
+/// recopilados en las pantallas anteriores (Nombre, Email, Contraseña, OTP).
+///
+/// Al validar exitosamente, la pantalla combina el `formData` original con
+/// los nuevos datos (Experiencia y Especialidad) para crear el `finalPayload`
+/// que se envía al servidor para registrar la cuenta definitivamente.
 class ProfExperienceScreen extends StatefulWidget {
+  /// Diccionario acumulativo con los datos de registro de las vistas anteriores.
   final Map<String, dynamic> formData;
 
   const ProfExperienceScreen({super.key, required this.formData});
@@ -18,15 +29,17 @@ class ProfExperienceScreen extends StatefulWidget {
 class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores
+  // Controladores de UI
   String? _selectedSpecialty;
   final _yearsController = TextEditingController();
   final _cedulaController = TextEditingController();
   final _descriptionController = TextEditingController();
 
+  /// Controla cuándo se muestran los mensajes de error en rojo. Inicialmente
+  /// apagado, se enciende si el usuario presiona "Enviar" con campos inválidos.
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
-  // Catálogo de oficios (Ejemplo estático, vendrá de una llamada a API)
+  // TODO: (BACKEND) - Reemplazar este arreglo estático con una petición GET al endpoint `/api/specialties` para cargar las categorías dinámicamente.
   final List<String> _specialties = [
     'Carpintería',
     'Plomería',
@@ -39,33 +52,38 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
   @override
   void dispose() {
+    // LIMPIEZA: Liberamos memoria de los textfields al salir.
     _yearsController.dispose();
     _cedulaController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
+  /// Ejecuta la validación del formulario y empaqueta el Payload final.
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      // 1. Unificamos los datos heredados con los nuevos
       final Map<String, dynamic> finalPayload = {
-        ...widget.formData,
+        ...widget.formData, // Spread operator para volcar el diccionario previo
         'specialty': _selectedSpecialty,
         'yearsOfExperience': int.tryParse(_yearsController.text) ?? 0,
         'cedula': _cedulaController.text,
         'description': _descriptionController.text,
       };
 
-      // TODO: Aquí se realiza await authService.registerProfessional(finalPayload);
+      // TODO: (BACKEND) - Reemplazar el logger con la llamada real asíncrona:
+      // await ref.read(authControllerProvider.notifier).registerProfessional(finalPayload);
       developer.log(
         'Payload del registro completado exitosamente',
         name: 'AuthModule',
         error: finalPayload
-            .toString(), // Mandamos los datos aquí para depuración estructurada
+            .toString(), // Envía el JSON a la consola de forma estructurada
       );
 
-      // Todo está listo para mandar a la base de datos y avanzar a la pantalla de "En Revisión"
+      // 2. Transición al éxito
       context.goNamed('prof_success');
     } else {
+      // Si la validación falla, activamos la revisión en tiempo real (rojos vivos)
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
     }
   }

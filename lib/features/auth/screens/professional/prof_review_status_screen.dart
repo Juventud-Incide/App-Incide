@@ -3,14 +3,34 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// Definimos los posibles estados del usuario en la base de datos
+/// Enumeración que representa la Máquina de Estados del proceso de admisión.
+///
+/// Define las etapas por las que debe pasar un proveedor antes de que
+/// se le permita el acceso al Dashboard principal de la aplicación.
 enum ApplicationStatus {
-  pendingReview, // Recién registrado
-  interviewScheduled, // Ya tiene cita
-  validatingDocs, // Ya subió documentos
-  activated, // Cuenta activada
+  /// Recién registrado. Sus datos iniciales están siendo revisados.
+  pendingReview,
+
+  /// Aprobó la revisión inicial y se le asignó una entrevista presencial/virtual.
+  interviewScheduled,
+
+  /// Aprobó la entrevista y subió sus documentos. Esperando validación final.
+  validatingDocs,
+
+  /// Proceso completado. La cuenta está activa (este estado suele redirigir al Dashboard).
+  activated,
 }
 
+/// Sala de espera (Waiting Room) dinámica para el Proveedor.
+///
+/// **Rol en la Arquitectura:**
+/// Esta pantalla actúa como una vista de "solo lectura" persistente. Si un usuario
+/// cierra la app y vuelve a iniciar sesión antes de ser activado, el Router
+/// detectará su estado y lo enviará aquí automáticamente.
+///
+/// **Renderizado Condicional:**
+/// La interfaz se reconstruye por completo (textos, íconos, línea de tiempo, y
+/// la tarjeta de cita) evaluando el `ApplicationStatus` provisto por el Backend.
 class ProfReviewStatusScreen extends StatefulWidget {
   const ProfReviewStatusScreen({super.key});
 
@@ -19,26 +39,32 @@ class ProfReviewStatusScreen extends StatefulWidget {
 }
 
 class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
-  // --- MOCK DATA (Simulando lo que vendría del Backend) ---
-  // Cambia esto para ver cómo cambian los estados de espera
+  // --- MOCK DATA (Simulando respuesta del Backend) ---
+  // TODO: (BACKEND) - Reemplazar estas variables inyectando el perfil del usuario usando Riverpod (ej: `ref.watch(userProfileProvider).applicationStatus`)
   final ApplicationStatus _currentStatus = ApplicationStatus.interviewScheduled;
   final String _interviewDate = "Jueves 28 de Marzo, 10:00 AM";
-  final String _interviewLocation =
-      "Oficinas INCIDE (Col. Centro, Hermosillo)";
+  final String _interviewLocation = "Oficinas INCIDE (Col. Centro, Hermosillo)";
   // -----------------------------------------------------------
 
+  /// Constructor del widget visual para cada paso de la línea de tiempo.
+  ///
+  /// [title] Texto descriptivo del paso.
+  /// [isCompleted] Si es `true`, marca el círculo de color verde.
+  /// [isActive] Si es `true` y no está completado, marca el círculo de azul con borde.
+  /// [isLast] Si es `true`, elimina el padding inferior extra.
   Widget _buildTimelineStep({
     required String title,
     required bool isCompleted,
     required bool isActive,
     bool isLast = false,
   }) {
+    // Lógica de cálculo de color centralizada
     final Color dotColor = isCompleted
         ? const Color(0xFF10B981) // Verde completado
         : isActive
         ? AppColors
-              .primaryBlue // Azul actual
-        : const Color(0xFFD1D5DB); // Gris pendiente
+              .primaryBlue // Azul actual (En progreso)
+        : const Color(0xFFD1D5DB); // Gris pendiente (Pendiente futuro)
 
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 20.0),
@@ -50,6 +76,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
             decoration: BoxDecoration(
               color: dotColor,
               shape: BoxShape.circle,
+              // Si es el paso activo, le agregamos un aura azul (borde exterior)
               border: isActive
                   ? Border.all(
                       color: AppColors.primaryBlue.withValues(alpha: 0.3),
@@ -63,6 +90,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
             title,
             style: TextStyle(
               fontSize: 14,
+              // Engrosa la fuente si el paso ya pasó o está activo
               fontWeight: isActive || isCompleted
                   ? FontWeight.w700
                   : FontWeight.w500,
@@ -100,8 +128,10 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                 ),
                 child: Icon(
                   _currentStatus == ApplicationStatus.pendingReview
-                      ? Icons.access_time_rounded
-                      : Icons.calendar_month_rounded,
+                      ? Icons
+                            .access_time_rounded // Reloj para revisión
+                      : Icons
+                            .calendar_month_rounded, // Calendario para cita programada
                   size: 45,
                   color: _currentStatus == ApplicationStatus.pendingReview
                       ? Colors.amber
@@ -140,6 +170,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
               const SizedBox(height: 30),
 
               // --- 3. TARJETA DE CITA (Solo visible si hay cita) ---
+              // Solo se inyecta en el árbol de widgets si existe una cita programada
               if (_currentStatus == ApplicationStatus.interviewScheduled)
                 Container(
                   margin: const EdgeInsets.only(bottom: 30),
@@ -210,11 +241,14 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Paso 1: Envio inicial (Siempre completado si llegó aquí)
                     _buildTimelineStep(
                       title: AppStrings.sentTimelineStep,
                       isCompleted: true,
                       isActive: false,
                     ),
+
+                    // Paso 2: Revisión de datos
                     _buildTimelineStep(
                       title: AppStrings.reviewTimelineStep,
                       isCompleted:
@@ -222,6 +256,8 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                       isActive:
                           _currentStatus == ApplicationStatus.pendingReview,
                     ),
+
+                    // Paso 3: Entrevista Presencial/Virtual
                     _buildTimelineStep(
                       title: AppStrings.interviewTimelineStep,
                       isCompleted:
@@ -231,6 +267,8 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                           _currentStatus ==
                           ApplicationStatus.interviewScheduled,
                     ),
+
+                    // Paso 4: Carga y validación de documentos oficiales
                     _buildTimelineStep(
                       title: AppStrings.reviewDocsTimelineStep,
                       isCompleted:
@@ -238,6 +276,8 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                       isActive:
                           _currentStatus == ApplicationStatus.validatingDocs,
                     ),
+
+                    // Paso 5: Activación final
                     _buildTimelineStep(
                       title: AppStrings.activatedTimelineStep,
                       isCompleted:
@@ -256,7 +296,10 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                 width: double.infinity,
                 height: 55,
                 child: OutlinedButton(
-                  onPressed: () => context.goNamed('splash'),
+                  onPressed: () {
+                    // TODO: (BACKEND) - Invocar authController.logout() antes de salir
+                    context.goNamed('splash');
+                  },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
                     side: const BorderSide(color: Colors.red, width: 1.5),

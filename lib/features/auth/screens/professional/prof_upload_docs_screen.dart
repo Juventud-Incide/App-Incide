@@ -4,6 +4,17 @@ import 'package:go_router/go_router.dart';
 import '../../widgets/custom_upload_card.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
 
+/// Pantalla interactiva para la carga inicial de documentos legales obligatorios.
+///
+/// **Arquitectura y Flujo:**
+/// Se presenta después de que el usuario aprueba el registro inicial (`ProfApprovedScreen`).
+/// Actúa como un recolector de archivos. Cada documento tiene un estado individual de carga
+/// (booleano) que la UI utiliza para marcar visualmente el progreso.
+///
+/// **Manejo de Estado (Form Validation):**
+/// Utiliza un getter reactivo `_allDocsUploaded` para evaluar constantemente si los
+/// cinco requisitos (INE, Domicilio, Cédula, Antecedentes, Foto) se han cumplido,
+/// alterando el estado visual y funcional del botón de envío final.
 class ProfUploadDocsScreen extends StatefulWidget {
   const ProfUploadDocsScreen({super.key});
 
@@ -12,14 +23,16 @@ class ProfUploadDocsScreen extends StatefulWidget {
 }
 
 class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
-  // Estados para saber si cada documento ya se subió
+  // TODO: (BACKEND) - Sustituir estos booleanos por objetos `File?` o URLs devueltas por Firebase Storage/AWS S3 una vez que el archivo sube al bucket.
+
+  // Estados individuales de carga para cada documento
   bool _isIneUploaded = false;
   bool _isDomicilioUploaded = false;
   bool _isCedulaUploaded = false;
   bool _isAntecedentesUploaded = false;
   bool _isFotoUploaded = false;
 
-  // Verifica si todos los documentos obligatorios están listos
+  /// Getter reactivo. Retorna `true` únicamente si los 5 booleanos son verdaderos.
   bool get _allDocsUploaded =>
       _isIneUploaded &&
       _isDomicilioUploaded &&
@@ -27,7 +40,10 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
       _isAntecedentesUploaded &&
       _isFotoUploaded;
 
-  // Función que simula la subida de un archivo
+  /// Despliega un menú inferior (Bottom Sheet) ofreciendo las opciones de cámara o galería.
+  ///
+  /// [docName] Nombre del documento, inyectado en el título del modal.
+  /// [onSuccess] Callback ejecutado para actualizar el booleano correspondiente a `true`.
   void _showUploadBottomSheet(String docName, VoidCallback onSuccess) {
     showModalBottomSheet(
       context: context,
@@ -56,11 +72,13 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                   ),
                   title: const Text(AppStrings.takePhoto),
                   onTap: () {
-                    // TODO: Implementar image_picker (Cámara)
-                    Navigator.pop(context);
-                    onSuccess(); // Simulamos éxito
+                    // TODO: (BACKEND) - Integrar paquete `image_picker` con ImageSource.camera
+                    Navigator.pop(context); // Cierra el modal
+                    onSuccess(); // Dispara el cambio de estado simulando éxito
                   },
                 ),
+
+                // TODO: (BACKEND) - Integrar paquete `file_picker` (PDF) o `image_picker` (Galería)
                 ListTile(
                   leading: const Icon(
                     Icons.photo_library_rounded,
@@ -68,9 +86,8 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                   ),
                   title: const Text(AppStrings.chooseFromGallery),
                   onTap: () {
-                    // TODO: Implementar file_picker o image_picker (Galería)
                     Navigator.pop(context);
-                    onSuccess(); // Simulamos éxito
+                    onSuccess();
                   },
                 ),
               ],
@@ -81,10 +98,14 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
     );
   }
 
+  /// Evalúa el envío final. Si faltan documentos, lanza un SnackBar de advertencia.
   void _submitDocuments() {
+    // La validación estricta ocurre aquí
     if (_allDocsUploaded) {
+      // TODO: (BACKEND) - Llamada para actualizar el estatus del proveedor a "En Revisión"
       context.goNamed('prof_docs_success');
     } else {
+      // UX: Retroalimentación inmediata si intenta forzar el envío prematuro
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(AppStrings.missingDocsError),
@@ -138,6 +159,9 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                     ),
                     const SizedBox(height: 25),
 
+                    // Componentes Reutilizables de Subida.
+                    // Al inyectar el Callback, la tarjeta dispara el BottomSheet
+                    // y a su vez, el BottomSheet dispara el setState() local de esta vista.
                     CustomUploadCard(
                       title: AppStrings.docIne,
                       subtitle: AppStrings.docIneSubtitle,
@@ -211,7 +235,7 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                 height: 55,
                 child: ElevatedButton(
                   onPressed: _submitDocuments,
-                  // El botón se ve "apagado" si faltan documentos
+                  // Estilizado reactivo: El botón cambia visualmente si faltan documentos
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _allDocsUploaded
                         ? AppColors.primaryBlue

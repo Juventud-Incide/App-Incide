@@ -164,7 +164,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         requestDate: DateTime.now().subtract(const Duration(hours: 12)),
         dateQuoteSent: DateTime.now().subtract(const Duration(hours: 10)),
         finalPrice: 850.0, // Tu precio propuesto
-        status: QuoteStatus.pending, // Aparecerá en la pestaña de "En Espera"
+        status: QuoteStatus.rejected,
         unreadMessagesCount: 0,
       ),
     ];

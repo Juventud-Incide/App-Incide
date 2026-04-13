@@ -119,7 +119,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
         // DATOS DE COTIZACIÓN
         requestDate: DateTime.now().subtract(const Duration(days: 10)),
         dateQuoteSent: DateTime.now().subtract(const Duration(days: 9)),
-        finalPrice: 850.0,
+        finalPrice: 670.0,
         status: QuoteStatus.completed,
         unreadMessagesCount: 0,
         // Como ya está completada, ambas banderas deben estar en true

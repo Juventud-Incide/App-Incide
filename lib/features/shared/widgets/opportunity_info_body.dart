@@ -1,17 +1,44 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Componente compartido que pinta la información central de un trabajo.
-/// Usado tanto en Oportunidades Nuevas (Home) como en Cotizaciones Activas (Mis Cotizaciones).
+/// Componente visual compartido que renderiza la información central de un trabajo.
+///
+/// **Propósito Arquitectónico:**
+/// Centraliza la presentación de los datos heredados de una solicitud.
+/// Se utiliza tanto en la vista de detalle de Oportunidades Nuevas (Radar/Home)
+/// como en la vista de Cotizaciones Activas ([QuoteDetailScreen]).
+/// Esto garantiza una experiencia de usuario (UX) consistente: el proveedor
+/// ve la información exactamente con el mismo formato antes y después de cotizar.
 class OpportunityInfoBody extends StatelessWidget {
+  /// Título principal del trabajo solicitado.
   final String title;
+
+  /// Rubro general (ej. Albañilería, Plomería).
   final String category;
+
+  /// Distancia formateada desde la ubicación del proveedor.
   final String distance;
+
+  /// Nivel de urgencia requerido por el cliente.
   final String urgency;
+
+  /// Rango de precio estimado o precio final propuesto.
+  /// Es opcional (`null`) porque las Oportunidades nuevas podrían no tener
+  /// un presupuesto definido aún.
   final String? priceRange;
+
+  /// Descripción detallada del problema escrita por el cliente.
   final String description;
+
+  /// Bandera que indica si este trabajo fue enviado de forma directa
+  /// y exclusiva a este proveedor, renderizando un badge dorado.
   final bool isExclusive;
+
+  /// Diccionario (Key-Value) con las preguntas predefinidas y las respuestas del cliente.
   final Map<String, String> clientAnswers;
+
+  /// Lista de URLs de imágenes proporcionadas por el cliente como evidencia visual.
   final List<String> photoUrls;
 
   const OpportunityInfoBody({
@@ -32,7 +59,7 @@ class OpportunityInfoBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // --- TÍTULO Y BADGE ---
+        // --- TÍTULO Y BADGE EXCLUSIVO ---
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +83,7 @@ class OpportunityInfoBody extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
-                  'EXCLUSIVA',
+                  AppStrings.quoteExclusiveBadge,
                   style: TextStyle(
                     color: Colors.amber,
                     fontSize: 10,
@@ -69,7 +96,10 @@ class OpportunityInfoBody extends StatelessWidget {
         ),
         const SizedBox(height: 24),
 
-        // --- INFO RÁPIDA (CHIPS) ---
+        // --- INFO RÁPIDA (CHIPS RESPONSIVOS) ---
+        // Se usa `Wrap` en lugar de `Row` para que si la pantalla es muy pequeña
+        // o el texto es muy largo, los chips bajen automáticamente a la siguiente
+        // línea sin causar un error de "Overflow".
         Wrap(
           spacing: 12.0,
           runSpacing: 12.0,
@@ -81,14 +111,15 @@ class OpportunityInfoBody extends StatelessWidget {
         ),
         const SizedBox(height: 24),
 
+        // --- CAJA DE PRESUPUESTO (Renderizado Condicional) ---
         if (priceRange != null) ...[
           _buildEstimatedPriceBox(priceRange!),
           const SizedBox(height: 24),
         ],
 
-        // --- DESCRIPCIÓN ---
+        // --- DESCRIPCIÓN DEL PROBLEMA ---
         const Text(
-          'Descripción del Problema',
+          AppStrings.quoteDescription,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -106,10 +137,11 @@ class OpportunityInfoBody extends StatelessWidget {
         ),
         const SizedBox(height: 32),
 
-        // --- PREGUNTAS DEL CLIENTE (NUEVO) ---
+        // --- CUESTIONARIO DINÁMICO (Q&A) ---
+        // Solo se renderiza si el mapa de respuestas no está vacío.
         if (clientAnswers.isNotEmpty) ...[
           const Text(
-            'Especificaciones del Cliente',
+            AppStrings.quoteClientSpecs,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -123,10 +155,10 @@ class OpportunityInfoBody extends StatelessWidget {
           const SizedBox(height: 32),
         ],
 
-        // --- FOTOS ADJUNTAS (NUEVO) ---
+        // --- GALERÍA MULTIMEDIA ---
         if (photoUrls.isNotEmpty) ...[
           const Text(
-            'Fotos Adjuntas',
+            AppStrings.attachedPhotos,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -141,7 +173,11 @@ class OpportunityInfoBody extends StatelessWidget {
     );
   }
 
-  // --- MÉTODOS INTERNOS ---
+  // =================================--------------------------------------
+  // WIDGETS AUXILIARES PRIVADOS
+  // =================================--------------------------------------
+
+  /// Construye un "Chip" informativo (Icono + Texto) con bordes redondeados.
   Widget _infoChip(IconData icon, String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -168,6 +204,7 @@ class OpportunityInfoBody extends StatelessWidget {
     );
   }
 
+  /// Construye la caja de alto contraste (verde) para mostrar importes económicos.
   Widget _buildEstimatedPriceBox(String price) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -208,6 +245,7 @@ class OpportunityInfoBody extends StatelessWidget {
     );
   }
 
+  /// Construye un bloque de Pregunta (gris) y Respuesta (oscura).
   Widget _buildQuestionAnswer(String question, String answer) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -232,6 +270,11 @@ class OpportunityInfoBody extends StatelessWidget {
     );
   }
 
+  /// Construye una lista horizontal scrolleable con las evidencias fotográficas.
+  ///
+  /// Implementa manejo de estados asíncronos (`loadingBuilder`) para mostrar
+  /// un spinner mientras la imagen se descarga de la red, y `errorBuilder`
+  /// en caso de que la URL esté rota o el usuario no tenga internet.
   Widget _buildPhotoGallery() {
     return SizedBox(
       height: 100,
@@ -248,13 +291,13 @@ class OpportunityInfoBody extends StatelessWidget {
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
             ),
-            // Usamos ClipRRect para redondear las esquinas de la imagen
+            // Usamos ClipRRect para que la imagen respete las esquinas redondeadas del contenedor
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
                 imageUrl,
-                fit: BoxFit.cover, // Llena el contenedor
-                // Mientras la imagen se descarga de internet...
+                fit: BoxFit.cover, // Evita que la imagen se deforme
+                // Feedback visual durante la descarga
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const Center(
@@ -266,7 +309,7 @@ class OpportunityInfoBody extends StatelessWidget {
                   );
                 },
 
-                // Si la URL está rota o no hay internet...
+                // Fallback visual si falla la carga
                 errorBuilder: (context, error, stackTrace) {
                   return const Center(
                     child: Icon(Icons.broken_image, color: Colors.grey),

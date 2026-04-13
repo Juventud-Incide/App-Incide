@@ -5,10 +5,29 @@ import '../../../shared/widgets/quote_status_badge.dart';
 import '../models/quote_model.dart';
 import '../models/quote_status_ext.dart';
 
+/// Componente visual que representa una Cotización en estado de negociación ([QuoteStatus.pending]).
+///
+/// **Propósito Arquitectónico:**
+/// Esta tarjeta es exclusiva para las cotizaciones que el proveedor ya envió,
+/// pero que el cliente aún no ha aceptado. Por ello, incluye acciones destructivas
+/// permitidas en esta fase, específicamente el botón de "Retirar Propuesta".
+///
+/// **Optimización de Rendimiento (UI):**
+/// Al igual que su contraparte [QuoteActiveCard], utiliza un `Stack` con un `Positioned`
+/// para la franja de color lateral, garantizando un renderizado ultra rápido sin
+/// depender de cálculos de altura en tiempo real (`IntrinsicHeight`).
 class QuotePendingCard extends StatelessWidget {
+  /// El modelo de datos inmutable que alimenta la tarjeta.
   final QuoteModel quote;
+
+  /// Callback ejecutado cuando el proveedor decide cancelar su oferta.
+  /// Generalmente dispara un modal de confirmación antes de mutar el estado.
   final VoidCallback onRetractProposal;
+
+  /// Callback ejecutado para abrir el hilo de comunicación con el cliente.
   final VoidCallback onOpenChat;
+
+  /// Callback ejecutado al tocar el cuerpo de la tarjeta para navegar al detalle.
   final VoidCallback onTap;
 
   const QuotePendingCard({
@@ -23,6 +42,8 @@ class QuotePendingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
+      // Esencial para que el contenedor respete los bordes redondeados y recorte
+      // la franja lateral y el efecto Ripple del InkWell.
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -34,6 +55,7 @@ class QuotePendingCard extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ],
+        // Borde uniforme obligatorio para compatibilidad con el motor Skia/Impeller
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Material(
@@ -42,7 +64,10 @@ class QuotePendingCard extends StatelessWidget {
           onTap: onTap,
           child: Stack(
             children: [
+              // 1. CONTENIDO PRINCIPAL
               Padding(
+                // Padding asimétrico: 21px a la izquierda para evitar que el texto
+                // choque con la franja de color de 5px.
                 padding: const EdgeInsets.only(
                   left: 21,
                   right: 16,
@@ -98,6 +123,8 @@ class QuotePendingCard extends StatelessWidget {
                         // Botón: Retirar Propuesta
                         Expanded(
                           child: SizedBox(
+                            // FIX DE DISEÑO: Forzamos altura de 48px (Estándar táctil)
+                            // para igualar la altura geométrica con el ElevatedButton.icon
                             height: 48,
                             child: OutlinedButton(
                               onPressed: onRetractProposal,
@@ -131,6 +158,7 @@ class QuotePendingCard extends StatelessWidget {
                             backgroundColor: Colors.red,
                             offset: const Offset(4, -4),
                             child: SizedBox(
+                              // FIX DE DISEÑO: Misma altura de 48px para simetría perfecta
                               height: 48,
                               child: ElevatedButton.icon(
                                 onPressed: onOpenChat,
@@ -167,6 +195,7 @@ class QuotePendingCard extends StatelessWidget {
                 ),
               ),
 
+              // 2. FRANJA LATERAL DINÁMICA
               Positioned(
                 left: 0,
                 top: 0,

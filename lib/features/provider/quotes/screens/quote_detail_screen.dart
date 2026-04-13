@@ -8,29 +8,47 @@ import '../../../shared/widgets/quote_status_badge.dart';
 import '../providers/quotes_provider.dart';
 import '../../../shared/widgets/opportunity_info_body.dart';
 
+/// Pantalla de detalle exhaustivo para una cotización específica.
+///
+/// **Arquitectura Reactiva:**
+/// Aunque la pantalla recibe un [QuoteModel] inicial a través del constructor (Router),
+/// utiliza Riverpod para escuchar activamente los cambios de estado. Si la cotización
+/// es aceptada, rechazada o cancelada mientras el usuario está en esta vista,
+/// la UI se actualizará instantáneamente (ej. los colores del badge y los botones inferiores).
 class QuoteDetailScreen extends ConsumerWidget {
-  final QuoteModel quote; // Recibimos el modelo desde el router
+  /// Copia estática (Snapshot) de la cotización pasada durante la navegación.
+  /// Sirve como punto de partida y como respaldo en caso de errores de sincronización.
+  final QuoteModel quote;
 
   const QuoteDetailScreen({super.key, required this.quote});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // MAGIA REACTIVA: Escuchamos el estado global buscando ESTA cotización en específico.
-    // Si la cotización se cancela o acepta, la pantalla se redibuja sola.
+    // -------------------------------------------------------------------------
+    // LÓGICA DE SINCRONIZACIÓN DE ESTADO
+    // -------------------------------------------------------------------------
+    // Observamos la lista global de cotizaciones. Cada vez que cambie,
+    // evaluaremos si nuestra cotización actual fue afectada.
     final currentQuotes = ref.watch(quotesProvider);
 
-    // Buscamos la cotización actualizada. Si por alguna razón no existe (ej. se borró),
-    // usamos la que nos pasaron por el router como respaldo (orElse).
+    // Intentamos encontrar la versión más fresca de esta cotización en la memoria global.
+    // Si la cotización fue eliminada (ej. un borrado en cascada), evitamos un crash
+    // usando `orElse` para devolver el snapshot original con el que entramos.
     final activeQuote = currentQuotes.firstWhere(
       (q) => q.id == quote.id,
       orElse: () => quote,
     );
 
+    // -------------------------------------------------------------------------
+    // CONSTRUCCIÓN DE LA UI
+    // -------------------------------------------------------------------------
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: CustomScrollView(
         slivers: [
-          // CABECERA (El mapa se queda en la pantalla porque maneja el SliverAppBar)
+          // --- 1. CABECERA DESLIZABLE (SliverAppBar) ---
+          // Se colapsa en un Appbar normal al hacer scroll hacia abajo, optimizando
+          // el espacio en pantallas pequeñas mientras preserva el contexto del mapa.
           SliverAppBar(
             expandedHeight: 200.0,
             pinned: true,
@@ -49,9 +67,10 @@ class QuoteDetailScreen extends ConsumerWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
+                  // TODO: (MAPAS) Integración del componente nativo de mapa.
                   Container(
                     color: Colors.blueGrey[100],
-                  ), // Fondo placeholder del mapa
+                  ), // Placeholder estático del mapa
                   Center(
                     child: Container(
                       padding: const EdgeInsets.all(12),
@@ -71,16 +90,19 @@ class QuoteDetailScreen extends ConsumerWidget {
             ),
           ),
           // TODO: (MAPAS) - Reemplazar este Stack con GoogleMap() o FlutterMap() centrado en las coordenadas del cliente.
-          // CONTENIDO
+
+          // --- 2. CUERPO DE LA INFORMACIÓN (SliverToBoxAdapter) ---
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Estatus de la Cotización
+                  // Estado actual con inyección semántica de colores vía Extension.
                   QuoteStatusBadge(status: activeQuote.status),
                   const SizedBox(height: 16),
+
+                  // Componente reutilizable (Usado también en OpportunityDetail).
                   OpportunityInfoBody(
                     title: activeQuote.title,
                     category: activeQuote.category,
@@ -95,7 +117,7 @@ class QuoteDetailScreen extends ConsumerWidget {
                     isExclusive: activeQuote.isExclusive,
                   ),
 
-                  // Información del Cliente (Exclusivo de Mis Cotizaciones)
+                  // Sección de Contacto del Cliente
                   const Text(
                     AppStrings.quoteDetailClientTitle,
                     style: TextStyle(
@@ -107,17 +129,29 @@ class QuoteDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   _buildClientInfoCard(activeQuote),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(
+                    height: 40,
+                  ), // Margen para el SafeArea inferior
                 ],
               ),
             ),
           ),
         ],
       ),
+      // --- 3. BARRA DE ACCIONES ANCLADA (Sticky Bottom Bar) ---
       bottomNavigationBar: _buildStickyBottomBar(context, ref, activeQuote),
     );
   }
 
+  // =================================--------------------------------------
+  // WIDGETS AUXILIARES PRIVADOS
+  // =================================--------------------------------------
+
+  /// Construye la tarjeta de perfil del cliente.
+  ///
+  /// **Regla de Privacidad de Negocio:** /// Si la cotización NO ha sido aceptada por el cliente ([QuoteStatus.accepted]),
+  /// el nombre, teléfono y fotografía permanecen ofuscados o genéricos para
+  /// proteger la PII (Personally Identifiable Information) del cliente.
   Widget _buildClientInfoCard(QuoteModel q) {
     final isAccepted = q.status == QuoteStatus.accepted;
     final bool showPhoto =
@@ -175,6 +209,10 @@ class QuoteDetailScreen extends ConsumerWidget {
     );
   }
 
+  /// Construye la barra de acciones inferior, anclada permanentemente.
+  ///
+  /// Su composición es dinámica: si el trato sigue `pending`, permite cancelar.
+  /// De lo contrario, destina todo el espacio al botón principal de comunicación.
   Widget _buildStickyBottomBar(
     BuildContext context,
     WidgetRef ref,
@@ -189,12 +227,13 @@ class QuoteDetailScreen extends ConsumerWidget {
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
-              offset: const Offset(0, -5),
+              offset: const Offset(0, -5), // Sombra invertida (hacia arriba)
             ),
           ],
         ),
         child: Row(
           children: [
+            // Botón de cancelación (Únicamente visible en etapa temprana)
             if (q.status == QuoteStatus.pending) ...[
               Expanded(
                 child: SizedBox(
@@ -205,7 +244,7 @@ class QuoteDetailScreen extends ConsumerWidget {
                       ref: ref,
                       quoteId: q.id,
                       popScreenAfter:
-                          true, // Importante para que regrese a la lista
+                          true, // Forzamos el retroceso del Router (pop) tras la acción.
                     ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.redAccent,
@@ -220,11 +259,15 @@ class QuoteDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
             ],
+
+            // Botón principal de acción (Comunicación)
             Expanded(
               child: SizedBox(
                 height: 48,
                 child: ElevatedButton.icon(
-                  onPressed: () {}, // Abrir chat
+                  onPressed: () {
+                    // TODO: (ROUTING) Redirigir al Inbox
+                  },
                   icon: const Icon(Icons.chat_bubble_outline),
                   label: const Text(AppStrings.quoteOpenChatBtn),
                   style: ElevatedButton.styleFrom(

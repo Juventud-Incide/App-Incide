@@ -256,7 +256,7 @@ class AppStrings {
   static const String clientAnswers = 'Especificaciones del Cliente';
   static const String estimatedPrice = 'Presupuesto Estimado';
   static const String systemCalculated = 'Calculado por el sistema';
-  static const String attachedPhotos = 'Fotos adjuntas';
+  static const String attachedPhotos = 'Fotos Adjuntas';
   static const String descriptionTitle = 'Descripción';
   // --- Pantalla de Recuperación de Contraseña ---
   static const String forgotPassTitle = 'RECUPERAR CUENTA';
@@ -277,6 +277,7 @@ class AppStrings {
   static const String quoteCancelledTitle = 'CANCELADA';
   static const String quoteSentTitle =
       'Enviaste tu propuesta recientemente. Esperando respuesta del cliente.';
+  static const String quoteExclusiveBadge = 'EXCLUSIVA';
 
   static const String quoteTitle = 'Mis Cotizaciones';
   static const String quoteNoQuotes = 'No tienes cotizaciones en esta sección.';
@@ -288,6 +289,8 @@ class AppStrings {
   static const String quoteRetireLbl = 'Sí, retirar';
 
   static const String quoteDetailTitle = 'Detalles del Trabajo';
+  static const String quoteDescription = 'Descripción del Problema';
+  static const String quoteClientSpecs = 'Especificaciones del Cliente';
   static const String quoteDetailClientTitle = 'Información del Cliente';
   static const String quoteDetailClientNameProtected = 'Nombre protegido';
   static const String quoteDetailClientProtected = 'Número protegido';

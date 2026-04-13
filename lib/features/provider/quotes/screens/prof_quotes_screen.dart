@@ -10,6 +10,13 @@ import '../providers/quotes_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
 
+/// Pantalla principal para la gestión de cotizaciones del proveedor.
+///
+/// **Arquitectura:**
+/// Esta pantalla actúa como el "View" en el patrón MVVM/Riverpod. Su responsabilidad
+/// es escuchar a [quotesProvider], filtrar los datos recibidos en listas categorizadas
+/// (Todas, En Espera, Aceptadas, Terminadas) y renderizar el componente visual
+/// adecuado ([QuotePendingCard] o [QuoteActiveCard]).
 class ProfQuotesScreen extends ConsumerStatefulWidget {
   const ProfQuotesScreen({super.key});
 
@@ -19,20 +26,37 @@ class ProfQuotesScreen extends ConsumerStatefulWidget {
 
 class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
   // ==========================================
-  // LÓGICA DE INTERACCIÓN
+  // LÓGICA DE INTERACCIÓN (Delegación)
   // ==========================================
 
+  /// Inicia el flujo de comunicación directa con el cliente.
+  ///
+  /// Se dispara desde el botón "Abrir Chat" de cualquier tarjeta.
   void _handleOpenChat(QuoteModel quote) {
-    // TODO: (ROUTING) Navegar a la pantalla de Chat pasando el quote.id
+    // TODO: (ROUTING) Implementar navegación a `InboxScreen` inyectando el ID del chat.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Abriendo chat con ${quote.clientName}...')),
     );
   }
 
+  /// Navega a la pantalla de detalles usando el router de la app.
+  ///
+  /// Pasa el objeto [QuoteModel] completo como payload (`extra`) para
+  /// evitar llamadas innecesarias a la base de datos en la siguiente pantalla.
+  void _navigateToDetail(QuoteModel quote) {
+    context.pushNamed('quote_detail', extra: quote);
+  }
+
   // ==========================================
   // CONSTRUCTOR DINÁMICO DE LISTAS
   // ==========================================
+
+  /// Genera una lista scrolleable de tarjetas basada en el array proporcionado.
+  ///
+  /// Es un método auxiliar (Helper Method) que evita duplicar el código del
+  /// `ListView.builder` cuatro veces (una por cada pestaña).
   Widget _buildList(List<QuoteModel> quotes) {
+    // Manejo de estado vacío (Empty State)
     if (quotes.isEmpty) {
       return const Center(
         child: Text(
@@ -42,13 +66,15 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
       );
     }
 
+    // Renderizado eficiente (solo dibuja las tarjetas visibles en pantalla)
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: quotes.length,
       itemBuilder: (context, index) {
         final quote = quotes[index];
 
-        // Elige qué tarjeta dibujar según el estado real de la cotización
+        // Lógica de Renderizado Polimórfico:
+        // Si el estado permite "Retirar Propuesta", dibujamos la tarjeta especial.
         if (quote.status == QuoteStatus.pending) {
           return QuotePendingCard(
             quote: quote,
@@ -61,7 +87,8 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
             onOpenChat: () => _handleOpenChat(quote),
           );
         } else {
-          // Reutilizamos QuoteActiveCard para Aceptadas y Terminadas (cambia colores solita)
+          // Para cualquier otro estado (Aceptado, Rechazado, Completado),
+          // usamos la tarjeta genérica que no tiene el botón de retirar.
           return QuoteActiveCard(
             quote: quote,
             onTap: () => _navigateToDetail(quote),
@@ -72,19 +99,17 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
     );
   }
 
-  void _navigateToDetail(QuoteModel quote) {
-    // Aquí usamos el router para ir a la pantalla de detalles
-    // pasándole la cotización completa a través de 'extra'
-    context.pushNamed('quote_detail', extra: quote);
-  }
-
   // ==========================================
-  // CONSTRUCCIÓN DE LA UI
+  // CONSTRUCCIÓN DE LA UI (Método Build)
   // ==========================================
   @override
   Widget build(BuildContext context) {
+    // 1. Escucha activa (Rebuild trigger):
+    // Si una cotización cambia de estado en otra pantalla, esta línea forzará
+    // a que todo el `build` se vuelva a ejecutar automáticamente.
     final allQuotes = ref.watch(quotesProvider);
-    // Filtramos las listas en vivo
+
+    // 2. Cálculo derivado (Filtros en memoria):
     final pendingQuotes = allQuotes
         .where((q) => q.status == QuoteStatus.pending)
         .toList();
@@ -93,22 +118,25 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
         .toList();
     final completedQuotes = allQuotes
         .where(
+          // Agrupamos el histórico (Terminadas o Rechazadas) en la misma pestaña.
           (q) =>
               q.status == QuoteStatus.completed ||
               q.status == QuoteStatus.rejected,
         )
         .toList();
 
+    // 3. Renderizado del Scaffold con controlador de pestañas integrado.
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         backgroundColor: const Color(0xFFF4F5F7),
+
+        // Cabecera global reutilizable con la campana inteligente.
         appBar: const CustomProviderAppBar(title: AppStrings.quoteTitle),
 
-        // --- CONTENIDO DE LAS PESTAÑAS ---
         body: Column(
           children: [
-            // Contenedor blanco de las pestañas
+            // --- NAVEGACIÓN DE PESTAÑAS (TabBar) ---
             Container(
               color: Colors.transparent,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -141,14 +169,16 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
               ),
             ),
 
-            // 3. El contenido principal expandido para ocupar el resto de la pantalla
+            // --- VISTAS ASOCIADAS A LAS PESTAÑAS (TabBarView) ---
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildList(allQuotes), // TODAS
-                  _buildList(pendingQuotes), // EN ESPERA
-                  _buildList(activeQuotes), // ACEPTADAS
-                  _buildList(completedQuotes), // TERMINADAS
+                  _buildList(allQuotes), // Índice 0: TODAS
+                  _buildList(pendingQuotes), // Índice 1: EN ESPERA
+                  _buildList(activeQuotes), // Índice 2: ACEPTADAS
+                  _buildList(
+                    completedQuotes,
+                  ), // Índice 3: TERMINADAS/RECHAZADAS
                 ],
               ),
             ),

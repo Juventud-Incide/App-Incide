@@ -481,7 +481,7 @@ class _HomeTab extends ConsumerWidget {
       borderRadius: BorderRadius.circular(24),
       child: Container(
         width: double.infinity,
-        height: 160,
+        constraints: const BoxConstraints(minHeight: 160),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [

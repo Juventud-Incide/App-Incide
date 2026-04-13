@@ -6,6 +6,7 @@ import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:app_incide/features/provider/profile/providers/provider_profile_provider.dart';
+import 'package:app_incide/features/shared/widgets/provider_notification_bell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -241,33 +242,7 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
               ),
 
               // Campana de Notificaciones
-              Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.notifications_none_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                    onPressed: () {
-                      // TODO: Navegar a pantalla de notificaciones
-                    },
-                  ),
-                  if (profile.hasUnreadNotifications)
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: Colors.amber,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              const ProviderNotificationBell(),
             ],
           ),
           const SizedBox(height: 30),

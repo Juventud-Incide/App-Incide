@@ -1,3 +1,4 @@
+import 'package:app_incide/features/shared/widgets/custom_provider_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
@@ -91,38 +92,27 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
         .where((q) => q.status == QuoteStatus.accepted)
         .toList();
     final completedQuotes = allQuotes
-        .where((q) => q.status == QuoteStatus.completed)
+        .where(
+          (q) =>
+              q.status == QuoteStatus.completed ||
+              q.status == QuoteStatus.rejected,
+        )
         .toList();
 
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         backgroundColor: const Color(0xFFF4F5F7),
-        appBar: AppBar(
-          backgroundColor: AppColors.primaryBlue,
-          elevation: 0,
-          title: const Text(
-            AppStrings.quoteTitle,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-              fontSize: 22,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.notifications_active_rounded,
-                color: Colors.amber,
-              ),
-              onPressed: () {},
-            ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(70),
-            child: Container(
-              color: Colors.white,
+        appBar: const CustomProviderAppBar(title: AppStrings.quoteTitle),
+
+        // --- CONTENIDO DE LAS PESTAÑAS ---
+        body: Column(
+          children: [
+            // Contenedor blanco de las pestañas
+            Container(
+              color: Colors.transparent,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              width: double.infinity,
               child: TabBar(
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
@@ -150,16 +140,18 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
                 ],
               ),
             ),
-          ),
-        ),
 
-        // --- CONTENIDO DE LAS PESTAÑAS ---
-        body: TabBarView(
-          children: [
-            _buildList(allQuotes), // TODAS
-            _buildList(pendingQuotes), // EN ESPERA
-            _buildList(activeQuotes), // ACEPTADAS
-            _buildList(completedQuotes), // TERMINADAS
+            // 3. El contenido principal expandido para ocupar el resto de la pantalla
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildList(allQuotes), // TODAS
+                  _buildList(pendingQuotes), // EN ESPERA
+                  _buildList(activeQuotes), // ACEPTADAS
+                  _buildList(completedQuotes), // TERMINADAS
+                ],
+              ),
+            ),
           ],
         ),
       ),

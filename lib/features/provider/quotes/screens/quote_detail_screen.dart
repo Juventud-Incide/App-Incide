@@ -119,18 +119,29 @@ class QuoteDetailScreen extends ConsumerWidget {
 
   Widget _buildStatusBadge(QuoteModel q) {
     final isAccepted = q.status == QuoteStatus.accepted;
+    final isCompleted = q.status == QuoteStatus.completed;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isAccepted ? const Color(0xFFD1FAE5) : const Color(0xFFFEF3C7),
+        color: isAccepted
+            ? const Color(0xFFD1FAE5)
+            : isCompleted
+            ? const Color(0xFFEFF6FF)
+            : const Color(0xFFFEF3C7),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         isAccepted
             ? AppStrings.acceptedQuotesTitle
+            : isCompleted
+            ? AppStrings.completedQuotesTitle
             : AppStrings.quotePendingTitle,
         style: TextStyle(
-          color: isAccepted ? const Color(0xFF059669) : const Color(0xFFD97706),
+          color: isAccepted
+              ? const Color(0xFF059669)
+              : isCompleted
+              ? const Color(0xFF3B82F6)
+              : const Color(0xFFD97706),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),

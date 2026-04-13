@@ -269,6 +269,7 @@ class AppStrings {
   // --- Pantalla de Cotizaciones ---
   static const String quoteAcceptedTitle = 'ACEPTADA / EN PROGRESO';
   static const String quotePendingTitle = 'EN ESPERA';
+  static const String completedQuotesTitle = 'COMPLETADA';
   static const String quotePriceNotDefined = 'Por definir';
   static const String quoteOpenChatBtn = 'Abrir Chat';
   static const String quoteRemoveBtn = 'Retirar Propuesta';

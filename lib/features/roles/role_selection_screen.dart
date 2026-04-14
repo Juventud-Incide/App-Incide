@@ -12,69 +12,84 @@ class RoleSelectionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(flex: 1),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 32.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Spacer(flex: 1),
 
-              // --- HEADER (Logo y Títulos) ---
-              Image.asset('assets/images/Isotipo_Incide.png', width: 60),
-              const SizedBox(height: 32),
-              const Text(
-                AppStrings.welcomeTitle,
-                style: TextStyle(
-                  color: AppColors.primaryBlue,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
+                    // --- HEADER (Logo y Títulos) ---
+                    Image.asset('assets/images/Isotipo_Incide.png', width: 60),
+                    const SizedBox(height: 32),
+                    const Text(
+                      AppStrings.welcomeTitle,
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      AppStrings.welcomeSubtitle,
+                      style: TextStyle(color: AppColors.textGray, fontSize: 16),
+                    ),
+
+                    const SizedBox(height: 48),
+
+                    // --- TARJETAS DE SELECCIÓN ---
+                    RoleCard(
+                      title: AppStrings.roleClient,
+                      description: AppStrings.roleClientDesc,
+                      icon: Icons.home_outlined,
+                      iconColor: AppColors.primaryBlue,
+                      iconBgColor: AppColors.primaryBlue.withValues(
+                        alpha: 0.08,
+                      ),
+                      onTap: () {
+                        context.push('/login-cliente');
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    RoleCard(
+                      title: AppStrings.roleProfessional,
+                      description: AppStrings.roleProfessionalDesc,
+                      icon: Icons.settings_outlined,
+                      iconColor: const Color(0xFFB48A14),
+                      iconBgColor: AppColors.accentYellow.withValues(
+                        alpha: 0.15,
+                      ),
+                      onTap: () {
+                        context.push('/prof-login');
+                      },
+                    ),
+
+                    const Spacer(flex: 2),
+
+                    // --- FOOTER ---
+                    const Text(
+                      AppStrings.roleSelectionFooter,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textGray,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                AppStrings.welcomeSubtitle,
-                style: TextStyle(color: AppColors.textGray, fontSize: 16),
-              ),
-
-              const SizedBox(height: 48),
-
-              // --- TARJETAS DE SELECCIÓN ---
-              RoleCard(
-                title: AppStrings.roleClient,
-                description: AppStrings.roleClientDesc,
-                icon: Icons.home_outlined,
-                iconColor: AppColors.primaryBlue,
-                iconBgColor: AppColors.primaryBlue.withValues(alpha: 0.08),
-                onTap: () {
-                  context.push('/login-cliente');
-                },
-              ),
-              const SizedBox(height: 20),
-              RoleCard(
-                title: AppStrings.roleProfessional,
-                description: AppStrings.roleProfessionalDesc,
-                icon: Icons.settings_outlined,
-                iconColor: const Color(0xFFB48A14),
-                iconBgColor: AppColors.accentYellow.withValues(alpha: 0.15),
-                onTap: () {
-                  context.push('/prof-login');
-                },
-              ),
-
-              const Spacer(flex: 2),
-
-              // --- FOOTER ---
-              const Text(
-                AppStrings.roleSelectionFooter,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textGray,
-                  fontSize: 13,
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

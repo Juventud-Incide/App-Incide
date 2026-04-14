@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -171,26 +172,9 @@ class _ProfForgotPasswordSentScreenState
               const SizedBox(height: 40),
 
               // --- 3. BOTÓN VOLVER AL INICIO ---
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: OutlinedButton(
-                  onPressed: () => context.goNamed('splash'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primaryBlue,
-                    side: const BorderSide(
-                      color: AppColors.primaryBlue,
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    AppStrings.backToHomeBtn,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
+              CustomLogoutButton(
+                text: AppStrings.backToHomeBtn,
+                variant: LogoutButtonVariant.outlined,
               ),
               const SizedBox(height: 30),
 

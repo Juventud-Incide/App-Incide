@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:app_incide/features/auth/providers/auth_provider.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 
-enum LogoutButtonVariant { text, outlined, elevated }
+enum LogoutButtonVariant { text, outlined, elevated, destructiveOutlined }
 
 /// Botón global para cerrar sesión.
 class CustomLogoutButton extends ConsumerWidget {
@@ -105,6 +105,33 @@ class CustomLogoutButton extends ConsumerWidget {
             text,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+
+    if (variant == LogoutButtonVariant.destructiveOutlined) {
+      return SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: handleLogout,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.red,
+            minimumSize: const Size(double.infinity, 55),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            side: const BorderSide(color: Colors.red, width: 1.5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+            ),
           ),
         ),
       );

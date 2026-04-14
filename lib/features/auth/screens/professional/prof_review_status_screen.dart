@@ -1,5 +1,6 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -316,29 +317,9 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                     const Spacer(flex: 2),
 
                     // --- 5. BOTÓN CERRAR SESIÓN ---
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          // TODO: (BACKEND) - Invocar authController.logout() antes de salir
-                          context.goNamed('splash');
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: const Text(
-                          AppStrings.logoutBtn,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                    CustomLogoutButton(
+                      text: AppStrings.logoutBtn,
+                      variant: LogoutButtonVariant.destructiveOutlined,
                     ),
                     const SizedBox(height: 10),
                   ],

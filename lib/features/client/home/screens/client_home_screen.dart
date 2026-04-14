@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../models/service_model.dart';
@@ -275,204 +276,274 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
 //            SUB-PANTALLAS (TABS) TEMPORALES
 // ─────────────────────────────────────────────────────────
 
-class _HomeTab extends ConsumerWidget {
+class _HomeTab extends ConsumerStatefulWidget {
   const _HomeTab();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends ConsumerState<_HomeTab> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: ref.read(searchQueryProvider),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final query = ref.watch(searchQueryProvider);
     final selectedCategoryId = ref.watch(selectedCategoryProvider);
     final suggestions = ref.watch(searchSuggestionsProvider);
     final categories = ref.watch(categoriesProvider);
     final showFilters = ref.watch(showFiltersProvider);
 
-    //  Ocultar filtros automáticamente si hay texto en la búsqueda
-    final isFiltersVisible = showFilters && query.isEmpty;
+    if (_searchController.text != query) {
+      _searchController.value = TextEditingValue(
+        text: query,
+        selection: TextSelection.collapsed(offset: query.length),
+      );
+    }
 
-    return SingleChildScrollView(
+    // Mostrar filtros también mientras se escribe en el buscador.
+    final isFiltersVisible = showFilters;
+    final showServiceResults = query.isNotEmpty || selectedCategoryId != null;
+    final filteredCategories = categories.where((category) {
+      final matchesSelectedCategory =
+          selectedCategoryId == null || selectedCategoryId == category.id;
+      final matchesQuery =
+          query.isEmpty || category.name.toLowerCase().contains(query.toLowerCase());
+      return matchesSelectedCategory && matchesQuery;
+    }).toList();
+
+    return CustomScrollView(
       physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 24),
-          // --- BARRA DE BÚSQUEDA ---
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.05),
-                  width: 1,
-                ),
-              ),
-              child: TextField(
-                onChanged: (value) =>
-                    ref.read(searchQueryProvider.notifier).update(value),
-                decoration: InputDecoration(
-                  hintText: 'Buscar servicios...',
-                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    color: AppColors.primaryBlue,
-                  ),
-                  suffixIcon: query.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 20),
-                          onPressed: () {
-                            ref.read(searchQueryProvider.notifier).update('');
-                            ref
-                                .read(selectedCategoryProvider.notifier)
-                                .update(null);
-                          },
-                        )
-                      : IconButton(
-                          icon: const Icon(Icons.tune_rounded, size: 20),
-                          color: AppColors.primaryBlue,
-                          onPressed: () =>
-                              ref.read(showFiltersProvider.notifier).toggle(),
+      slivers: [
+        // Task #91 (Search): barra + filtros en el top dentro de SliverToBoxAdapter.
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // --- FILTROS POR CATEGORÍA CON ANIMACIÓN ---
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: isFiltersVisible
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: SizedBox(
-                      height: 45,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: categories.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 10),
-                        itemBuilder: (context, index) {
-                          final category = categories[index];
-                          final isSelected = selectedCategoryId == category.id;
-
-                          return GestureDetector(
-                            onTap: () {
-                              ref
-                                  .read(selectedCategoryProvider.notifier)
-                                  .update(isSelected ? null : category.id);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColors.primaryBlue
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  if (isSelected)
-                                    BoxShadow(
-                                      color: AppColors.primaryBlue.withOpacity(
-                                        0.3,
-                                      ),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    )
-                                  else
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                ],
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.primaryBlue
-                                      : Colors.grey.withOpacity(0.1),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    category.icon,
-                                    size: 18,
-                                    color: isSelected
-                                        ? Colors.white
-                                        : AppColors.primaryBlue,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    category.name,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : AppColors.textDark,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                      ],
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.05),
+                        width: 1,
                       ),
                     ),
-                  )
-                : const SizedBox(width: double.infinity, height: 0),
-          ),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) =>
+                          ref.read(searchQueryProvider.notifier).update(value),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar servicios...',
+                        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                        prefixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: AppColors.primaryBlue,
+                        ),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (query.isNotEmpty)
+                              IconButton(
+                                icon: const Icon(Icons.clear_rounded, size: 20),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  ref.read(searchQueryProvider.notifier).update('');
+                                  ref
+                                      .read(selectedCategoryProvider.notifier)
+                                      .update(null);
+                                },
+                              ),
+                            IconButton(
+                              icon: const Icon(Icons.tune_rounded, size: 20),
+                              color: AppColors.primaryBlue,
+                              onPressed: () {
+                                final isFilterVisible = ref.read(
+                                  showFiltersProvider,
+                                );
+                                ref.read(showFiltersProvider.notifier).toggle();
 
-          const SizedBox(height: 10),
-
-          // --- CONTENIDO DINÁMICO ---
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Banner de bienvenida (se oculta al buscar o filtrar)
-                AnimatedSwitcher(
+                                // Si se está desactivando el panel de filtros, limpiamos la categoría seleccionada.
+                                if (isFilterVisible) {
+                                  ref
+                                      .read(selectedCategoryProvider.notifier)
+                                      .update(null);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                AnimatedSize(
                   duration: const Duration(milliseconds: 300),
-                  child: query.isEmpty
-                      ? _buildWelcomeBanner()
-                      : const SizedBox.shrink(),
-                ),
-                if (query.isEmpty) const SizedBox(height: 32),
+                  curve: Curves.easeInOut,
+                  child: isFiltersVisible
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: SizedBox(
+                            height: 45,
+                            child: ListView.separated(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: categories.length,
+                              separatorBuilder: (_, __) => const SizedBox(width: 10),
+                              itemBuilder: (context, index) {
+                                final category = categories[index];
+                                final isSelected =
+                                    selectedCategoryId == category.id;
 
-                // Lista de resultados (Recomendados o Búsqueda)
-                _buildSuggestionsList(
-                  suggestions,
-                  title: query.isEmpty
-                      ? 'Sugerencias para ti'
-                      : 'Resultados para tu búsqueda',
+                                return GestureDetector(
+                                  onTap: () {
+                                    ref
+                                        .read(selectedCategoryProvider.notifier)
+                                        .update(isSelected ? null : category.id);
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.primaryBlue
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(14),
+                                      boxShadow: [
+                                        if (isSelected)
+                                          BoxShadow(
+                                            color: AppColors.primaryBlue
+                                                .withOpacity(0.3),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                          )
+                                        else
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.03),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                      ],
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AppColors.primaryBlue
+                                            : Colors.grey.withOpacity(0.1),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          category.icon,
+                                          size: 18,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : AppColors.primaryBlue,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          category.name,
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : AppColors.textDark,
+                                            fontWeight: isSelected
+                                                ? FontWeight.bold
+                                                : FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        )
+                      : const SizedBox(width: double.infinity, height: 0),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+
+        if (showServiceResults)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: _buildSearchSuggestionsList(
+                context: context,
+                suggestions: suggestions,
+              ),
+            ),
+          ),
+
+        // Banner promocional en el middle.
+        if (!showServiceResults)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: _buildWelcomeBanner(),
+            ),
+          ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+        // Confirmación: se eliminó por completo la sección vieja "Sugerencias para ti".
+        if (!showServiceResults)
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.78,
+              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final category = filteredCategories[index];
+                return _buildCategoryCard(context, category);
+              }, childCount: filteredCategories.length),
+            ),
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+      ],
     );
   }
 
@@ -585,15 +656,15 @@ class _HomeTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildSuggestionsList(
-    List<SearchSuggestion> suggestions, {
-    required String title,
+  Widget _buildSearchSuggestionsList({
+    required BuildContext context,
+    required List<SearchSuggestion> suggestions,
   }) {
     if (suggestions.isEmpty) {
       return const Center(
         child: Column(
           children: [
-            SizedBox(height: 40),
+            SizedBox(height: 16),
             Icon(Icons.search_off_rounded, size: 60, color: Colors.grey),
             SizedBox(height: 16),
             Text(
@@ -608,31 +679,14 @@ class _HomeTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textDark,
-                letterSpacing: -0.5,
-              ),
-            ),
-            if (suggestions.length > 3)
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Ver todo',
-                  style: TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-          ],
+        const Text(
+          'Resultados para tu búsqueda',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textDark,
+            letterSpacing: -0.5,
+          ),
         ),
         const SizedBox(height: 12),
         ListView.separated(
@@ -665,7 +719,9 @@ class _HomeTab extends ConsumerWidget {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
                   onTap: () {
-                    // TODO: Navegar
+                    final categoryId = item.categoryId;
+                    if (categoryId == null) return;
+                    _navigateToQuotingFlow(context, categoryId);
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -703,27 +759,6 @@ class _HomeTab extends ConsumerWidget {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[100],
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      item.type == ServiceType.category
-                                          ? 'Categoría'
-                                          : 'Servicio',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
                                   Text(
                                     item.subtitle,
                                     style: TextStyle(
@@ -752,6 +787,89 @@ class _HomeTab extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildCategoryCard(BuildContext context, ServiceCategory category) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () => _navigateToQuotingFlow(context, category.id),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.05),
+              width: 1,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Center(
+                  // Ícono dominante pero adaptable: FittedBox lo escala sin desbordar en cards de 3 columnas.
+                  child: SizedBox(
+                    width: 42,
+                    height: 42,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Icon(
+                        category.icon,
+                        color: AppColors.primaryBlue,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                category.name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  color: AppColors.textDark,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                '${12 + (int.tryParse(category.id) ?? 0) * 3} profesionales disponibles',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToQuotingFlow(BuildContext context, String categoryId) {
+    // TODO(routing): conectar aquí la ruta real del flujo de cotización del cliente.
+    // Este método único ya es invocado desde sugerencias de búsqueda y cards del grid.
+    try {
+      context.push('/cliente/cotizar/$categoryId');
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Flujo de cotización pendiente de ruta final'),
+        ),
+      );
+    }
   }
 
   IconData _getIcon(ServiceType type) {
@@ -841,50 +959,45 @@ final categoriesProvider = Provider<List<ServiceCategory>>((ref) {
 final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
   final query = ref.watch(searchQueryProvider).toLowerCase();
   final selectedCategoryId = ref.watch(selectedCategoryProvider);
+  final categories = ref.watch(categoriesProvider);
+  final categoryNameById = {for (final c in categories) c.id: c.name};
 
   // Mocks con IDs de categoría vinculados
   final allMocks = [
     SearchSuggestion(
       id: 's1',
       title: 'Fuga de agua en cocina',
-      subtitle: 'Servicio de Plomería',
+      subtitle: 'Servicio de ${categoryNameById['2'] ?? 'Categoría'}',
       type: ServiceType.service,
       categoryId: '2',
     ),
     SearchSuggestion(
       id: 's2',
       title: 'Instalación de AC',
-      subtitle: 'Servicio Eléctrico',
+      subtitle: 'Servicio de ${categoryNameById['4'] ?? 'Categoría'}',
       type: ServiceType.service,
       categoryId: '4',
     ),
     SearchSuggestion(
       id: 's3',
       title: 'Limpieza de Alfombras',
-      subtitle: 'Servicio de Limpieza',
+      subtitle: 'Servicio de ${categoryNameById['5'] ?? 'Categoría'}',
       type: ServiceType.service,
       categoryId: '5',
     ),
     SearchSuggestion(
       id: 's4',
       title: 'Cortocircuito en sala',
-      subtitle: 'Servicio Eléctrico',
+      subtitle: 'Servicio de ${categoryNameById['4'] ?? 'Categoría'}',
       type: ServiceType.service,
       categoryId: '4',
     ),
     SearchSuggestion(
-      id: 'c1',
-      title: 'Construcción de Interiores',
-      subtitle: 'Categoría',
-      type: ServiceType.category,
-      categoryId: '1',
-    ),
-    SearchSuggestion(
-      id: 'c2',
-      title: 'Planos y Documentos',
-      subtitle: 'Categoría',
-      type: ServiceType.category,
-      categoryId: '3',
+      id: 's5',
+      title: 'Instalacion de regadera',
+      subtitle: 'Servicio de ${categoryNameById['2'] ?? 'Categoría'}',
+      type: ServiceType.service,
+      categoryId: '2',
     ),
   ];
 

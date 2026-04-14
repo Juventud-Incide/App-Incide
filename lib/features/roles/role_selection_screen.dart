@@ -42,6 +42,7 @@ class RoleSelectionScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     const Text(
                       AppStrings.welcomeSubtitle,
+                      textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.textGray, fontSize: 16),
                     ),
 

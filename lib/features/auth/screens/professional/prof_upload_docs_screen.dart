@@ -232,7 +232,6 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
               ),
               child: SizedBox(
                 width: double.infinity,
-                height: 55,
                 child: ElevatedButton(
                   onPressed: _submitDocuments,
                   // Estilizado reactivo: El botón cambia visualmente si faltan documentos
@@ -250,7 +249,12 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
                   ),
                   child: const Text(
                     AppStrings.sendDocsBtn,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ),

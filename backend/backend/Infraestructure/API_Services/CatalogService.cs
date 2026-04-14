@@ -61,6 +61,7 @@ namespace backend.Infraestructure.API_Services
                 .Take(10)
                 .ToListAsync(ct);
         }
+<<<<<<< HEAD
 
         private static ServiceItemOutputDTO ToServiceDTO(ServiceItem s) => new()
         {

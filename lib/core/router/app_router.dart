@@ -96,13 +96,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isGoingToSplash = targetPath == '/';
       final isGoingToLocationScreen = targetPath == '/location-permission';
 
-      // Rutas "Púbicas" (no ocupan login)
+      // Rutas "Públicas" (no ocupan login)
       final publicRoutes = [
         '/',
         '/roles',
         '/prof-login',
         '/prof-register',
-        '/prof-otp',
+        /*'/prof-otp',
         '/prof-experience',
         '/prof-review-status',
         '/prof-success',
@@ -110,14 +110,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/prof-upload-docs',
         '/prof-docs-success',
         '/prof-rejected',
-        '/prof-docs-revision',
+        '/prof-docs-revision',*/
         '/login-cliente',
         '/registro-cliente',
         '/verif-correo-cliente',
         '/forgot-password',
         '/forgot-password-sent',
         '/reset-password',
-        '/client-location-permission',
+        /*'/client-location-permission',*/
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
@@ -127,7 +127,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isGoingToSplash) {
         if (!isInitialized) {
           // Sigue corriendo la animación o cargando token de disco
-          return null; 
+          return null;
         }
         // Ya sabemos si tiene sesión o no
         if (isAuthenticated) {
@@ -137,20 +137,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
       }
 
-      // Excepción para pruebas de frontend (si es necesario)
-      // if (targetPath == '/home-cliente') return null;
-
-      // Regla A: Si NO está autenticado y quiere ir a una zona privada
-      if (!isAuthenticated && !isGoingToPublicRoute) {
-        return '/roles';
+      // Regla 1: USUARIO NO AUTENTICADO (El Cierre de Sesión)
+      if (!isAuthenticated) {
+        // Si intenta ir a una ruta pública (como /roles), déjalo. Si no, expúlsalo.
+        return isGoingToPublicRoute ? null : '/roles';
       }
 
-      // Regla B: Si ya hizo login, PERO intenta ir a pantallas públicas (login/registro)
+      // Regla 2: USUARIO AUTENTICADO intentando ir a zonas públicas (Login)
       if (isAuthenticated && isGoingToPublicRoute) {
+        if (role == 'cliente') return '/home-cliente';
+
         if (role == 'proveedor') {
+          // ¡LA CURA!: En lugar de mandarlos a todos a '/prof-home' a ciegas,
+          // los enviamos directo a la pantalla que les toca.
           switch (status) {
             case 'pendiente':
-              return '/prof-review-status';
+              return '/prof-approved';
             case 'rechazado':
               return '/prof-rejected';
             case 'aceptado':
@@ -159,30 +161,47 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ? '/prof-home'
                   : '/location-permission';
           }
-        } else if (role == 'cliente') {
-          return '/home-cliente';
         }
       }
 
-      // Regla C: El muro de separación (Proveedores vs Clientes) y Permisos
-      if (isAuthenticated) {
-        // Flujo del PROVEEDOR
-        if (role == 'proveedor') {
-          // Si intenta ir a zona de clientes, lo regresamos a su inicio
-          if (targetPath.contains('client')) return '/prof-home';
+      // Excepción para pruebas de frontend (si es necesario)
+      // if (targetPath == '/home-cliente') return null;
 
-          // Flujo estricto de permisos de ubicación
-          if (hasLocationPermission && isGoingToLocationScreen) {
-            return '/prof-home';
-          }
+      // Regla 3: MURO DE ESTADOS (Solo Proveedores)
+      if (role == 'proveedor') {
+        if (targetPath.contains('client') || targetPath.contains('cliente'))
+          return '/prof-home';
+
+        switch (status) {
+          case 'pendiente':
+            final allowedPendiente = [
+              '/prof-approved',
+              '/prof-upload-docs',
+              '/prof-docs-success',
+              '/prof-docs-revision',
+            ];
+            // Si intenta escapar hacia el Home u otro lado, lo regresamos a su flujo
+            if (!allowedPendiente.contains(targetPath)) return '/prof-approved';
+            return null;
+
+          case 'rechazado':
+            if (targetPath != '/prof-rejected') return '/prof-rejected';
+            return null;
+
+          case 'aceptado':
+          default:
+            if (!hasLocationPermission && !isGoingToLocationScreen)
+              return '/location-permission';
+            if (hasLocationPermission && isGoingToLocationScreen)
+              return '/prof-home';
+            return null;
         }
+      }
 
-        // Flujo del CLIENTE
-        if (role == 'cliente') {
-          // Si intenta ir a zona de proveedor o pedir ubicación, lo regresamos a su inicio
-          if (targetPath.contains('prof') || isGoingToLocationScreen) {
-            return '/home-cliente';
-          }
+      // Regla 4: MURO DE CLIENTES
+      if (role == 'cliente') {
+        if (targetPath.contains('prof') || isGoingToLocationScreen) {
+          return '/home-cliente';
         }
       }
 

@@ -155,7 +155,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (role == 'proveedor') {
           switch (status) {
             case 'pendiente':
-              return '/prof-docs-revision';
+              return '/prof-review-status';
             case 'rechazado':
               return '/prof-rejected';
             case 'aceptado':

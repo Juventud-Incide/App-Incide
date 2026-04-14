@@ -43,6 +43,7 @@ namespace backend.Controllers
             }
         }
 
+
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken ct)
         {

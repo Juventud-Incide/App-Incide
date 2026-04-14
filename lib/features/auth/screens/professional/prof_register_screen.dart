@@ -100,13 +100,15 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
             color: AppColors.primaryBlue,
             size: 20,
           ),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primaryBlue,
-              letterSpacing: 1.2,
+          Flexible(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: AppColors.primaryBlue,
+                letterSpacing: 1.2,
+              ),
             ),
           ),
           const SizedBox(width: 10),

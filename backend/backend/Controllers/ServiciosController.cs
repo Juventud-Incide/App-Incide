@@ -2,6 +2,7 @@ using backend.Domain.DTOs;
 using backend.Infraestructure.API_Services_Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace backend.Controllers
 {
@@ -124,6 +125,26 @@ namespace backend.Controllers
                     return NotFound(new { message = "Servicio no encontrado." });
 
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Client")]
+        [HttpPost("{id}/solicitar")]
+        public async Task<IActionResult> RequestService(int id, CancellationToken ct)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+                var result = await _catalog.RequestServiceAsync(id, userId, ct);
+                return CreatedAtAction(nameof(GetById), new { id = result.ServiceItemId }, result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

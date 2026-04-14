@@ -17,6 +17,8 @@ import '../../features/auth/screens/professional/prof_upload_docs_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_success_screen.dart';
 import '../../features/auth/screens/professional/prof_rejected_screen.dart';
 import '../../features/auth/screens/professional/prof_docs_revision_screen.dart';
+import '../../features/auth/screens/professional/prof_forgot_password_screen.dart';
+import '../../features/auth/screens/professional/prof_forgot_password_sent_screen.dart';
 import '../../features/location/screens/prof_location_permission_screen.dart';
 import '../../features/location/screens/client_location_permission_screen.dart';
 
@@ -102,6 +104,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/roles',
         '/prof-login',
         '/prof-register',
+        '/prof-forgot-password',
+        '/prof-forgot-password-sent',
         /*'/prof-otp',
         '/prof-experience',
         '/prof-review-status',
@@ -148,11 +152,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (role == 'cliente') return '/home-cliente';
 
         if (role == 'proveedor') {
-          // ¡LA CURA!: En lugar de mandarlos a todos a '/prof-home' a ciegas,
-          // los enviamos directo a la pantalla que les toca.
           switch (status) {
             case 'pendiente':
-              return '/prof-approved';
+              return '/prof-docs-revision';
             case 'rechazado':
               return '/prof-rejected';
             case 'aceptado':
@@ -295,6 +297,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/location-permission',
         name: 'location_permission',
         builder: (context, state) => const ProfLocationPermissionScreen(),
+      ),
+      GoRoute(
+        path: '/prof-forgot-password',
+        name: 'prof_forgot_password',
+        builder: (context, state) => const ProfForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/prof-forgot-password-sent',
+        name: 'prof_forgot_password_sent',
+        builder: (context, state) {
+          final String email = state.extra as String? ?? '';
+          return ProfForgotPasswordSentScreen(email: email);
+        },
       ),
 
       // --- DASHBOARD DEL PROFESIONISTA (SHELL ROUTE) ---

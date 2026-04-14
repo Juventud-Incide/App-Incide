@@ -173,5 +173,41 @@ namespace backend.Infraestructure.API_Services
 
             return true;
         }
+
+        public async Task<ServiceRequestOutputDTO> RequestServiceAsync(int serviceItemId, int userId, CancellationToken ct)
+        {
+            var client = await _context.Clients
+                .FirstOrDefaultAsync(c => c.UserId == userId, ct);
+
+            if (client == null)
+                throw new InvalidOperationException("No se encontró un cliente asociado a este usuario.");
+
+            var serviceItem = await _context.ServiceItems
+                .FirstOrDefaultAsync(s => s.Id == serviceItemId && !s.IsDeleted, ct);
+
+            if (serviceItem == null)
+                throw new InvalidOperationException($"El servicio con id {serviceItemId} no existe.");
+
+            var request = new ServiceRequest
+            {
+                ServiceItemId = serviceItemId,
+                ClientId      = client.Id,
+                IsActive      = true,
+                CreationDate  = DateTime.UtcNow,
+                LastUpdate    = DateTime.UtcNow
+            };
+
+            _context.ServiceRequests.Add(request);
+            await _context.SaveChangesAsync(ct);
+
+            return new ServiceRequestOutputDTO
+            {
+                Id              = request.Id,
+                ServiceItemId   = request.ServiceItemId,
+                ServiceItemName = serviceItem.Name,
+                ClientId        = request.ClientId,
+                CreationDate    = request.CreationDate
+            };
+        }
     }
 }

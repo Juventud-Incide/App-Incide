@@ -23,6 +23,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProviderServices, ProviderServices>();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
 // Para Redis: reemplazar por RedisTokenRevocationStore manteniendo la misma interfaz.
 builder.Services.AddScoped<ITokenRevocationStore, EfTokenRevocationStore>();
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();

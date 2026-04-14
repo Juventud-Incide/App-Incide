@@ -86,6 +86,7 @@ class CustomInputField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: const TextStyle(color: Color(0xFF9CA3AF)), // Gris claro
+            errorMaxLines: 3,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,

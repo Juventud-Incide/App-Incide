@@ -176,5 +176,73 @@ namespace backend.Infraestructure.API_Services
             SizeBytes = d.SizeBytes,
             CreationDate = d.CreationDate
         };
+
+        private static ProviderCategoryOutputDTO ToCategoryDTO(ProviderCategory pc) => new()
+        {
+            CategoryId   = pc.CategoryId,
+            CategoryName = pc.Category.Name,
+            CategoryIcon = pc.Category.Icon
+        };
+
+        public async Task<List<ProviderCategoryOutputDTO>> GetCategoriesAsync(int providerId, CancellationToken ct)
+        {
+            return await _context.ProviderCategories
+                .Where(pc => pc.ProviderId == providerId)
+                .Include(pc => pc.Category)
+                .Select(pc => new ProviderCategoryOutputDTO
+                {
+                    CategoryId   = pc.CategoryId,
+                    CategoryName = pc.Category.Name,
+                    CategoryIcon = pc.Category.Icon
+                })
+                .ToListAsync(ct);
+        }
+
+        public async Task<ProviderCategoryOutputDTO> AssignCategoryAsync(int providerId, int categoryId, CancellationToken ct)
+        {
+            var provider = await _context.Providers
+                .FirstOrDefaultAsync(p => p.Id == providerId && !p.IsDeleted, ct);
+
+            if (provider == null)
+                throw new KeyNotFoundException($"Proveedor con id {providerId} no encontrado.");
+
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Id == categoryId && !c.IsDeleted, ct);
+
+            if (category == null)
+                throw new KeyNotFoundException($"Categoría con id {categoryId} no encontrada.");
+
+            var alreadyAssigned = await _context.ProviderCategories
+                .AnyAsync(pc => pc.ProviderId == providerId && pc.CategoryId == categoryId, ct);
+
+            if (alreadyAssigned)
+                throw new InvalidOperationException("El proveedor ya tiene asignada esta categoría.");
+
+            var relation = new ProviderCategory
+            {
+                ProviderId = providerId,
+                CategoryId = categoryId
+            };
+
+            _context.ProviderCategories.Add(relation);
+            await _context.SaveChangesAsync(ct);
+
+            relation.Category = category;
+
+            return ToCategoryDTO(relation);
+        }
+
+        public async Task<bool> RemoveCategoryAsync(int providerId, int categoryId, CancellationToken ct)
+        {
+            var relation = await _context.ProviderCategories
+                .FirstOrDefaultAsync(pc => pc.ProviderId == providerId && pc.CategoryId == categoryId, ct);
+
+            if (relation == null) return false;
+
+            _context.ProviderCategories.Remove(relation);
+            await _context.SaveChangesAsync(ct);
+
+            return true;
+        }
     }
 }

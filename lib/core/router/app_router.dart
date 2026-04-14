@@ -307,7 +307,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/prof-forgot-password-sent',
         name: 'prof_forgot_password_sent',
         builder: (context, state) {
-          final String email = state.extra as String? ?? '';
+          // 1. Recibimos el paquete como un Mapa
+          final Map<String, dynamic> data =
+              state.extra as Map<String, dynamic>? ?? {};
+
+          // 2. Extraemos el texto específico usando su llave ('email')
+          final String email = data['email'] as String? ?? '';
+
           return ProfForgotPasswordSentScreen(email: email);
         },
       ),

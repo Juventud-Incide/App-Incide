@@ -1,3 +1,4 @@
+import 'package:app_incide/features/provider/quotes/screens/prof_quotes_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +25,8 @@ import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
 import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart';
 import '../../features/provider/dashboard/models/opportunity_model.dart';
+import '../../features/provider/quotes/models/quote_model.dart';
+import '../../features/provider/quotes/screens/quote_detail_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
@@ -48,7 +51,7 @@ class RouterNotifier extends ChangeNotifier {
 
   RouterNotifier(this._ref) {
     // Escuchamos el authControllerProvider. Cada vez que cambie, notificamos al Router
-    _ref.listen(authControllerProvider, (_, __) {
+    _ref.listen(authControllerProvider, (_, _) {
       notifyListeners();
     });
   }
@@ -230,10 +233,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/prof-experience',
         name: 'prof_experience',
         builder: (context, state) {
-          // Extraemos TODO el mapa de datos que nos aventó el OTP
           final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
-          // Se lo damos a la pantalla final
           return ProfExperienceScreen(formData: formData);
         },
       ),
@@ -312,11 +313,19 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/prof-quotes',
                 name: 'prof_quotes',
-                builder: (context, state) => const Scaffold(
-                  body: Center(
-                    child: Text('Pantalla de Cotizaciones en construcción'),
+                builder: (context, state) => const ProfQuotesScreen(),
+                routes: [
+                  // <-- Rutas hijas de Cotizaciones
+                  GoRoute(
+                    path: 'detail', // La URL será /prof-quotes/detail
+                    name: 'quote_detail',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      final quote = state.extra as QuoteModel;
+                      return QuoteDetailScreen(quote: quote);
+                    },
                   ),
-                ),
+                ],
               ),
             ],
           ),

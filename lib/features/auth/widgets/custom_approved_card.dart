@@ -31,11 +31,14 @@ class CustomApprovedCard extends StatelessWidget {
             size: 20,
           ),
           const SizedBox(width: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textGray,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textGray,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+              ),
             ),
           ),
         ],

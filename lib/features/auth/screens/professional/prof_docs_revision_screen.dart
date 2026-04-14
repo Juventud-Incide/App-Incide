@@ -60,7 +60,7 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // TODO: (BACKEND) - Conectar con el paquete image_picker para abrir la cámara real.
+                // TODO: (BACKEND) - Integrar paquete `image_picker` con ImageSource.camera
                 ListTile(
                   leading: const Icon(
                     Icons.camera_alt_rounded,
@@ -70,6 +70,19 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                   onTap: () {
                     Navigator.pop(context);
                     onSuccess(); // Dispara el cambio de estado en la vista padre
+                  },
+                ),
+
+                // TODO: (BACKEND) - Integrar paquete `file_picker` (PDF) o `image_picker` (Galería)
+                ListTile(
+                  leading: const Icon(
+                    Icons.photo_library_rounded,
+                    color: AppColors.primaryBlue,
+                  ),
+                  title: const Text(AppStrings.chooseFromGallery),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onSuccess();
                   },
                 ),
               ],
@@ -212,7 +225,6 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
               ),
               child: SizedBox(
                 width: double.infinity,
-                height: 55,
                 child: ElevatedButton(
                   // Si _canResubmit es false, pasamos null.
                   // Flutter automáticamente desactiva y vuelve gris el botón si onPressed es null.
@@ -235,7 +247,12 @@ class _ProfDocsRevisionScreenState extends State<ProfDocsRevisionScreen> {
                   ),
                   child: const Text(
                     AppStrings.resendDocs,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ),

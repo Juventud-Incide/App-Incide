@@ -58,7 +58,8 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '${AppStrings.uploadText} $docName',
+                  '${AppStrings.uploadText}$docName',
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

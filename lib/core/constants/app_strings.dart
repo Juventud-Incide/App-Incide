@@ -91,7 +91,7 @@ class AppStrings {
   static const String docCedulaSubtitle =
       'Documento oficial de tu oficio/profesión.';
   static const String docAntecedentes = 'Carta de No Antecedentes';
-  static const String docAntecedentesShort = 'Antecedentes Penales';
+  static const String docAntecedentesShort = 'Carta';
   static const String docAntecedentesSubtitle =
       'Documento expedido por el Estado.';
   static const String docFoto = 'Fotografía de Perfil';
@@ -313,8 +313,7 @@ class AppStrings {
   static const String clientLocationModalTitle = 'Tu ubicación, tu ventaja';
   static const String clientLocationModalBody =
       'Necesitamos tu ubicación para mostrarte profesionistas cerca de ti y calcular distancias en tus cotizaciones.';
-  static const String clientLocationModalContinueBtn =
-      'Entendido, continuar';
+  static const String clientLocationModalContinueBtn = 'Entendido, continuar';
   static const String clientLocationModalLaterBtn = 'Ahora no';
 
   // Caso 2: Denegado una vez

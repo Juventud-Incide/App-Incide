@@ -272,9 +272,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────
 //            SUB-PANTALLAS (TABS) TEMPORALES
-// ─────────────────────────────────────────────────────────
 
 class _HomeTab extends ConsumerStatefulWidget {
   const _HomeTab();
@@ -286,12 +284,49 @@ class _HomeTab extends ConsumerStatefulWidget {
 class _HomeTabState extends ConsumerState<_HomeTab> {
   late final TextEditingController _searchController;
 
+  // --- Task #93: Estado para Servicios Recientes / Populares ---
+  List<SearchSuggestion> _homeServices = [];
+  bool _isHomeServicesLoading = true;
+  String _homeServicesLabel = 'Servicios Recientes';
+
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController(
       text: ref.read(searchQueryProvider),
     );
+    _fetchHomeServices();
+  }
+
+  /// Task #93 — Obtiene servicios recientes; si están vacíos usa los populares.
+  ///
+  /// TODO (Backend): Sustituir ref.read(...) por llamadas HTTP reales:
+  ///   GET /api/client/services/recent   →  recentServicesProvider
+  ///   GET /api/client/services/popular  →  popularServicesProvider
+  Future<void> _fetchHomeServices() async {
+    if (!mounted) return;
+    setState(() => _isHomeServicesLoading = true);
+    try {
+      // Simula latencia de red
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      // 1. Intentar servicios recientes
+      List<SearchSuggestion> recent = ref.read(recentServicesProvider);
+
+      // 2. Fallback a populares si no hay recientes
+      if (recent.isEmpty) {
+        recent = ref.read(popularServicesProvider);
+        if (mounted) setState(() => _homeServicesLabel = 'Servicios Populares');
+      } else {
+        if (mounted) setState(() => _homeServicesLabel = 'Servicios Recientes');
+      }
+
+      if (mounted) setState(() => _homeServices = recent);
+    } catch (_) {
+      // Lista queda vacía → se muestra estado de error en la UI
+    } finally {
+      if (mounted) setState(() => _isHomeServicesLoading = false);
+    }
   }
 
   @override
@@ -322,7 +357,8 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
       final matchesSelectedCategory =
           selectedCategoryId == null || selectedCategoryId == category.id;
       final matchesQuery =
-          query.isEmpty || category.name.toLowerCase().contains(query.toLowerCase());
+          query.isEmpty ||
+          category.name.toLowerCase().contains(query.toLowerCase());
       return matchesSelectedCategory && matchesQuery;
     }).toList();
 
@@ -359,7 +395,10 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                           ref.read(searchQueryProvider.notifier).update(value),
                       decoration: InputDecoration(
                         hintText: 'Buscar servicios...',
-                        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                        hintStyle: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 14,
+                        ),
                         prefixIcon: const Icon(
                           Icons.search_rounded,
                           color: AppColors.primaryBlue,
@@ -372,7 +411,9 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                                 icon: const Icon(Icons.clear_rounded, size: 20),
                                 onPressed: () {
                                   _searchController.clear();
-                                  ref.read(searchQueryProvider.notifier).update('');
+                                  ref
+                                      .read(searchQueryProvider.notifier)
+                                      .update('');
                                   ref
                                       .read(selectedCategoryProvider.notifier)
                                       .update(null);
@@ -416,10 +457,13 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                           child: SizedBox(
                             height: 45,
                             child: ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                               scrollDirection: Axis.horizontal,
                               itemCount: categories.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: 10),
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 10),
                               itemBuilder: (context, index) {
                                 final category = categories[index];
                                 final isSelected =
@@ -429,7 +473,9 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                                   onTap: () {
                                     ref
                                         .read(selectedCategoryProvider.notifier)
-                                        .update(isSelected ? null : category.id);
+                                        .update(
+                                          isSelected ? null : category.id,
+                                        );
                                   },
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
@@ -452,7 +498,9 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                                           )
                                         else
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.03),
+                                            color: Colors.black.withOpacity(
+                                              0.03,
+                                            ),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           ),
@@ -542,7 +590,103 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
               }, childCount: filteredCategories.length),
             ),
           ),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        const SliverToBoxAdapter(child: SizedBox(height: 28)),
+
+        // ── Task #93: Sección Servicios Recientes / Populares ──────────────
+        if (!showServiceResults)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _homeServicesLabel,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textDark,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Navegar a la pantalla completa de servicios
+                    },
+                    child: const Text(
+                      'Ver todos',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        if (!showServiceResults)
+          SliverToBoxAdapter(
+            child: _isHomeServicesLoading
+                ? const SizedBox(
+                    height: 160,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryBlue,
+                        strokeWidth: 2.5,
+                      ),
+                    ),
+                  )
+                : _homeServices.isEmpty
+                ? const SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Text(
+                        'No hay servicios disponibles',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 195,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minWidth: constraints.maxWidth - 48,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                for (
+                                  int i = 0;
+                                  i < _homeServices.length;
+                                  i++
+                                ) ...[
+                                  if (i > 0) const SizedBox(width: 14),
+                                  _buildHomeServiceCard(
+                                    context,
+                                    _homeServices[i],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+          ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],
     );
   }
@@ -806,10 +950,7 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                 offset: const Offset(0, 8),
               ),
             ],
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.05),
-              width: 1,
-            ),
+            border: Border.all(color: Colors.grey.withOpacity(0.05), width: 1),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           child: Column(
@@ -823,10 +964,7 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                     height: 42,
                     child: FittedBox(
                       fit: BoxFit.contain,
-                      child: Icon(
-                        category.icon,
-                        color: AppColors.primaryBlue,
-                      ),
+                      child: Icon(category.icon, color: AppColors.primaryBlue),
                     ),
                   ),
                 ),
@@ -853,6 +991,77 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Task #93 — Tarjeta para la fila horizontal de servicios.
+  Widget _buildHomeServiceCard(BuildContext context, SearchSuggestion service) {
+    final iconColor = _getIconColor(service.type);
+    return GestureDetector(
+      onTap: () {
+        final catId = service.categoryId;
+        if (catId != null) _navigateToQuotingFlow(context, catId);
+      },
+      child: Container(
+        width: 170,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          border: Border.all(color: Colors.grey.withOpacity(0.07), width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 66,
+              height: 66,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(_getIcon(service.type), color: iconColor, size: 34),
+            ),
+            const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                service.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13.5,
+                  color: AppColors.textDark,
+                  height: 1.3,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                service.subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -955,15 +1164,14 @@ final categoriesProvider = Provider<List<ServiceCategory>>((ref) {
   ];
 });
 
-// Mock de sugerencias basadas en el texto de búsqueda
-final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
-  final query = ref.watch(searchQueryProvider).toLowerCase();
-  final selectedCategoryId = ref.watch(selectedCategoryProvider);
+// ── Fuente única de datos mock (Task #93) ─────────────────────────────────
+// Todos los servicios mock del sistema. Tanto la búsqueda como la sección
+// Recientes/Populares consumen esta misma lista — sin duplicar datos.
+// TODO (Backend): Eliminar este provider cuando exista un endpoint real.
+final allServicesProvider = Provider<List<SearchSuggestion>>((ref) {
   final categories = ref.watch(categoriesProvider);
   final categoryNameById = {for (final c in categories) c.id: c.name};
-
-  // Mocks con IDs de categoría vinculados
-  final allMocks = [
+  return [
     SearchSuggestion(
       id: 's1',
       title: 'Fuga de agua en cocina',
@@ -1000,6 +1208,14 @@ final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
       categoryId: '2',
     ),
   ];
+});
+
+// Mock de sugerencias basadas en el texto de búsqueda
+// Ahora delega los datos a allServicesProvider — sin duplicación.
+final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
+  final query = ref.watch(searchQueryProvider).toLowerCase();
+  final selectedCategoryId = ref.watch(selectedCategoryProvider);
+  final allMocks = ref.watch(allServicesProvider);
 
   // Aplicar filtros
   return allMocks.where((item) {
@@ -1015,6 +1231,22 @@ final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
 
     return matchesCategory && matchesQuery;
   }).toList();
+});
+
+// ── Task #93: Servicios RECIENTES ─────────────────────────────────────────
+// TODO (Backend): Reemplazar con GET /api/client/services/recent
+// Simulamos los 3 primeros servicios del mock como "usados recientemente".
+// Retorna [] para activar el fallback a popularServicesProvider.
+final recentServicesProvider = Provider<List<SearchSuggestion>>((ref) {
+  return ref
+      .watch(allServicesProvider).take(3).toList(); //take (0) para que no muestre nada
+});
+
+// ── Task #93: Servicios POPULARES (fallback) ──────────────────────────────
+// TODO (Backend): Reemplazar con GET /api/client/services/popular
+// Se usa cuando recentServicesProvider retorna una lista vacía.
+final popularServicesProvider = Provider<List<SearchSuggestion>>((ref) {
+  return ref.watch(allServicesProvider).take(3).toList();
 });
 
 class _QuotesTab extends StatelessWidget {

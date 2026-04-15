@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -79,25 +80,9 @@ class ProfRejectedScreen extends StatelessWidget {
               const Spacer(flex: 2),
 
               // --- 3. BOTÓN CERRAR SESIÓN ---
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: OutlinedButton(
-                  onPressed: () =>
-                      // TODO: (BACKEND) - Invocar authController.logout() antes de navegar
-                      context.goNamed('splash'), // Regresa al inicio
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.redAccent,
-                    side: const BorderSide(color: Colors.redAccent, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    AppStrings.logoutBtn,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
+              CustomLogoutButton(
+                text: AppStrings.logoutBtn,
+                variant: LogoutButtonVariant.destructiveOutlined,
               ),
               const SizedBox(height: 10),
             ],

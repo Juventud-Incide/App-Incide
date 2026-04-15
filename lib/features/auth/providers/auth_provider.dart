@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // ==========================================
 // 1. EL ESTADO INMUTABLE (La Memoria)
@@ -74,7 +75,7 @@ class MockAuthRepository {
     // --- CREDENCIAL EXCLUSIVA PARA CLIENTES ---
     if (email == 'cliente@correo.com' && password == 'cliente123') {
       return 'aceptado';
-    } 
+    }
     // --- CREDENCIALES GENERALES / PROFESIONISTAS ---
     else if (email == 'admin@correo.com' && password == '12345678') {
       return 'aceptado';
@@ -114,13 +115,18 @@ class AuthController extends Notifier<AuthState> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
     final role = prefs.getString('user_role');
+    final status = prefs.getString('profile_status') ?? 'pendiente';
 
     if (token != null && token.isNotEmpty) {
+      final PermissionStatus locationStatus = await Permission.location.status;
+      final bool hasLocation = locationStatus.isGranted;
+
       state = state.copyWith(
         isInitialized: true,
         isAuthenticated: true,
         role: role,
-        profileStatus: 'aceptado', 
+        profileStatus: 'aceptado',
+        hasLocationPermission: hasLocation,
       );
     } else {
       // DESPIERTA AL ENRUTADOR INCLUSO SI NO HAY SESIÓN
@@ -143,6 +149,7 @@ class AuthController extends Notifier<AuthState> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', token);
         await prefs.setString('user_role', role);
+        await prefs.setString('profile_status', resultStatus);
       }
 
       // Actualizamos el estado de memoria global (Riverpod)
@@ -150,7 +157,7 @@ class AuthController extends Notifier<AuthState> {
         isLoading: false,
         isAuthenticated: true,
         role: role,
-        profileStatus: resultStatus, 
+        profileStatus: resultStatus,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -164,9 +171,10 @@ class AuthController extends Notifier<AuthState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
     await prefs.remove('user_role');
+    await prefs.remove('profile_status');
 
     // 2. Limpiamos RAM (Riverpod). Resetea todo a falso y nulo, pateándolo al login
-    state = AuthState(); 
+    state = AuthState();
   }
 
   /// Registra que el proveedor ha otorgado los permisos del sistema operativo.

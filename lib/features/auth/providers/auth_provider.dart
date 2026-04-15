@@ -126,7 +126,7 @@ class AuthController extends Notifier<AuthState> {
         isInitialized: true,
         isAuthenticated: true,
         role: role,
-        profileStatus: 'aceptado',
+        profileStatus: status,
         hasLocationPermission: hasLocation,
       );
     } else {

@@ -118,7 +118,8 @@ class AuthController extends Notifier<AuthState> {
     final status = prefs.getString('profile_status') ?? 'pendiente';
 
     if (token != null && token.isNotEmpty) {
-      final PermissionStatus locationStatus = await Permission.location.status;
+      final PermissionStatus locationStatus =
+          await Permission.locationWhenInUse.status;
       final bool hasLocation = locationStatus.isGranted;
 
       state = state.copyWith(

@@ -19,6 +19,17 @@ class IncideApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       routerConfig: router,
+
+      // --- INICIO DEL MODO DEBUG DE ACCESIBILIDAD ---
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: child!,
+        );
+      },
+      // --- FIN DEL MODO DEBUG DE ACCESIBILIDAD ---
     );
   }
 }

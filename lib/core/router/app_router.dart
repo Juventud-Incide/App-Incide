@@ -1,3 +1,4 @@
+import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +52,7 @@ class RouterNotifier extends ChangeNotifier {
 
   RouterNotifier(this._ref) {
     // Escuchamos el authControllerProvider. Cada vez que cambie, notificamos al Router
-    _ref.listen(authControllerProvider, (_, __) {
+    _ref.listen(authControllerProvider, (_, _) {
       notifyListeners();
     });
   }
@@ -101,61 +102,33 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Rutas "Públicas" (no ocupan login)
       final publicRoutes = [
-        '/',
         '/roles',
         '/prof-login',
         '/prof-register',
         '/prof-forgot-password',
         '/prof-forgot-password-sent',
-        /*'/prof-otp',
-        '/prof-experience',
-        '/prof-review-status',
-        '/prof-success',
-        '/prof-approved',
-        '/prof-upload-docs',
-        '/prof-docs-success',
-        '/prof-rejected',
-        '/prof-docs-revision',*/
         '/login-cliente',
         '/registro-cliente',
         '/verif-correo-cliente',
         '/forgot-password',
         '/forgot-password-sent',
         '/reset-password',
-        /*'/client-location-permission',*/
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
       // 3. LAS REGLAS DEL GUARDIA (Evaluadas en orden)
 
-      // Regla 0: Manejo del Splash Screen
+      // REGLA 0: El Despachador del Splash
       if (isGoingToSplash) {
-        if (!isInitialized) {
-          // Sigue corriendo la animación o cargando token de disco
-          return null;
-        }
-        // Ya sabemos si tiene sesión o no
-        if (isAuthenticated) {
-          return role == 'cliente' ? '/home-cliente' : '/prof-home';
-        } else {
-          return '/roles';
-        }
-      }
+        if (!isInitialized) return null;
+        if (!isAuthenticated) return '/roles';
 
-      // Regla 1: USUARIO NO AUTENTICADO (El Cierre de Sesión)
-      if (!isAuthenticated) {
-        // Si intenta ir a una ruta pública (como /roles), déjalo. Si no, expúlsalo.
-        return isGoingToPublicRoute ? null : '/roles';
-      }
-
-      // Regla 2: USUARIO AUTENTICADO intentando ir a zonas públicas (Login)
-      if (isAuthenticated && isGoingToPublicRoute) {
         if (role == 'cliente') return '/home-cliente';
 
         if (role == 'proveedor') {
           switch (status) {
             case 'pendiente':
-              return '/prof-review-status';
+              return '/prof-approved';
             case 'rechazado':
               return '/prof-rejected';
             case 'aceptado':
@@ -167,48 +140,67 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
       }
 
-      // Excepción para pruebas de frontend (si es necesario)
-      // if (targetPath == '/home-cliente') return null;
-
-      // Regla 3: MURO DE ESTADOS (Solo Proveedores)
-      if (role == 'proveedor') {
-        if (targetPath.contains('client') || targetPath.contains('cliente'))
-          return '/prof-home';
-
-        switch (status) {
-          case 'pendiente':
-            final allowedPendiente = [
-              '/prof-approved',
-              '/prof-upload-docs',
-              '/prof-docs-success',
-              '/prof-docs-revision',
-            ];
-            // Si intenta escapar hacia el Home u otro lado, lo regresamos a su flujo
-            if (!allowedPendiente.contains(targetPath)) return '/prof-approved';
-            return null;
-
-          case 'rechazado':
-            if (targetPath != '/prof-rejected') return '/prof-rejected';
-            return null;
-
-          case 'aceptado':
-          default:
-            if (!hasLocationPermission && !isGoingToLocationScreen)
-              return '/location-permission';
-            if (hasLocationPermission && isGoingToLocationScreen)
-              return '/prof-home';
-            return null;
-        }
+      // REGLA 1: Guardia de Usuarios NO Logueados
+      if (!isAuthenticated) {
+        if (!isGoingToPublicRoute) return '/roles';
+        return null;
       }
 
-      // Regla 4: MURO DE CLIENTES
+      // REGLA 2: Guardia del Cliente
       if (role == 'cliente') {
-        if (targetPath.contains('prof') || isGoingToLocationScreen) {
+        if (isGoingToPublicRoute ||
+            targetPath.contains('prof') ||
+            isGoingToLocationScreen) {
           return '/home-cliente';
         }
+        return null;
       }
 
-      // Si pasó todas las aduanas, déjalo continuar su camino
+      // REGLA 3: Guardia del Proveedor (El Sistema de 3 Fases)
+      if (role == 'proveedor') {
+        // Fase 1: Filtro de Estatus (Revisión de Documentos)
+        if (status == 'pendiente') {
+          final allowedPendiente = [
+            '/prof-approved',
+            '/prof-upload-docs',
+            '/prof-docs-success',
+            '/prof-docs-revision',
+            '/prof-review-status',
+          ];
+          // Si intenta escapar, lo regresamos a su inicio de flujo
+          if (!allowedPendiente.contains(targetPath)) return '/prof-approved';
+          return null;
+        }
+
+        if (status == 'rechazado') {
+          if (targetPath != '/prof-rejected') return '/prof-rejected';
+          return null;
+        }
+
+        // Fase 2: Filtro Estricto de Permisos GPS (Solo para usuarios 'aceptados')
+        if (status == 'aceptado') {
+          final isGoingToLocation = targetPath == '/location-permission';
+
+          if (!hasLocationPermission) {
+            if (!isGoingToLocation) return '/location-permission';
+            return null; // Lo dejamos estar en la pantalla de permisos
+          }
+
+          // Si SÍ tiene permiso y trata de regresar a pantallas públicas o de ubicación,
+          // lo mandamos a su Home.
+          if (hasLocationPermission &&
+              (isGoingToPublicRoute || isGoingToLocation)) {
+            return '/prof-home';
+          }
+
+          // Fase 3: Muro de Separación de Roles
+          if (targetPath.contains('client') || targetPath.contains('cliente')) {
+            return '/prof-home';
+          }
+        }
+      }
+
+      // Si sobrevivió a todas las reglas sin ser redirigido, tiene paso libre.
       return null;
     },
     routes: [
@@ -252,7 +244,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/prof-experience',
         name: 'prof_experience',
         builder: (context, state) {
-          // Extraemos TODO el mapa de datos que nos aventó el OTP
           final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
           // Se lo damos a la pantalla final
@@ -388,7 +379,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                 name: 'prof_profile',
                 builder: (context, state) => const Scaffold(
                   body: Center(
-                    child: Text('Pantalla de Perfil en construcción'),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Pantalla de Perfil en construcción'),
+                        SizedBox(height: 24),
+                        CustomLogoutButton(
+                          text: 'Cerrar sesión (Prueba)',
+                          variant: LogoutButtonVariant
+                              .destructiveOutlined, // O la variante que prefieras
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

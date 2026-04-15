@@ -330,12 +330,14 @@ class _ProfHomeScreenState extends State<ProfHomeScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          const Text(
-            AppStrings.opportunitiesTitle,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textDark,
+          Expanded(
+            child: const Text(
+              AppStrings.opportunitiesTitle,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textDark,
+              ),
             ),
           ),
           GestureDetector(

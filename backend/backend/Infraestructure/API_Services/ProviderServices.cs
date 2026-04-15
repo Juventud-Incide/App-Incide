@@ -244,5 +244,24 @@ namespace backend.Infraestructure.API_Services
 
             return true;
         }
+
+        public async Task<bool> UpdateAvailabilityAsync(int userId, bool available, CancellationToken ct)
+        {
+            var provider = await _context.Providers
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct);
+
+            if (provider == null)
+                throw new InvalidOperationException("No provider profile found for this user.");
+
+            if (provider.Status != ProviderStatus.Affiliated)
+                throw new InvalidOperationException("Only affiliated providers can update their availability.");
+
+            provider.Available          = available;
+            provider.AvailableUpdatedAt = DateTime.UtcNow;
+            provider.LastUpdate         = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync(ct);
+            return true;
+        }
     }
 }

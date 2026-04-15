@@ -17,6 +17,7 @@ namespace backend.Data.DataDB
         public DbSet<ServiceItem>      ServiceItems       => Set<ServiceItem>();
         public DbSet<ProviderCategory> ProviderCategories => Set<ProviderCategory>();
         public DbSet<ServiceRequest>   ServiceRequests    => Set<ServiceRequest>();
+        public DbSet<Cotizacion>       Cotizaciones       => Set<Cotizacion>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -117,7 +118,42 @@ namespace backend.Data.DataDB
                  .WithMany()
                  .HasForeignKey(sr => sr.ClientId)
                  .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(sr => sr.TargetProvider)
+                 .WithMany()
+                 .HasForeignKey(sr => sr.TargetProviderId)
+                 .OnDelete(DeleteBehavior.SetNull);
+
+                e.Property(sr => sr.Lat).HasColumnType("decimal(9,6)");
+                e.Property(sr => sr.Lng).HasColumnType("decimal(9,6)");
+                e.Property(sr => sr.Location).HasColumnType("geography (Point, 4326)");
+                e.HasIndex(sr => sr.Location).HasMethod("GIST");
+
                 e.HasIndex(sr => sr.CreationDate);
+                e.HasIndex(sr => new { sr.Status, sr.Type, sr.TargetProviderId });
+            });
+
+            // Cotizacion
+            modelBuilder.Entity<Cotizacion>(e =>
+            {
+                e.HasKey(c => c.Id);
+                e.HasOne(c => c.ServiceRequest)
+                 .WithMany(sr => sr.Cotizaciones)
+                 .HasForeignKey(c => c.ServiceRequestId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(c => c.Provider)
+                 .WithMany(p => p.Cotizaciones)
+                 .HasForeignKey(c => c.ProviderId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.Property(c => c.Amount).HasColumnType("decimal(18,2)");
+                e.Property(c => c.Currency).HasMaxLength(3);
+
+                // One cotizacion per provider per request (ignoring soft-deleted)
+                e.HasIndex(c => new { c.ServiceRequestId, c.ProviderId })
+                 .IsUnique()
+                 .HasFilter("\"IsDeleted\" = false");
+
+                e.HasIndex(c => new { c.ProviderId, c.Status, c.CreationDate });
             });
         }
     }

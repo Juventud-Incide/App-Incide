@@ -182,7 +182,6 @@ class AuthController extends Notifier<AuthState> {
 
   /// Registra que el proveedor ha otorgado los permisos del sistema operativo.
   void grantLocation() {
-    // TODO: (BACKEND) - Sincronizar en base de datos que el proveedor aceptó términos/permisos
     state = state.copyWith(hasLocationPermission: true);
   }
 }

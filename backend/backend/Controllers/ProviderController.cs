@@ -1,7 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Infraestructure.API_Services_Interfaces;
 using backend.Domain.DTOs;
+using backend.Domain.DTOs.Provider;
 
 namespace backend.Controllers
 {
@@ -190,6 +192,26 @@ namespace backend.Controllers
                     return NotFound(new { message = "Relación proveedor-categoría no encontrada." });
 
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Provider")]
+        [HttpPatch("availability")]
+        public async Task<IActionResult> UpdateAvailability([FromBody] AvailabilityDTO dto, CancellationToken ct)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+                await _providerService.UpdateAvailabilityAsync(userId, dto.Available, ct);
+                return Ok(new { available = dto.Available });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {

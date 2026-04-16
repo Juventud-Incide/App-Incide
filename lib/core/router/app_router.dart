@@ -421,7 +421,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           return ClienteVerifCorreoScreen(formData: formData);
         },
       ),
-      // TODO: Agregar GoRoute para '/cliente-home' aquí en el futuro
       GoRoute(
         path: '/client-location-permission',
         name: 'client_location_permission',

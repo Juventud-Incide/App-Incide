@@ -1,0 +1,59 @@
+name: CI/CD INCIDE - Develop
+
+on:
+  push:
+    branches:
+      - develop # Se dispara cada vez que se haga un merge a develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Agregar aquí un job de 'flutter test' si tienes pruebas unitarias
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload to Firebase App Distribution
+        uses: w9jds/firebase-action@master
+        with:
+          args: appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups "testers"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Notify Discord on Success
+        if: success()
+        uses: rjstone/discord-webhook-notify@v2
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          details: "✅ **Despliegue de Aplicación INCIDE exitoso**\nLa rama `develop` ha sido compilada y la nueva versión está disponible en Firebase App Distribution para el equipo de pruebas."
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+
+      - name: Notify Discord on Failure
+        if: failure()
+        uses: rjstone/discord-webhook-notify@v2
+        with:
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: error
+          details: "❌ **Falló el despliegue de Aplicación INCIDE**\nLa compilación o el envío a Firebase fallaron. Revisa los logs en GitHub Actions para identificar el error."
+          avatarUrl: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png

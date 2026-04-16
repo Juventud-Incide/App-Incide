@@ -51,7 +51,7 @@ class RouterNotifier extends ChangeNotifier {
 
   RouterNotifier(this._ref) {
     // Escuchamos el authControllerProvider. Cada vez que cambie, notificamos al Router
-    _ref.listen(authControllerProvider, (_, __) {
+    _ref.listen(authControllerProvider, (_, _) {
       notifyListeners();
     });
   }
@@ -172,8 +172,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Regla 3: MURO DE ESTADOS (Solo Proveedores)
       if (role == 'proveedor') {
-        if (targetPath.contains('client') || targetPath.contains('cliente'))
+        if (targetPath.contains('client') || targetPath.contains('cliente')) {
           return '/prof-home';
+        }
 
         switch (status) {
           case 'pendiente':
@@ -182,6 +183,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               '/prof-upload-docs',
               '/prof-docs-success',
               '/prof-docs-revision',
+              '/prof-review-status',
             ];
             // Si intenta escapar hacia el Home u otro lado, lo regresamos a su flujo
             if (!allowedPendiente.contains(targetPath)) return '/prof-approved';

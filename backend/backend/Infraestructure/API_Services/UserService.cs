@@ -6,6 +6,7 @@ using backend.Domain.OutPutDTOs;
 using backend.Infraestructure.API_Services_Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 
 
 namespace backend.Infraestructure.API_Services
@@ -114,6 +115,21 @@ namespace backend.Infraestructure.API_Services
 
             await _context.SaveChangesAsync();
             return ToOutputDTO(user);
+        }
+
+        public async Task<bool> UpdateLocationAsync(int id, UpdateLocationDTO dto, CancellationToken ct)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
+            if (user == null) return false;
+
+            user.LastLat = dto.Lat;
+            user.LastLng = dto.Lng;
+            user.Location = new Point((double)dto.Lng, (double)dto.Lat) { SRID = 4326 };
+            user.LocationUpdatedAt = DateTime.UtcNow;
+            user.LastUpdate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync(ct);
+            return true;
         }
 
         public async Task<bool> DeleteAsync(int id)

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../models/service_model.dart';
@@ -520,6 +519,189 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: _buildWelcomeBanner(),
+    //  Ocultar filtros automáticamente si hay texto en la búsqueda
+    final isFiltersVisible = showFilters && query.isEmpty;
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          // --- BARRA DE BÚSQUEDA ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.05),
+                  width: 1,
+                ),
+              ),
+              child: TextField(
+                onChanged: (value) =>
+                    ref.read(searchQueryProvider.notifier).update(value),
+                decoration: InputDecoration(
+                  hintText: 'Buscar servicios...',
+                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppColors.primaryBlue,
+                  ),
+                  suffixIcon: query.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, size: 20),
+                          onPressed: () {
+                            ref.read(searchQueryProvider.notifier).update('');
+                            ref
+                                .read(selectedCategoryProvider.notifier)
+                                .update(null);
+                          },
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.tune_rounded, size: 20),
+                          color: AppColors.primaryBlue,
+                          onPressed: () =>
+                              ref.read(showFiltersProvider.notifier).toggle(),
+                        ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // --- FILTROS POR CATEGORÍA CON ANIMACIÓN ---
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: isFiltersVisible
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: SizedBox(
+                      height: 45,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: categories.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
+                          final isSelected = selectedCategoryId == category.id;
+
+                          return GestureDetector(
+                            onTap: () {
+                              ref
+                                  .read(selectedCategoryProvider.notifier)
+                                  .update(isSelected ? null : category.id);
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.primaryBlue
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  if (isSelected)
+                                    BoxShadow(
+                                      color: AppColors.primaryBlue.withOpacity(
+                                        0.3,
+                                      ),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  else
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                ],
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.primaryBlue
+                                      : Colors.grey.withOpacity(0.1),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    category.icon,
+                                    size: 18,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppColors.primaryBlue,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    category.name,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppColors.textDark,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                : const SizedBox(width: double.infinity, height: 0),
+          ),
+
+          const SizedBox(height: 10),
+
+          // --- CONTENIDO DINÁMICO ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Banner de bienvenida (se oculta al buscar o filtrar)
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: query.isEmpty
+                      ? _buildWelcomeBanner()
+                      : const SizedBox.shrink(),
+                ),
+                if (query.isEmpty) const SizedBox(height: 32),
+
+                // Lista de resultados (Recomendados o Búsqueda)
+                _buildSuggestionsList(
+                  suggestions,
+                  title: query.isEmpty
+                      ? 'Sugerencias para ti'
+                      : 'Resultados para tu búsqueda',
+                ),
+              ],
             ),
           ),
 
@@ -659,6 +841,118 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
   Widget _buildSearchSuggestionsList({
     required BuildContext context,
     required List<SearchSuggestion> suggestions,
+  Widget _buildWelcomeBanner() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 160),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primaryBlue,
+              const Color(0xFF1E3A8A),
+              const Color(0xFF1D4ED8),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Círculos decorativos abstractos
+            Positioned(
+              right: -50,
+              top: -20,
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.05),
+                ),
+              ),
+            ),
+            Positioned(
+              left: -30,
+              bottom: -40,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.08),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 40,
+              bottom: -20,
+              child: Icon(
+                Icons.bolt_rounded,
+                size: 100,
+                color: Colors.white.withOpacity(0.05),
+              ),
+            ),
+            // Contenido del banner
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'OFERTA ESPECIAL',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    '¡Encuentra ayuda profesional!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const SizedBox(
+                    width: 220,
+                    child: Text(
+                      'Busca entre cientos de expertos listos para ayudarte hoy mismo.',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSuggestionsList(
+    List<SearchSuggestion> suggestions, {
+    required String title,
   }) {
     if (suggestions.isEmpty) {
       return const Center(
@@ -687,6 +981,31 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
             color: AppColors.textDark,
             letterSpacing: -0.5,
           ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppColors.textDark,
+                letterSpacing: -0.5,
+              ),
+            ),
+            if (suggestions.length > 3)
+              TextButton(
+                onPressed: () {},
+                child: const Text(
+                  'Ver todo',
+                  style: TextStyle(
+                    color: AppColors.primaryBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 12),
         ListView.separated(
@@ -759,6 +1078,27 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      item.type == ServiceType.category
+                                          ? 'Categoría'
+                                          : 'Servicio',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
                                   Text(
                                     item.subtitle,
                                     style: TextStyle(
@@ -998,6 +1338,18 @@ final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
       subtitle: 'Servicio de ${categoryNameById['2'] ?? 'Categoría'}',
       type: ServiceType.service,
       categoryId: '2',
+      id: 'c1',
+      title: 'Construcción de Interiores',
+      subtitle: 'Categoría',
+      type: ServiceType.category,
+      categoryId: '1',
+    ),
+    SearchSuggestion(
+      id: 'c2',
+      title: 'Planos y Documentos',
+      subtitle: 'Categoría',
+      type: ServiceType.category,
+      categoryId: '3',
     ),
   ];
 

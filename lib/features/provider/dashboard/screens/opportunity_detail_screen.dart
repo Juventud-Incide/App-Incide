@@ -1,10 +1,10 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/provider/dashboard/widgets/opportunity_badge.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:app_incide/features/shared/widgets/opportunity_info_body.dart';
 
 /// Vista de detalle inmersiva para una Oportunidad (Solicitud de trabajo).
 ///
@@ -78,93 +78,16 @@ class OpportunityDetailScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Título y Estado
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          opportunity.title,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      OpportunityBadge(isExclusive: opportunity.isExclusive),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Info Rápida (Categoría, Distancia, Urgencia)
-                  _buildQuickInfoRow(
-                    opportunity.category,
-                    opportunity.formattedDistance,
-                    opportunity.urgency,
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Presupuesto del Sistema
-                  _buildEstimatedPriceBox(opportunity.formattedPriceRange),
-                  const SizedBox(height: 24),
-
-                  // Descripción
-                  const Text(
-                    AppStrings.descriptionTitle,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    opportunity.description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textGray,
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Cuestionario del Cliente
-                  const Text(
-                    AppStrings.clientAnswers,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Desempaquetamos (spread operator) el mapa de respuestas del cliente
-                  ...opportunity.clientAnswers.entries.map(
-                    (entry) => _buildQuestionAnswer(entry.key, entry.value),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Fotos Adjuntas
-                  const Text(
-                    AppStrings.attachedPhotos,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildPhotoGallery(),
-
-                  const SizedBox(height: 40),
-                ],
+              child: OpportunityInfoBody(
+                title: opportunity.title,
+                category: opportunity.category,
+                distance: opportunity.formattedDistance,
+                urgency: opportunity.urgency,
+                priceRange: opportunity.formattedPriceRange,
+                description: opportunity.description,
+                isExclusive: opportunity.isExclusive,
+                clientAnswers: opportunity.clientAnswers,
+                photoUrls: opportunity.photoUrls,
               ),
             ),
           ),
@@ -177,134 +100,6 @@ class OpportunityDetailScreen extends StatelessWidget {
   }
 
   // --- MÉTODOS DE CONSTRUCCIÓN INTERNOS (UI) ---
-
-  Widget _buildQuickInfoRow(String category, String distance, String urgency) {
-    return Wrap(
-      spacing: 12.0,
-      runSpacing: 12.0,
-      children: [
-        _infoChip(Icons.build_rounded, category),
-        _infoChip(Icons.location_on_rounded, 'a $distance'),
-        _infoChip(Icons.access_time_filled_rounded, urgency),
-      ],
-    );
-  }
-
-  Widget _infoChip(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: AppColors.primaryBlue),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textDark,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEstimatedPriceBox(String priceRange) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.green.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppStrings.estimatedPrice,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-              Text(
-                AppStrings.systemCalculated,
-                style: TextStyle(fontSize: 11, color: Colors.green),
-              ),
-            ],
-          ),
-          Text(
-            priceRange,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: Colors.green[800],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuestionAnswer(String question, String answer) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            question,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textGray,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            answer,
-            style: const TextStyle(fontSize: 14, color: AppColors.textDark),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Construye la galería de fotos adjuntas.
-  ///
-  /// TODO: (BACKEND) - Conectar con `opportunity.photoUrls` y usar `CachedNetworkImage`
-  /// para cargar las imágenes desde el Storage, reemplazando el placeholder estático.
-  Widget _buildPhotoGallery() {
-    return SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 3,
-        itemBuilder: (context, index) {
-          return Container(
-            width: 100,
-            margin: const EdgeInsets.only(right: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.image, color: Colors.grey),
-          );
-        },
-      ),
-    );
-  }
-
-  /// Barra de acciones anclada a la parte inferior de la pantalla.
   Widget _buildStickyBottomBar(BuildContext context) {
     return SafeArea(
       child: Container(
@@ -354,7 +149,8 @@ class OpportunityDetailScreen extends StatelessWidget {
                       isScrollControlled: true,
                       useRootNavigator: true,
                       backgroundColor: Colors.transparent,
-                      builder: (context) => const ProposalBottomSheet(),
+                      builder: (context) =>
+                          ProposalBottomSheet(opportunity: opportunity),
                     );
 
                     // Si el modal devolvió 'true' (éxito), cerramos esta pantalla

@@ -11,5 +11,6 @@ namespace backend.Data.Entities
         public DateTime? InterviewDate { get; set; }
         public string? InterviewRejectionReason { get; set; }
         public string? AffiliationRejectionReason { get; set; }
+        public ICollection<ProviderCategory> Categories { get; set; } = [];
     }
 }

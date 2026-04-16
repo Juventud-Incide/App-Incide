@@ -140,5 +140,61 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id}/categorias")]
+        public async Task<IActionResult> GetCategories(int id, CancellationToken ct)
+        {
+            try
+            {
+                var result = await _providerService.GetCategoriesAsync(id, ct);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/categorias/{categoriaId}")]
+        public async Task<IActionResult> AssignCategory(int id, int categoriaId, CancellationToken ct)
+        {
+            try
+            {
+                var result = await _providerService.AssignCategoryAsync(id, categoriaId, ct);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}/categorias/{categoriaId}")]
+        public async Task<IActionResult> RemoveCategory(int id, int categoriaId, CancellationToken ct)
+        {
+            try
+            {
+                var removed = await _providerService.RemoveCategoryAsync(id, categoriaId, ct);
+                if (!removed)
+                    return NotFound(new { message = "Relación proveedor-categoría no encontrada." });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../models/service_model.dart';
@@ -271,9 +272,7 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────
 //            SUB-PANTALLAS (TABS) TEMPORALES
-// ─────────────────────────────────────────────────────────
 
 class _HomeTab extends ConsumerStatefulWidget {
   const _HomeTab();
@@ -285,12 +284,49 @@ class _HomeTab extends ConsumerStatefulWidget {
 class _HomeTabState extends ConsumerState<_HomeTab> {
   late final TextEditingController _searchController;
 
+  // --- Task #93: Estado para Servicios Recientes / Populares ---
+  List<SearchSuggestion> _homeServices = [];
+  bool _isHomeServicesLoading = true;
+  String _homeServicesLabel = 'Servicios Recientes';
+
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController(
       text: ref.read(searchQueryProvider),
     );
+    _fetchHomeServices();
+  }
+
+  /// Task #93 — Obtiene servicios recientes; si están vacíos usa los populares.
+  ///
+  /// TODO (Backend): Sustituir ref.read(...) por llamadas HTTP reales:
+  ///   GET /api/client/services/recent   →  recentServicesProvider
+  ///   GET /api/client/services/popular  →  popularServicesProvider
+  Future<void> _fetchHomeServices() async {
+    if (!mounted) return;
+    setState(() => _isHomeServicesLoading = true);
+    try {
+      // Simula latencia de red
+      await Future.delayed(const Duration(milliseconds: 600));
+
+      // 1. Intentar servicios recientes
+      List<SearchSuggestion> recent = ref.read(recentServicesProvider);
+
+      // 2. Fallback a populares si no hay recientes
+      if (recent.isEmpty) {
+        recent = ref.read(popularServicesProvider);
+        if (mounted) setState(() => _homeServicesLabel = 'Servicios Populares');
+      } else {
+        if (mounted) setState(() => _homeServicesLabel = 'Servicios Recientes');
+      }
+
+      if (mounted) setState(() => _homeServices = recent);
+    } catch (_) {
+      // Lista queda vacía → se muestra estado de error en la UI
+    } finally {
+      if (mounted) setState(() => _isHomeServicesLoading = false);
+    }
   }
 
   @override
@@ -321,7 +357,8 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
       final matchesSelectedCategory =
           selectedCategoryId == null || selectedCategoryId == category.id;
       final matchesQuery =
-          query.isEmpty || category.name.toLowerCase().contains(query.toLowerCase());
+          query.isEmpty ||
+          category.name.toLowerCase().contains(query.toLowerCase());
       return matchesSelectedCategory && matchesQuery;
     }).toList();
 
@@ -358,7 +395,10 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                           ref.read(searchQueryProvider.notifier).update(value),
                       decoration: InputDecoration(
                         hintText: 'Buscar servicios...',
-                        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                        hintStyle: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 14,
+                        ),
                         prefixIcon: const Icon(
                           Icons.search_rounded,
                           color: AppColors.primaryBlue,
@@ -369,12 +409,13 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                             if (query.isNotEmpty)
                               IconButton(
                                 icon: const Icon(Icons.clear_rounded, size: 20),
+                                // Fix UX: solo limpia el texto; el filtro de
+                                // categoría activo se preserva intencionalmente.
                                 onPressed: () {
                                   _searchController.clear();
-                                  ref.read(searchQueryProvider.notifier).update('');
                                   ref
-                                      .read(selectedCategoryProvider.notifier)
-                                      .update(null);
+                                      .read(searchQueryProvider.notifier)
+                                      .update('');
                                 },
                               ),
                             IconButton(
@@ -415,10 +456,13 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                           child: SizedBox(
                             height: 45,
                             child: ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                               scrollDirection: Axis.horizontal,
                               itemCount: categories.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: 10),
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 10),
                               itemBuilder: (context, index) {
                                 final category = categories[index];
                                 final isSelected =
@@ -428,7 +472,9 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                                   onTap: () {
                                     ref
                                         .read(selectedCategoryProvider.notifier)
-                                        .update(isSelected ? null : category.id);
+                                        .update(
+                                          isSelected ? null : category.id,
+                                        );
                                   },
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
@@ -451,7 +497,9 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                                           )
                                         else
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.03),
+                                            color: Colors.black.withOpacity(
+                                              0.03,
+                                            ),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           ),
@@ -519,189 +567,6 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: _buildWelcomeBanner(),
-    //  Ocultar filtros automáticamente si hay texto en la búsqueda
-    final isFiltersVisible = showFilters && query.isEmpty;
-
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 24),
-          // --- BARRA DE BÚSQUEDA ---
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.05),
-                  width: 1,
-                ),
-              ),
-              child: TextField(
-                onChanged: (value) =>
-                    ref.read(searchQueryProvider.notifier).update(value),
-                decoration: InputDecoration(
-                  hintText: 'Buscar servicios...',
-                  hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    color: AppColors.primaryBlue,
-                  ),
-                  suffixIcon: query.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 20),
-                          onPressed: () {
-                            ref.read(searchQueryProvider.notifier).update('');
-                            ref
-                                .read(selectedCategoryProvider.notifier)
-                                .update(null);
-                          },
-                        )
-                      : IconButton(
-                          icon: const Icon(Icons.tune_rounded, size: 20),
-                          color: AppColors.primaryBlue,
-                          onPressed: () =>
-                              ref.read(showFiltersProvider.notifier).toggle(),
-                        ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // --- FILTROS POR CATEGORÍA CON ANIMACIÓN ---
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: isFiltersVisible
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: SizedBox(
-                      height: 45,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: categories.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 10),
-                        itemBuilder: (context, index) {
-                          final category = categories[index];
-                          final isSelected = selectedCategoryId == category.id;
-
-                          return GestureDetector(
-                            onTap: () {
-                              ref
-                                  .read(selectedCategoryProvider.notifier)
-                                  .update(isSelected ? null : category.id);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColors.primaryBlue
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  if (isSelected)
-                                    BoxShadow(
-                                      color: AppColors.primaryBlue.withOpacity(
-                                        0.3,
-                                      ),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    )
-                                  else
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                ],
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppColors.primaryBlue
-                                      : Colors.grey.withOpacity(0.1),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    category.icon,
-                                    size: 18,
-                                    color: isSelected
-                                        ? Colors.white
-                                        : AppColors.primaryBlue,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    category.name,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : AppColors.textDark,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  )
-                : const SizedBox(width: double.infinity, height: 0),
-          ),
-
-          const SizedBox(height: 10),
-
-          // --- CONTENIDO DINÁMICO ---
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Banner de bienvenida (se oculta al buscar o filtrar)
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: query.isEmpty
-                      ? _buildWelcomeBanner()
-                      : const SizedBox.shrink(),
-                ),
-                if (query.isEmpty) const SizedBox(height: 32),
-
-                // Lista de resultados (Recomendados o Búsqueda)
-                _buildSuggestionsList(
-                  suggestions,
-                  title: query.isEmpty
-                      ? 'Sugerencias para ti'
-                      : 'Resultados para tu búsqueda',
-                ),
-              ],
             ),
           ),
 
@@ -724,7 +589,103 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
               }, childCount: filteredCategories.length),
             ),
           ),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        const SliverToBoxAdapter(child: SizedBox(height: 28)),
+
+        // ── Task #93: Sección Servicios Recientes / Populares ──────────────
+        if (!showServiceResults)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _homeServicesLabel,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textDark,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Navegar a la pantalla completa de servicios
+                    },
+                    child: const Text(
+                      'Ver todos',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        if (!showServiceResults)
+          SliverToBoxAdapter(
+            child: _isHomeServicesLoading
+                ? const SizedBox(
+                    height: 160,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryBlue,
+                        strokeWidth: 2.5,
+                      ),
+                    ),
+                  )
+                : _homeServices.isEmpty
+                ? const SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Text(
+                        'No hay servicios disponibles',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 195,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minWidth: constraints.maxWidth - 48,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                for (
+                                  int i = 0;
+                                  i < _homeServices.length;
+                                  i++
+                                ) ...[
+                                  if (i > 0) const SizedBox(width: 14),
+                                  _buildHomeServiceCard(
+                                    context,
+                                    _homeServices[i],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+          ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],
     );
   }
@@ -841,118 +802,6 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
   Widget _buildSearchSuggestionsList({
     required BuildContext context,
     required List<SearchSuggestion> suggestions,
-  Widget _buildWelcomeBanner() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 160),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.primaryBlue,
-              const Color(0xFF1E3A8A),
-              const Color(0xFF1D4ED8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Círculos decorativos abstractos
-            Positioned(
-              right: -50,
-              top: -20,
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.05),
-                ),
-              ),
-            ),
-            Positioned(
-              left: -30,
-              bottom: -40,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.08),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 40,
-              bottom: -20,
-              child: Icon(
-                Icons.bolt_rounded,
-                size: 100,
-                color: Colors.white.withOpacity(0.05),
-              ),
-            ),
-            // Contenido del banner
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'OFERTA ESPECIAL',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    '¡Encuentra ayuda profesional!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const SizedBox(
-                    width: 220,
-                    child: Text(
-                      'Busca entre cientos de expertos listos para ayudarte hoy mismo.',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSuggestionsList(
-    List<SearchSuggestion> suggestions, {
-    required String title,
   }) {
     if (suggestions.isEmpty) {
       return const Center(
@@ -981,31 +830,6 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
             color: AppColors.textDark,
             letterSpacing: -0.5,
           ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textDark,
-                letterSpacing: -0.5,
-              ),
-            ),
-            if (suggestions.length > 3)
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Ver todo',
-                  style: TextStyle(
-                    color: AppColors.primaryBlue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-          ],
         ),
         const SizedBox(height: 12),
         ListView.separated(
@@ -1078,27 +902,6 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[100],
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      item.type == ServiceType.category
-                                          ? 'Categoría'
-                                          : 'Servicio',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
                                   Text(
                                     item.subtitle,
                                     style: TextStyle(
@@ -1146,10 +949,7 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                 offset: const Offset(0, 8),
               ),
             ],
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.05),
-              width: 1,
-            ),
+            border: Border.all(color: Colors.grey.withOpacity(0.05), width: 1),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           child: Column(
@@ -1163,10 +963,7 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
                     height: 42,
                     child: FittedBox(
                       fit: BoxFit.contain,
-                      child: Icon(
-                        category.icon,
-                        color: AppColors.primaryBlue,
-                      ),
+                      child: Icon(category.icon, color: AppColors.primaryBlue),
                     ),
                   ),
                 ),
@@ -1193,6 +990,77 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Task #93 — Tarjeta para la fila horizontal de servicios.
+  Widget _buildHomeServiceCard(BuildContext context, SearchSuggestion service) {
+    final iconColor = _getIconColor(service.type);
+    return GestureDetector(
+      onTap: () {
+        final catId = service.categoryId;
+        if (catId != null) _navigateToQuotingFlow(context, catId);
+      },
+      child: Container(
+        width: 170,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          border: Border.all(color: Colors.grey.withOpacity(0.07), width: 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 66,
+              height: 66,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(_getIcon(service.type), color: iconColor, size: 34),
+            ),
+            const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                service.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13.5,
+                  color: AppColors.textDark,
+                  height: 1.3,
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                service.subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1295,15 +1163,14 @@ final categoriesProvider = Provider<List<ServiceCategory>>((ref) {
   ];
 });
 
-// Mock de sugerencias basadas en el texto de búsqueda
-final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
-  final query = ref.watch(searchQueryProvider).toLowerCase();
-  final selectedCategoryId = ref.watch(selectedCategoryProvider);
+// ── Fuente única de datos mock (Task #93) ─────────────────────────────────
+// Todos los servicios mock del sistema. Tanto la búsqueda como la sección
+// Recientes/Populares consumen esta misma lista — sin duplicar datos.
+// TODO (Backend): Eliminar este provider cuando exista un endpoint real.
+final allServicesProvider = Provider<List<SearchSuggestion>>((ref) {
   final categories = ref.watch(categoriesProvider);
   final categoryNameById = {for (final c in categories) c.id: c.name};
-
-  // Mocks con IDs de categoría vinculados
-  final allMocks = [
+  return [
     SearchSuggestion(
       id: 's1',
       title: 'Fuga de agua en cocina',
@@ -1338,20 +1205,16 @@ final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
       subtitle: 'Servicio de ${categoryNameById['2'] ?? 'Categoría'}',
       type: ServiceType.service,
       categoryId: '2',
-      id: 'c1',
-      title: 'Construcción de Interiores',
-      subtitle: 'Categoría',
-      type: ServiceType.category,
-      categoryId: '1',
-    ),
-    SearchSuggestion(
-      id: 'c2',
-      title: 'Planos y Documentos',
-      subtitle: 'Categoría',
-      type: ServiceType.category,
-      categoryId: '3',
     ),
   ];
+});
+
+// Mock de sugerencias basadas en el texto de búsqueda
+// Ahora delega los datos a allServicesProvider — sin duplicación.
+final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
+  final query = ref.watch(searchQueryProvider).toLowerCase();
+  final selectedCategoryId = ref.watch(selectedCategoryProvider);
+  final allMocks = ref.watch(allServicesProvider);
 
   // Aplicar filtros
   return allMocks.where((item) {
@@ -1367,6 +1230,22 @@ final searchSuggestionsProvider = Provider<List<SearchSuggestion>>((ref) {
 
     return matchesCategory && matchesQuery;
   }).toList();
+});
+
+// ── Task #93: Servicios RECIENTES ─────────────────────────────────────────
+// TODO (Backend): Reemplazar con GET /api/client/services/recent
+// Simulamos los 3 primeros servicios del mock como "usados recientemente".
+// Retorna [] para activar el fallback a popularServicesProvider.
+final recentServicesProvider = Provider<List<SearchSuggestion>>((ref) {
+  return ref
+      .watch(allServicesProvider).take(0).toList(); //take (0) para que no muestre nada, automaticamente se mostrará el fallback de popularServicesProvider
+});
+
+// ── Task #93: Servicios POPULARES (fallback) ──────────────────────────────
+// TODO (Backend): Reemplazar con GET /api/client/services/popular
+// Se usa cuando recentServicesProvider retorna una lista vacía.
+final popularServicesProvider = Provider<List<SearchSuggestion>>((ref) {
+  return ref.watch(allServicesProvider).take(3).toList();
 });
 
 class _QuotesTab extends StatelessWidget {

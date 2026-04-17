@@ -31,15 +31,9 @@ class MockAuthRepository implements AuthRepository {
     else if (email == 'admin@correo.com' && password == '12345678') {
       return {
         'token': 'mock_token_admin_999',
-        'role': 'admin',
+        'role': 'proveedor',
         'status': 'aceptado',
       };
-    } else if (email == 'cliente@correo.com' && password == '12345678') {
-      return {
-        'token': 'mock_token_cliente_456',
-        'role': 'cliente',
-        'status': 'aceptado',
-      }; // Cuenta de prueba para el cliente
     } else if (email == 'espera@correo.com') {
       return {
         'token': 'mock_token_espera_777',

@@ -35,6 +35,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
   /// Controla la visibilidad (ofuscación) del campo de contraseña.
   bool _isPasswordVisible = false;
+  AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
   @override
   void dispose() {
@@ -50,7 +51,12 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
     // Oculta el teclado nativo para despejar la pantalla
     FocusScope.of(context).unfocus();
 
-    if (_formKey.currentState!.validate()) {
+    final isValidForm = _formKey.currentState!.validate();
+
+    if (!isValidForm) {
+      setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
+      return;
+    } else {
       try {
         // Dispara la mutación del estado en Riverpod (Activa el loader y llama al API)
         await ref
@@ -84,7 +90,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Form(
             key: _formKey,
-            autovalidateMode: AutovalidateMode.disabled,
+            autovalidateMode: _autoValidateMode,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

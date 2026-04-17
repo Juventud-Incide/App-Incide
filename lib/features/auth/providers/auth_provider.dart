@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:app_incide/core/constants/app_keys.dart';
 
 // ==========================================
 // 1. EL ESTADO INMUTABLE (La Memoria)
@@ -114,9 +115,9 @@ class AuthController extends Notifier<AuthState> {
   Future<void> initialize() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-      final role = prefs.getString('user_role');
-      final status = prefs.getString('profile_status') ?? 'pendiente';
+      final token = prefs.getString(AppKeys.token);
+      final role = prefs.getString(AppKeys.role);
+      final status = prefs.getString(AppKeys.profileStatus) ?? 'pendiente';
 
       if (token != null && token.isNotEmpty) {
         final PermissionStatus locationStatus =
@@ -151,9 +152,9 @@ class AuthController extends Notifier<AuthState> {
       // --- INTEGRACIÓN LOCAL SHAREDPREFERENCES ---
       final token = 'dummy_token_${DateTime.now().millisecondsSinceEpoch}';
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('jwt_token', token);
-      await prefs.setString('user_role', role);
-      await prefs.setString('profile_status', resultStatus);
+      await prefs.setString(AppKeys.token, token);
+      await prefs.setString(AppKeys.role, role);
+      await prefs.setString(AppKeys.profileStatus, resultStatus);
 
       // Actualizamos el estado de memoria global (Riverpod)
       state = state.copyWith(
@@ -172,9 +173,9 @@ class AuthController extends Notifier<AuthState> {
   Future<void> logout() async {
     // 1. Limpiamos disco (SharedPreferences)
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
-    await prefs.remove('user_role');
-    await prefs.remove('profile_status');
+    await prefs.remove(AppKeys.token);
+    await prefs.remove(AppKeys.role);
+    await prefs.remove(AppKeys.profileStatus);
 
     // 2. Limpiamos RAM (Riverpod). Resetea todo a falso y nulo, pateándolo al login
     state = AuthState();

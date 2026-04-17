@@ -132,13 +132,14 @@ namespace backend.Data.DataDB
             var requests = new List<ServiceRequest>();
 
             // 5 solicitudes de "Reparación de tuberías" → más popular
+            // Status = Completed: solo sirven para contar popularidad, no deben aparecer en el mapa
             for (int i = 0; i < 5; i++)
                 requests.Add(new ServiceRequest
                 {
                     ServiceItemId = svcTuberias.Id, ClientId = client.Id,
                     Lat = 19.4310m + i * 0.001m, Lng = -99.1340m + i * 0.001m,
                     Location = DefaultLocation(19.4310m + i * 0.001m, -99.1340m + i * 0.001m),
-                    Type = CotizacionType.Public, Status = CotizacionRequestStatus.Active,
+                    Type = CotizacionType.Public, Status = CotizacionRequestStatus.Completed,
                     IsActive = true, CreationDate = now.AddDays(-i), LastUpdate = now
                 });
 
@@ -149,7 +150,7 @@ namespace backend.Data.DataDB
                     ServiceItemId = svcElectrica.Id, ClientId = client.Id,
                     Lat = 19.4350m + i * 0.001m, Lng = -99.1300m + i * 0.001m,
                     Location = DefaultLocation(19.4350m + i * 0.001m, -99.1300m + i * 0.001m),
-                    Type = CotizacionType.Public, Status = CotizacionRequestStatus.Active,
+                    Type = CotizacionType.Public, Status = CotizacionRequestStatus.Completed,
                     IsActive = true, CreationDate = now.AddDays(-i - 1), LastUpdate = now
                 });
 
@@ -159,7 +160,7 @@ namespace backend.Data.DataDB
                 ServiceItemId = svcLimpieza.Id, ClientId = client.Id,
                 Lat = 19.4290m, Lng = -99.1360m,
                 Location = DefaultLocation(19.4290m, -99.1360m),
-                Type = CotizacionType.Public, Status = CotizacionRequestStatus.Active,
+                Type = CotizacionType.Public, Status = CotizacionRequestStatus.Completed,
                 IsActive = true, CreationDate = now, LastUpdate = now
             });
 

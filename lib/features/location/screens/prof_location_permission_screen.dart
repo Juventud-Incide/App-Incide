@@ -122,108 +122,118 @@ class _ProfLocationPermissionScreenState
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 40.0,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                // --- 1. ILUSTRACIÓN / ÍCONO ---
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withValues(alpha: 0.06),
-                    shape: BoxShape.circle,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 40.0,
                   ),
-                  child: const Icon(
-                    Icons.location_on_rounded,
-                    color: AppColors.primaryBlue,
-                    size: 60,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // --- 2. TEXTOS PERSUASIVOS ---
-                const Text(
-                  AppStrings.locationTitle,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
-                    letterSpacing: 0.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  AppStrings.locationSubtitle,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textGray,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const Spacer(),
-
-                // --- 3. BOTONES DE ACCIÓN ---
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: _requestPermission,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryBlue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Spacer(),
+                      // --- 1. ILUSTRACIÓN / ÍCONO ---
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue.withValues(alpha: 0.06),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.location_on_rounded,
+                          color: AppColors.primaryBlue,
+                          size: 60,
+                        ),
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      AppStrings.allowLocationBtn,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                      const SizedBox(height: 40),
 
-                // Plan B: Si el usuario es terco y rechaza el primer intento
-                TextButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text(AppStrings.locationDeniedTitle),
-                        content: const Text(AppStrings.locationDeniedSubtitle),
-                        actions: [
-                          TextButton(
-                            onPressed: () => context.pop(),
-                            child: const Text(AppStrings.understandBtn),
+                      // --- 2. TEXTOS PERSUASIVOS ---
+                      const Text(
+                        AppStrings.locationTitle,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textDark,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        AppStrings.locationSubtitle,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.textGray,
+                          height: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const Spacer(),
+
+                      // --- 3. BOTONES DE ACCIÓN ---
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: ElevatedButton(
+                          onPressed: _requestPermission,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBlue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
                           ),
-                        ],
+                          child: const Text(
+                            AppStrings.allowLocationBtn,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                  child: const Text(
-                    AppStrings.locationWhyRequired,
-                    style: TextStyle(
-                      color: AppColors.textGray,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
+                      const SizedBox(height: 16),
+
+                      // Plan B: Si el usuario es terco y rechaza el primer intento
+                      TextButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text(AppStrings.locationDeniedTitle),
+                              content: const Text(
+                                AppStrings.locationDeniedSubtitle,
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => context.pop(),
+                                  child: const Text(AppStrings.understandBtn),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          AppStrings.locationWhyRequired,
+                          style: TextStyle(
+                            color: AppColors.textGray,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

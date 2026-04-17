@@ -1,7 +1,7 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 /// Enumeración que representa la Máquina de Estados del proceso de admisión.
 ///
@@ -69,10 +69,12 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 20.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 14,
             height: 14,
+            margin: const EdgeInsets.only(top: 3),
             decoration: BoxDecoration(
               color: dotColor,
               shape: BoxShape.circle,
@@ -86,17 +88,20 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
             ),
           ),
           const SizedBox(width: 15),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              // Engrosa la fuente si el paso ya pasó o está activo
-              fontWeight: isActive || isCompleted
-                  ? FontWeight.w700
-                  : FontWeight.w500,
-              color: isActive || isCompleted
-                  ? AppColors.textDark
-                  : AppColors.textGray,
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                // Engrosa la fuente si el paso ya pasó o está activo
+                fontWeight: isActive || isCompleted
+                    ? FontWeight.w700
+                    : FontWeight.w500,
+                color: isActive || isCompleted
+                    ? AppColors.textDark
+                    : AppColors.textGray,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -109,213 +114,218 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 30.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(flex: 1),
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 30.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Spacer(flex: 1),
 
-              // --- 1. ICONO CENTRAL DINÁMICO ---
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  color: _currentStatus == ApplicationStatus.pendingReview
-                      ? Colors.amber.withValues(alpha: 0.1)
-                      : AppColors.primaryBlue.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  _currentStatus == ApplicationStatus.pendingReview
-                      ? Icons
-                            .access_time_rounded // Reloj para revisión
-                      : Icons
-                            .calendar_month_rounded, // Calendario para cita programada
-                  size: 45,
-                  color: _currentStatus == ApplicationStatus.pendingReview
-                      ? Colors.amber
-                      : AppColors.primaryBlue,
-                ),
-              ),
-              const SizedBox(height: 25),
-
-              // --- 2. TÍTULO Y DESCRIPCIÓN ---
-              Text(
-                _currentStatus == ApplicationStatus.pendingReview
-                    ? AppStrings.underReviewTitle
-                    : _currentStatus == ApplicationStatus.interviewScheduled
-                    ? AppStrings.interviewScheduledTitle
-                    : AppStrings.documentValidationTitle,
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                _currentStatus == ApplicationStatus.pendingReview
-                    ? AppStrings.underReviewSubtitle1
-                    : _currentStatus == ApplicationStatus.interviewScheduled
-                    ? AppStrings.interviewScheduledSubtitle1
-                    : AppStrings.documentValidationSubtitle1,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: AppColors.textGray,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // --- 3. TARJETA DE CITA (Solo visible si hay cita) ---
-              // Solo se inyecta en el árbol de widgets si existe una cita programada
-              if (_currentStatus == ApplicationStatus.interviewScheduled)
-                Container(
-                  margin: const EdgeInsets.only(bottom: 30),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                    // --- 1. ICONO CENTRAL DINÁMICO ---
+                    Container(
+                      width: 90,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        color: _currentStatus == ApplicationStatus.pendingReview
+                            ? Colors.amber.withValues(alpha: 0.1)
+                            : AppColors.primaryBlue.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _currentStatus == ApplicationStatus.pendingReview
+                            ? Icons
+                                  .access_time_rounded // Reloj para revisión
+                            : Icons
+                                  .calendar_month_rounded, // Calendario para cita programada
+                        size: 45,
+                        color: _currentStatus == ApplicationStatus.pendingReview
+                            ? Colors.amber
+                            : AppColors.primaryBlue,
+                      ),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                    const SizedBox(height: 25),
+
+                    // --- 2. TÍTULO Y DESCRIPCIÓN ---
+                    Text(
+                      _currentStatus == ApplicationStatus.pendingReview
+                          ? AppStrings.underReviewTitle
+                          : _currentStatus ==
+                                ApplicationStatus.interviewScheduled
+                          ? AppStrings.interviewScheduledTitle
+                          : AppStrings.documentValidationTitle,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textDark,
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      _currentStatus == ApplicationStatus.pendingReview
+                          ? AppStrings.underReviewSubtitle1
+                          : _currentStatus ==
+                                ApplicationStatus.interviewScheduled
+                          ? AppStrings.interviewScheduledSubtitle1
+                          : AppStrings.documentValidationSubtitle1,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: AppColors.textGray,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+
+                    // --- 3. TARJETA DE CITA (Solo visible si hay cita) ---
+                    // Solo se inyecta en el árbol de widgets si existe una cita programada
+                    if (_currentStatus == ApplicationStatus.interviewScheduled)
                       Container(
-                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.only(bottom: 30),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryBlue.withValues(
+                                alpha: 0.05,
+                              ),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        child: const Icon(
-                          Icons.notifications_active_rounded,
-                          color: AppColors.primaryBlue,
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              _interviewDate,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textDark,
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryBlue.withValues(
+                                  alpha: 0.1,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.notifications_active_rounded,
+                                color: AppColors.primaryBlue,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _interviewLocation,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textGray,
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _interviewDate,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _interviewLocation,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textGray,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
 
-              // --- 4. TIMELINE DINÁMICO ---
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(25.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4F5F7),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Paso 1: Envio inicial (Siempre completado si llegó aquí)
-                    _buildTimelineStep(
-                      title: AppStrings.sentTimelineStep,
-                      isCompleted: true,
-                      isActive: false,
+                    // --- 4. TIMELINE DINÁMICO ---
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(25.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF4F5F7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Paso 1: Envio inicial (Siempre completado si llegó aquí)
+                          _buildTimelineStep(
+                            title: AppStrings.sentTimelineStep,
+                            isCompleted: true,
+                            isActive: false,
+                          ),
+
+                          // Paso 2: Revisión de datos
+                          _buildTimelineStep(
+                            title: AppStrings.reviewTimelineStep,
+                            isCompleted:
+                                _currentStatus !=
+                                ApplicationStatus.pendingReview,
+                            isActive:
+                                _currentStatus ==
+                                ApplicationStatus.pendingReview,
+                          ),
+
+                          // Paso 3: Entrevista Presencial/Virtual
+                          _buildTimelineStep(
+                            title: AppStrings.interviewTimelineStep,
+                            isCompleted:
+                                _currentStatus ==
+                                    ApplicationStatus.validatingDocs ||
+                                _currentStatus == ApplicationStatus.activated,
+                            isActive:
+                                _currentStatus ==
+                                ApplicationStatus.interviewScheduled,
+                          ),
+
+                          // Paso 4: Carga y validación de documentos oficiales
+                          _buildTimelineStep(
+                            title: AppStrings.reviewDocsTimelineStep,
+                            isCompleted:
+                                _currentStatus == ApplicationStatus.activated,
+                            isActive:
+                                _currentStatus ==
+                                ApplicationStatus.validatingDocs,
+                          ),
+
+                          // Paso 5: Activación final
+                          _buildTimelineStep(
+                            title: AppStrings.activatedTimelineStep,
+                            isCompleted:
+                                _currentStatus == ApplicationStatus.activated,
+                            isActive: false,
+                            isLast: true,
+                          ),
+                        ],
+                      ),
                     ),
 
-                    // Paso 2: Revisión de datos
-                    _buildTimelineStep(
-                      title: AppStrings.reviewTimelineStep,
-                      isCompleted:
-                          _currentStatus != ApplicationStatus.pendingReview,
-                      isActive:
-                          _currentStatus == ApplicationStatus.pendingReview,
-                    ),
+                    const Spacer(flex: 2),
 
-                    // Paso 3: Entrevista Presencial/Virtual
-                    _buildTimelineStep(
-                      title: AppStrings.interviewTimelineStep,
-                      isCompleted:
-                          _currentStatus == ApplicationStatus.validatingDocs ||
-                          _currentStatus == ApplicationStatus.activated,
-                      isActive:
-                          _currentStatus ==
-                          ApplicationStatus.interviewScheduled,
+                    // --- 5. BOTÓN CERRAR SESIÓN ---
+                    CustomLogoutButton(
+                      text: AppStrings.logoutBtn,
+                      variant: LogoutButtonVariant.destructiveOutlined,
                     ),
-
-                    // Paso 4: Carga y validación de documentos oficiales
-                    _buildTimelineStep(
-                      title: AppStrings.reviewDocsTimelineStep,
-                      isCompleted:
-                          _currentStatus == ApplicationStatus.activated,
-                      isActive:
-                          _currentStatus == ApplicationStatus.validatingDocs,
-                    ),
-
-                    // Paso 5: Activación final
-                    _buildTimelineStep(
-                      title: AppStrings.activatedTimelineStep,
-                      isCompleted:
-                          _currentStatus == ApplicationStatus.activated,
-                      isActive: false,
-                      isLast: true,
-                    ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),
-
-              const Spacer(flex: 2),
-
-              // --- 5. BOTÓN CERRAR SESIÓN ---
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: OutlinedButton(
-                  onPressed: () {
-                    // TODO: (BACKEND) - Invocar authController.logout() antes de salir
-                    context.goNamed('splash');
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    AppStrings.logoutBtn,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

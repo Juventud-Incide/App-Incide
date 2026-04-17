@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
@@ -89,21 +90,11 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
               style: TextStyle(color: AppColors.textGray),
             ),
             actions: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBlue,
-                  ),
-                  onPressed: () {
-                    context.pop(); // Cierra el diálogo
-                    context.goNamed('splash'); // Redirige al inicio absoluto
-                  },
-                  child: const Text(
-                    AppStrings.goToLoginBtn,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
+              CustomLogoutButton(
+                text: AppStrings.goToLoginBtn,
+                variant: LogoutButtonVariant.elevated,
+                isInsideDialog: true,
+                routeAfterLogout: '/prof-login',
               ),
             ],
           ),
@@ -221,7 +212,6 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
                 // --- 5. BOTÓN ACTUALIZAR ---
                 SizedBox(
                   width: double.infinity,
-                  height: 55,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _updatePassword,
                     style: ElevatedButton.styleFrom(
@@ -243,10 +233,12 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
                           )
                         : const Text(
                             AppStrings.updatePasswordBtn,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
+                              height: 1.4,
                             ),
                           ),
                   ),

@@ -118,11 +118,11 @@ class OpportunityCard extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // Botones de Acción
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 48,
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
                             child: TextButton(
                               onPressed: onDiscard,
                               style: TextButton.styleFrom(
@@ -130,39 +130,51 @@ class OpportunityCard extends StatelessWidget {
                                   alpha: 0.1,
                                 ),
                                 foregroundColor: AppColors.textDark,
+                                minimumSize: const Size(0, 48),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                               child: const Text(
                                 AppStrings.discardBtn,
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: SizedBox(
-                            height: 48,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            // 💡 Tip de limpieza: Eliminé el SizedBox vacío que había quedado aquí
                             child: ElevatedButton(
                               onPressed: onInterested,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                                 foregroundColor: Colors.white,
                                 elevation: 0,
+                                minimumSize: const Size(0, 48),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 8,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                               child: const Text(
                                 AppStrings.interestedBtn,
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.2,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

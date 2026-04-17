@@ -174,7 +174,16 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                   hintText: AppStrings.specialtyHint,
                   value: _selectedSpecialty,
                   items: _specialties
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(
+                            e,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      )
                       .toList(),
                   onChanged: (newValue) =>
                       setState(() => _selectedSpecialty = newValue),

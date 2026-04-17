@@ -91,7 +91,7 @@ class AppStrings {
   static const String docCedulaSubtitle =
       'Documento oficial de tu oficio/profesión.';
   static const String docAntecedentes = 'Carta de No Antecedentes';
-  static const String docAntecedentesShort = 'Antecedentes Penales';
+  static const String docAntecedentesShort = 'Carta';
   static const String docAntecedentesSubtitle =
       'Documento expedido por el Estado.';
   static const String docFoto = 'Fotografía de Perfil';

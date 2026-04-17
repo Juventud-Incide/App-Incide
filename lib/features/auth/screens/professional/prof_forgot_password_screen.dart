@@ -147,7 +147,6 @@ class _ProfForgotPasswordScreenState extends State<ProfForgotPasswordScreen> {
                 // --- 4. BOTÓN DE ENVIAR ---
                 SizedBox(
                   width: double.infinity,
-                  height: 55,
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submitEmail,
                     style: ElevatedButton.styleFrom(
@@ -169,10 +168,12 @@ class _ProfForgotPasswordScreenState extends State<ProfForgotPasswordScreen> {
                           )
                         : const Text(
                             AppStrings.sendLinkBtn,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
+                              height: 1.4,
                             ),
                           ),
                   ),

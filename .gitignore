@@ -33,6 +33,7 @@ Thumbs.db
 .env.dev
 .env.prod
 .env.*
+!.env.example
 *.key
 *.pem
 

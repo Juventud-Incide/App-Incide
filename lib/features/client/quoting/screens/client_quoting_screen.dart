@@ -9,9 +9,7 @@ class ClientQuotingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Cotizaciones'),
-      ),
+      appBar: AppBar(title: const Text('Cotizaciones')),
       body: Center(
         child: Text(
           'fljuo de Cotizacionesen proceso',

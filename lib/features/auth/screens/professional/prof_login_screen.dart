@@ -264,11 +264,9 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 4.0,
                   children: [
-                    Expanded(
-                      child: const Text(
-                        AppStrings.notRegistered,
-                        style: TextStyle(color: Color(0xFF4B5563)),
-                      ),
+                    const Text(
+                      AppStrings.notRegistered,
+                      style: TextStyle(color: Color(0xFF4B5563)),
                     ),
                     GestureDetector(
                       onTap: () {

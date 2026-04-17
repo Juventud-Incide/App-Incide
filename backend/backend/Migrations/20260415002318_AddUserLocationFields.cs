@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 
@@ -7,7 +7,7 @@ using NetTopologySuite.Geometries;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class UserLocationFields : Migration
+    public partial class AddUserLocationFields : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,13 +15,13 @@ namespace backend.Migrations
             migrationBuilder.AddColumn<decimal>(
                 name: "LastLat",
                 table: "Users",
-                type: "numeric(9,6)",
+                type: "decimal(9,6)",
                 nullable: true);
 
             migrationBuilder.AddColumn<decimal>(
                 name: "LastLng",
                 table: "Users",
-                type: "numeric(9,6)",
+                type: "decimal(9,6)",
                 nullable: true);
 
             migrationBuilder.AddColumn<Point>(
@@ -50,21 +50,10 @@ namespace backend.Migrations
                 name: "IX_Users_Location",
                 table: "Users");
 
-            migrationBuilder.DropColumn(
-                name: "LastLat",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "LastLng",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "Location",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "LocationUpdatedAt",
-                table: "Users");
+            migrationBuilder.DropColumn(name: "LastLat",            table: "Users");
+            migrationBuilder.DropColumn(name: "LastLng",            table: "Users");
+            migrationBuilder.DropColumn(name: "Location",           table: "Users");
+            migrationBuilder.DropColumn(name: "LocationUpdatedAt",  table: "Users");
         }
     }
 }

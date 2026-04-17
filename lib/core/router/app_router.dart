@@ -32,6 +32,7 @@ import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 import '../../features/auth/cliente_verif_correo.dart';
 import '../../features/client/home/screens/client_home_screen.dart';
+import '../../features/client/quoting/screens/client_quoting_screen.dart';
 import '../../features/auth/forgot_password_screen.dart';
 import '../../features/auth/forgot_password_sent_screen.dart';
 import '../../features/auth/reset_password_screen.dart';
@@ -392,6 +393,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/home-cliente',
         name: 'home-cliente',
         builder: (context, state) => const ClientHomeScreen(),
+      ),
+      GoRoute(
+        path: '/cliente/cotizar/:categoryId',
+        name: 'cliente-cotizar',
+        builder: (context, state) {
+          final categoryId = state.pathParameters['categoryId'] ?? '';
+          return ClientQuotingScreen(categoryId: categoryId);
+        },
       ),
 
       // ------------------------------------

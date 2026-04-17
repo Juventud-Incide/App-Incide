@@ -1,3 +1,6 @@
+import 'package:app_incide/core/network/api_client.dart';
+import 'package:app_incide/features/auth/domain/repositories/auth_repository.dart';
+import 'package:app_incide/features/auth/domain/repositories/network_auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -53,17 +56,31 @@ class AuthState {
 // ==========================================
 // 2. EL REPOSITORIO (Simulador de Backend)
 // ==========================================
-final authRepositoryProvider = Provider((ref) => MockAuthRepository());
+// 1. Un simple booleano para controlar el modo de desarrollo
+// Cambia esto a 'false' cuando el backend de C# esté listo para probar
+final useMocksProvider = Provider<bool>((ref) => true);
+// 2. El proveedor del repositorio que consumirá el resto de la app
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final useMocks = ref.watch(useMocksProvider);
+
+  if (useMocks) {
+    // Aquí devuelves tu MockAuthRepository actual que ya tenías
+    return MockAuthRepository();
+  } else {
+    // Inyectamos el ApiClient único (Singleton) que configuramos con Dio
+    return NetworkAuthRepository(ApiClient().dio);
+  }
+});
 
 /// Capa de acceso a datos para la autenticación (Patrón Repositorio).
 ///
 /// Aísla la lógica de red (API/Firebase) del manejador de estado.
 /// Actualmente utiliza datos en duro para simular respuestas del servidor
 /// y permitir el desarrollo Frontend sin bloqueos.
-class MockAuthRepository {
+class MockAuthRepository implements AuthRepository {
   // Ahora pedimos el rol intentado para simular la separación de apps
   /// Ejecuta la petición HTTP de inicio de sesión.
-  Future<String> login(
+  Future<Map<String, dynamic>> login(
     String email,
     String password,
     String requestedRole,
@@ -75,17 +92,37 @@ class MockAuthRepository {
 
     // --- CREDENCIAL EXCLUSIVA PARA CLIENTES ---
     if (email == 'cliente@correo.com' && password == 'cliente123') {
-      return 'aceptado';
+      return {
+        'token': 'mock_token_cliente_123',
+        'role': 'cliente',
+        'status': 'aceptado',
+      };
     }
     // --- CREDENCIALES GENERALES / PROFESIONISTAS ---
     else if (email == 'admin@correo.com' && password == '12345678') {
-      return 'aceptado';
+      return {
+        'token': 'mock_token_admin_999',
+        'role': 'admin',
+        'status': 'aceptado',
+      };
     } else if (email == 'cliente@correo.com' && password == '12345678') {
-      return 'aceptado'; // Cuenta de prueba para el cliente
+      return {
+        'token': 'mock_token_cliente_456',
+        'role': 'cliente',
+        'status': 'aceptado',
+      }; // Cuenta de prueba para el cliente
     } else if (email == 'espera@correo.com') {
-      return 'pendiente';
+      return {
+        'token': 'mock_token_espera_777',
+        'role': requestedRole,
+        'status': 'pendiente',
+      };
     } else if (email == 'rechazado@correo.com') {
-      return 'rechazado';
+      return {
+        'token': 'mock_token_rechazado_000',
+        'role': requestedRole,
+        'status': 'rechazado',
+      };
     } else {
       throw Exception('Correo o contraseña incorrectos');
     }
@@ -154,14 +191,14 @@ class AuthController extends Notifier<AuthState> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppKeys.token, token);
       await prefs.setString(AppKeys.role, role);
-      await prefs.setString(AppKeys.profileStatus, resultStatus);
+      await prefs.setString(AppKeys.profileStatus, resultStatus['status']);
 
       // Actualizamos el estado de memoria global (Riverpod)
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
         role: role,
-        profileStatus: resultStatus,
+        profileStatus: resultStatus['status'],
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);

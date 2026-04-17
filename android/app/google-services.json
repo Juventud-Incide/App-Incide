@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "826232849548",
+    "project_id": "incide-networking-cluster",
+    "storage_bucket": "incide-networking-cluster.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826232849548:android:dd69c7efbf58a462af67a9",
+        "android_client_info": {
+          "package_name": "org.incide.app_incide"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4iPMVqlWKwkaCY3DAxk5BP4QEMb0cInk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

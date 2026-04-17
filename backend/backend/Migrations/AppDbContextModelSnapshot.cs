@@ -24,6 +24,39 @@ namespace backend.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("backend.Data.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("backend.Data.Entities.Client", b =>
                 {
                     b.Property<int>("Id")
@@ -154,6 +187,21 @@ namespace backend.Migrations
                     b.ToTable("Providers");
                 });
 
+            modelBuilder.Entity("backend.Data.Entities.ProviderCategory", b =>
+                {
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProviderId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ProviderCategories");
+                });
+
             modelBuilder.Entity("backend.Data.Entities.RevokedToken", b =>
                 {
                     b.Property<int>("Id")
@@ -191,6 +239,86 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("RevokedTokens");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.ServiceItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ServiceItems");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.ServiceRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ServiceItemId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CreationDate");
+
+                    b.HasIndex("ServiceItemId");
+
+                    b.ToTable("ServiceRequests");
                 });
 
             modelBuilder.Entity("backend.Data.Entities.User", b =>
@@ -299,6 +427,72 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.ProviderCategory", b =>
+                {
+                    b.HasOne("backend.Data.Entities.Category", "Category")
+                        .WithMany("Providers")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Data.Entities.Provider", "Provider")
+                        .WithMany("Categories")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Provider");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.ServiceItem", b =>
+                {
+                    b.HasOne("backend.Data.Entities.Category", "Category")
+                        .WithMany("Services")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.ServiceRequest", b =>
+                {
+                    b.HasOne("backend.Data.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend.Data.Entities.ServiceItem", "ServiceItem")
+                        .WithMany("Requests")
+                        .HasForeignKey("ServiceItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("ServiceItem");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.Category", b =>
+                {
+                    b.Navigation("Providers");
+
+                    b.Navigation("Services");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.Provider", b =>
+                {
+                    b.Navigation("Categories");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.ServiceItem", b =>
+                {
+                    b.Navigation("Requests");
                 });
 
             modelBuilder.Entity("backend.Data.Entities.User", b =>

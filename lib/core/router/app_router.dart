@@ -1,4 +1,5 @@
 import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
+import 'package:app_incide/features/provider/quotes/screens/prof_quotes_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,11 +29,14 @@ import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
 import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart';
 import '../../features/provider/dashboard/models/opportunity_model.dart';
+import '../../features/provider/quotes/models/quote_model.dart';
+import '../../features/provider/quotes/screens/quote_detail_screen.dart';
 
 import '../../features/auth/client_login_screen.dart';
 import '../../features/auth/cliente_register_screen.dart';
 import '../../features/auth/cliente_verif_correo.dart';
 import '../../features/client/home/screens/client_home_screen.dart';
+import '../../features/client/quoting/screens/client_quoting_screen.dart';
 import '../../features/auth/forgot_password_screen.dart';
 import '../../features/auth/forgot_password_sent_screen.dart';
 import '../../features/auth/reset_password_screen.dart';
@@ -107,12 +111,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/prof-register',
         '/prof-forgot-password',
         '/prof-forgot-password-sent',
+        /*'/prof-otp',
+        '/prof-experience',
+        '/prof-review-status',
+        '/prof-success',
+        '/prof-approved',
+        '/prof-upload-docs',
+        '/prof-docs-success',
+        '/prof-rejected',
+        '/prof-docs-revision',*/
         '/login-cliente',
         '/registro-cliente',
         '/verif-correo-cliente',
         '/forgot-password',
         '/forgot-password-sent',
         '/reset-password',
+        /*'/client-location-permission',*/
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
@@ -246,7 +260,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final Map<String, dynamic> formData =
               state.extra as Map<String, dynamic>? ?? {};
-          // Se lo damos a la pantalla final
           return ProfExperienceScreen(formData: formData);
         },
       ),
@@ -349,11 +362,19 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/prof-quotes',
                 name: 'prof_quotes',
-                builder: (context, state) => const Scaffold(
-                  body: Center(
-                    child: Text('Pantalla de Cotizaciones en construcción'),
+                builder: (context, state) => const ProfQuotesScreen(),
+                routes: [
+                  // <-- Rutas hijas de Cotizaciones
+                  GoRoute(
+                    path: 'detail', // La URL será /prof-quotes/detail
+                    name: 'quote_detail',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      final quote = state.extra as QuoteModel;
+                      return QuoteDetailScreen(quote: quote);
+                    },
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -430,6 +451,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/home-cliente',
         name: 'home-cliente',
         builder: (context, state) => const ClientHomeScreen(),
+      ),
+      GoRoute(
+        path: '/cliente/cotizar/:categoryId',
+        name: 'cliente-cotizar',
+        builder: (context, state) {
+          final categoryId = state.pathParameters['categoryId'] ?? '';
+          return ClientQuotingScreen(categoryId: categoryId);
+        },
       ),
 
       // ------------------------------------

@@ -250,13 +250,14 @@ class AppStrings {
   static const String sendProposalBtn = 'Enviar Propuesta';
   static const String opportunityDiscarded = 'Oportunidad descartada';
   static const String undoDiscard = 'Deshacer';
+  static const String invalidPriceError = 'Por favor, ingresa un precio válido';
 
   // --- Pantalla de Detalle de Oportunidad ---
   static const String detailTitle = 'Detalle de la Solicitud';
   static const String clientAnswers = 'Especificaciones del Cliente';
   static const String estimatedPrice = 'Presupuesto Estimado';
   static const String systemCalculated = 'Calculado por el sistema';
-  static const String attachedPhotos = 'Fotos adjuntas';
+  static const String attachedPhotos = 'Fotos Adjuntas';
   static const String descriptionTitle = 'Descripción';
   // --- Pantalla de Recuperación de Contraseña ---
   static const String forgotPassTitle = 'RECUPERAR CUENTA';
@@ -265,6 +266,35 @@ class AppStrings {
   static const String sendLinkBtn = 'Enviar Enlace';
   static const String emailNotFound =
       'No encontramos una cuenta con este correo.';
+
+  // --- Pantalla de Cotizaciones ---
+  static const String quoteAcceptedTitle = 'ACEPTADA / EN PROGRESO';
+  static const String quotePendingTitle = 'EN ESPERA';
+  static const String quotePriceNotDefined = 'Por definir';
+  static const String quoteOpenChatBtn = 'Abrir Chat';
+  static const String quoteRemoveBtn = 'Retirar Propuesta';
+  static const String quoteCompletedTitle = 'COMPLETADA';
+  static const String quoteRejectedTitle = 'RECHAZADA';
+  static const String quoteCancelledTitle = 'CANCELADA';
+  static const String quoteSentTitle =
+      'Enviaste tu propuesta recientemente. Esperando respuesta del cliente.';
+  static const String quoteExclusiveBadge = 'EXCLUSIVA';
+
+  static const String quoteTitle = 'Mis Cotizaciones';
+  static const String quoteNoQuotes = 'No tienes cotizaciones en esta sección.';
+  static const String quoteAlertTitle = '¿Retirar Propuesta?';
+  static const String quoteAlertContent =
+      'Esta acción cancelará tu postulación y no podrá deshacerse.';
+  static const String quoteCancelLbl = 'Cancelar';
+  static const String quoteRetiredLbl = 'Propuesta retirada con éxito';
+  static const String quoteRetireLbl = 'Sí, retirar';
+
+  static const String quoteDetailTitle = 'Detalles del Trabajo';
+  static const String quoteDescription = 'Descripción del Problema';
+  static const String quoteClientSpecs = 'Especificaciones del Cliente';
+  static const String quoteDetailClientTitle = 'Información del Cliente';
+  static const String quoteDetailClientNameProtected = 'Nombre protegido';
+  static const String quoteDetailClientProtected = 'Número protegido';
 
   // --- Pantalla de Envío de Enlace de Recuperación ---
   static const String linkSentTitle = '¡Enlace enviado!';

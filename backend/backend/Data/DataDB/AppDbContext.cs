@@ -8,11 +8,15 @@ namespace backend.Data.DataDB
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users => Set<User>();
-        public DbSet<Client> Clients => Set<Client>();
-        public DbSet<Provider> Providers => Set<Provider>();
-        public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
-        public DbSet<Document> Documents => Set<Document>();
+        public DbSet<User>             Users              => Set<User>();
+        public DbSet<Client>           Clients            => Set<Client>();
+        public DbSet<Provider>         Providers          => Set<Provider>();
+        public DbSet<RevokedToken>     RevokedTokens      => Set<RevokedToken>();
+        public DbSet<Document>         Documents          => Set<Document>();
+        public DbSet<Category>         Categories         => Set<Category>();
+        public DbSet<ServiceItem>      ServiceItems       => Set<ServiceItem>();
+        public DbSet<ProviderCategory> ProviderCategories => Set<ProviderCategory>();
+        public DbSet<ServiceRequest>   ServiceRequests    => Set<ServiceRequest>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -74,6 +78,46 @@ namespace backend.Data.DataDB
                 e.HasIndex(d => new { d.ProviderId, d.DocumentType })
                  .IsUnique()
                  .HasFilter("\"IsDeleted\" = false");
+            });
+
+            // ProviderCategory (join table, composite PK)
+            modelBuilder.Entity<ProviderCategory>(e =>
+            {
+                e.HasKey(pc => new { pc.ProviderId, pc.CategoryId });
+                e.HasOne(pc => pc.Provider)
+                 .WithMany(p => p.Categories)
+                 .HasForeignKey(pc => pc.ProviderId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(pc => pc.Category)
+                 .WithMany(c => c.Providers)
+                 .HasForeignKey(pc => pc.CategoryId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ServiceItem → Category
+            modelBuilder.Entity<ServiceItem>(e =>
+            {
+                e.HasKey(s => s.Id);
+                e.Property(s => s.Name).IsRequired().HasMaxLength(150);
+                e.HasOne(s => s.Category)
+                 .WithMany(c => c.Services)
+                 .HasForeignKey(s => s.CategoryId)
+                 .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ServiceRequest
+            modelBuilder.Entity<ServiceRequest>(e =>
+            {
+                e.HasKey(sr => sr.Id);
+                e.HasOne(sr => sr.ServiceItem)
+                 .WithMany(s => s.Requests)
+                 .HasForeignKey(sr => sr.ServiceItemId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(sr => sr.Client)
+                 .WithMany()
+                 .HasForeignKey(sr => sr.ClientId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasIndex(sr => sr.CreationDate);
             });
         }
     }

@@ -1,5 +1,8 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
+import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:flutter/material.dart';
 
 /// Modal deslizante inferior (Bottom Sheet) para enviar una cotización.
@@ -14,14 +17,17 @@ import 'package:flutter/material.dart';
 /// Al presionar "Enviar Propuesta", hace un `pop` devolviendo `true`. La pantalla
 /// que invocó este modal debe estar a la escucha de este booleano para ejecutar
 /// la animación de éxito (SnackBar) y remover la tarjeta localmente.
-class ProposalBottomSheet extends StatefulWidget {
-  const ProposalBottomSheet({super.key});
+class ProposalBottomSheet extends ConsumerStatefulWidget {
+  final OpportunityModel opportunity;
+
+  const ProposalBottomSheet({super.key, required this.opportunity});
 
   @override
-  State<ProposalBottomSheet> createState() => _ProposalBottomSheetState();
+  ConsumerState<ProposalBottomSheet> createState() =>
+      _ProposalBottomSheetState();
 }
 
-class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
+class _ProposalBottomSheetState extends ConsumerState<ProposalBottomSheet> {
   final TextEditingController _messageController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
 
@@ -170,6 +176,23 @@ class _ProposalBottomSheetState extends State<ProposalBottomSheet> {
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
+                  final price = double.tryParse(_priceController.text) ?? 0;
+                  if (price > 0) {
+                    // Aquí iría la lógica para enviar la propuesta al backend
+                    // usando los valores de _messageController.text y price.
+                    ref
+                        .read(quotesProvider.notifier)
+                        .addQuoteFromOpportunity(widget.opportunity, price);
+                  } else {
+                    // Mostrar error si el precio no es válido
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(AppStrings.invalidPriceError),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                    return; // No cerramos el modal si el precio es inválido
+                  }
                   // TODO: (BACKEND) - Preparar _messageController.text y _priceController.text y enviarlos al API.
 
                   // Retornamos 'true' para avisarle a la vista padre que fue exitoso

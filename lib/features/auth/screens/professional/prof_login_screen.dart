@@ -259,8 +259,10 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                 const SizedBox(height: 48),
 
                 // --- FOOTER REDIRECCIÓN A REGISTRO ---
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4.0,
                   children: [
                     Expanded(
                       child: const Text(

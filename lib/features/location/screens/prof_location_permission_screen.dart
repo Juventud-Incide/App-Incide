@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -178,7 +179,6 @@ class _ProfLocationPermissionScreenState
                       // --- 3. BOTONES DE ACCIÓN ---
                       SizedBox(
                         width: double.infinity,
-                        height: 55,
                         child: ElevatedButton(
                           onPressed: _requestPermission,
                           style: ElevatedButton.styleFrom(
@@ -191,9 +191,11 @@ class _ProfLocationPermissionScreenState
                           ),
                           child: const Text(
                             AppStrings.allowLocationBtn,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
+                              height: 1.2,
                             ),
                           ),
                         ),
@@ -229,6 +231,11 @@ class _ProfLocationPermissionScreenState
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      const CustomLogoutButton(
+                        text: AppStrings.logoutBtn,
+                        variant: LogoutButtonVariant.text,
+                      ),
                     ],
                   ),
                 ),

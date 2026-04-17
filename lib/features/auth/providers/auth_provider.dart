@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // ==========================================
 // 1. EL ESTADO INMUTABLE (La Memoria)
@@ -74,7 +75,7 @@ class MockAuthRepository {
     // --- CREDENCIAL EXCLUSIVA PARA CLIENTES ---
     if (email == 'cliente@correo.com' && password == 'cliente123') {
       return 'aceptado';
-    } 
+    }
     // --- CREDENCIALES GENERALES / PROFESIONISTAS ---
     else if (email == 'admin@correo.com' && password == '12345678') {
       return 'aceptado';
@@ -111,20 +112,31 @@ class AuthController extends Notifier<AuthState> {
 
   /// Carga inicial del estado desde almacenamiento local
   Future<void> initialize() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token');
-    final role = prefs.getString('user_role');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('jwt_token');
+      final role = prefs.getString('user_role');
+      final status = prefs.getString('profile_status') ?? 'pendiente';
 
-    if (token != null && token.isNotEmpty) {
-      state = state.copyWith(
-        isInitialized: true,
-        isAuthenticated: true,
-        role: role,
-        profileStatus: 'aceptado', 
-      );
-    } else {
-      // DESPIERTA AL ENRUTADOR INCLUSO SI NO HAY SESIÓN
-      state = state.copyWith(isInitialized: true);
+      if (token != null && token.isNotEmpty) {
+        final PermissionStatus locationStatus =
+            await Permission.locationWhenInUse.status;
+        final bool hasLocation = locationStatus.isGranted;
+
+        state = state.copyWith(
+          isInitialized: true,
+          isAuthenticated: true,
+          role: role,
+          profileStatus: status,
+          hasLocationPermission: hasLocation,
+        );
+      } else {
+        // DESPIERTA AL ENRUTADOR INCLUSO SI NO HAY SESIÓN
+        state = state.copyWith(isInitialized: true);
+      }
+    } catch (e) {
+      // Salida de emergencia para que la app no se quede congelada en el Splash
+      state = state.copyWith(isInitialized: true, isAuthenticated: false);
     }
   }
 
@@ -137,20 +149,18 @@ class AuthController extends Notifier<AuthState> {
       final resultStatus = await repository.login(email, password, role);
 
       // --- INTEGRACIÓN LOCAL SHAREDPREFERENCES ---
-      // Si la simulación del API devuelve un status aceptado, guardamos un token y rol
-      if (resultStatus == 'aceptado') {
-        final token = 'dummy_token_${DateTime.now().millisecondsSinceEpoch}';
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('jwt_token', token);
-        await prefs.setString('user_role', role);
-      }
+      final token = 'dummy_token_${DateTime.now().millisecondsSinceEpoch}';
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('jwt_token', token);
+      await prefs.setString('user_role', role);
+      await prefs.setString('profile_status', resultStatus);
 
       // Actualizamos el estado de memoria global (Riverpod)
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
         role: role,
-        profileStatus: resultStatus, 
+        profileStatus: resultStatus,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -158,20 +168,20 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  /// Cierra la sesión activa del usuario limpando disco y RAM simultáneamente.
+  /// Cierra la sesión activa del usuario limpiando disco y RAM simultáneamente.
   Future<void> logout() async {
     // 1. Limpiamos disco (SharedPreferences)
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
     await prefs.remove('user_role');
+    await prefs.remove('profile_status');
 
     // 2. Limpiamos RAM (Riverpod). Resetea todo a falso y nulo, pateándolo al login
-    state = AuthState(); 
+    state = AuthState();
   }
 
   /// Registra que el proveedor ha otorgado los permisos del sistema operativo.
   void grantLocation() {
-    // TODO: (BACKEND) - Sincronizar en base de datos que el proveedor aceptó términos/permisos
     state = state.copyWith(hasLocationPermission: true);
   }
 }

@@ -1,10 +1,13 @@
 name: CI/CD INCIDE - Develop
 
 on:
-  workflow_dispatch: # Permite ejecutar el workflow manualmente desde la pestaña de Actions
-  push:
-    branches:
-      - develop # Se dispara cada vez que se haga un merge a develop
+  # Permite ejecutarlo manualmente desde la pestaña Actions
+  workflow_dispatch:
+
+  # Ejecución automática: Sábados a las 7:00 AM (Hora Local UTC-7)
+  schedule:
+    # La sintaxis cron es: "minuto hora día_mes mes día_semana"
+    - cron: '0 14 * * 6'
 
 jobs:
   build-and-deploy:

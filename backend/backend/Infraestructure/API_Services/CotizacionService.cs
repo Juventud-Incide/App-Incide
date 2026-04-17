@@ -116,7 +116,7 @@ namespace backend.Infraestructure.API_Services
             return ToRequestDTO(request);
         }
 
-        public async Task<List<ServiceRequestOutputDTO>> GetMyRequestsAsync(int userId, CancellationToken ct)
+        public async Task<List<ServiceRequestOutputDTO>> GetMyRequestsAsync(int userId, CotizacionRequestStatus? status, CancellationToken ct)
         {
             var client = await _context.Clients
                 .FirstOrDefaultAsync(c => c.UserId == userId, ct)
@@ -126,7 +126,8 @@ namespace backend.Infraestructure.API_Services
                 .Include(sr => sr.ServiceItem).ThenInclude(s => s.Category)
                 .Include(sr => sr.Client).ThenInclude(c => c.User)
                 .Include(sr => sr.Cotizaciones).ThenInclude(c => c.Provider).ThenInclude(p => p.User)
-                .Where(sr => sr.ClientId == client.Id && !sr.IsDeleted)
+                .Where(sr => sr.ClientId == client.Id && !sr.IsDeleted
+                          && (status == null || sr.Status == status))
                 .OrderByDescending(sr => sr.CreationDate)
                 .Select(sr => ToRequestDTO(sr))
                 .ToListAsync(ct);

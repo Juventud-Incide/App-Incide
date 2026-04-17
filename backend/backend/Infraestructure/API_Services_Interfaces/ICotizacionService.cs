@@ -1,4 +1,5 @@
 using backend.Domain.DTOs.Cotizacion;
+using backend.Domain.Enum;
 using backend.Domain.OutPutDTOs.Cotizacion;
 
 namespace backend.Infraestructure.API_Services_Interfaces
@@ -7,7 +8,7 @@ namespace backend.Infraestructure.API_Services_Interfaces
     {
         // ── Client ──────────────────────────────────────────────────────────
         Task<ServiceRequestOutputDTO> CreateServiceRequestAsync(int userId, CreateServiceRequestDTO dto, CancellationToken ct);
-        Task<List<ServiceRequestOutputDTO>> GetMyRequestsAsync(int userId, CancellationToken ct);
+        Task<List<ServiceRequestOutputDTO>> GetMyRequestsAsync(int userId, CotizacionRequestStatus? status, CancellationToken ct);
         Task<ServiceRequestOutputDTO?> GetRequestByIdAsync(int requestId, int userId, CancellationToken ct);
         Task<CotizacionOutputDTO> AcceptCotizacionAsync(int cotizacionId, int userId, CancellationToken ct);
         Task<CotizacionOutputDTO> RejectCotizacionAsync(int cotizacionId, int userId, RejectCotizacionDTO dto, CancellationToken ct);

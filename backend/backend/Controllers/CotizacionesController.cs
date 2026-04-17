@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.Domain.DTOs.Cotizacion;
+using backend.Domain.Enum;
 using backend.Infraestructure.API_Services_Interfaces;
 
 namespace backend.Controllers
@@ -42,14 +43,15 @@ namespace backend.Controllers
         }
 
         /// <summary>GET /api/cotizaciones/solicitudes/mias — Client lists their own service requests.</summary>
+        /// <param name="status">Optional filter: 0=Active, 1=Assigned, 2=Completed, 3=Cancelled</param>
         [Authorize(Roles = "Client")]
         [HttpGet("solicitudes/mias")]
-        public async Task<IActionResult> GetMyRequests(CancellationToken ct)
+        public async Task<IActionResult> GetMyRequests([FromQuery] CotizacionRequestStatus? status, CancellationToken ct)
         {
             try
             {
                 var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
-                var result = await _cotizacionService.GetMyRequestsAsync(userId, ct);
+                var result = await _cotizacionService.GetMyRequestsAsync(userId, status, ct);
                 return Ok(result);
             }
             catch (InvalidOperationException ex)

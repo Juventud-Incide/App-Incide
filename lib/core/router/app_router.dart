@@ -32,14 +32,14 @@ import '../../features/provider/dashboard/models/opportunity_model.dart';
 import '../../features/provider/quotes/models/quote_model.dart';
 import '../../features/provider/quotes/screens/quote_detail_screen.dart';
 
-import '../../features/auth/client_login_screen.dart';
-import '../../features/auth/cliente_register_screen.dart';
-import '../../features/auth/cliente_verif_correo.dart';
+import '../../features/client/home/screens/client_login_screen.dart';
+import '../../features/client/home/screens/cliente_register_screen.dart';
+import '../../features/client/home/screens/cliente_verif_correo.dart';
 import '../../features/client/home/screens/client_home_screen.dart';
 import '../../features/client/quoting/screens/client_quoting_screen.dart';
-import '../../features/auth/forgot_password_screen.dart';
-import '../../features/auth/forgot_password_sent_screen.dart';
-import '../../features/auth/reset_password_screen.dart';
+import '../../features/client/home/screens/forgot_password_screen.dart';
+import '../../features/client/home/screens/forgot_password_sent_screen.dart';
+import '../../features/client/home/screens/reset_password_screen.dart';
 
 // ==========================================
 // 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER

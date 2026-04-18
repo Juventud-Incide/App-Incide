@@ -20,6 +20,7 @@ namespace backend.Data.DataDB
         public DbSet<Cotizacion>       Cotizaciones       => Set<Cotizacion>();
         public DbSet<Question>         Questions          => Set<Question>();
         public DbSet<QuestionOption>   QuestionOptions    => Set<QuestionOption>();
+        public DbSet<ChatRoom>         ChatRooms          => Set<ChatRoom>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -156,6 +157,22 @@ namespace backend.Data.DataDB
                  .HasFilter("\"IsDeleted\" = false");
 
                 e.HasIndex(c => new { c.ProviderId, c.Status, c.CreationDate });
+            });
+
+            // ChatRoom → ServiceRequest + Provider
+            modelBuilder.Entity<ChatRoom>(e =>
+            {
+                e.HasKey(cr => cr.Id);
+                e.HasOne(cr => cr.ServiceRequest)
+                 .WithMany(sr => sr.ChatRooms)
+                 .HasForeignKey(cr => cr.ServiceRequestId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(cr => cr.Provider)
+                 .WithMany()
+                 .HasForeignKey(cr => cr.ProviderId)
+                 .OnDelete(DeleteBehavior.Restrict);
+                e.HasIndex(cr => new { cr.ServiceRequestId, cr.ProviderId })
+                 .IsUnique();
             });
 
             // Question → Category

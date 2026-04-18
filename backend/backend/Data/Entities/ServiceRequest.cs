@@ -29,5 +29,6 @@ namespace backend.Data.Entities
         public CotizacionRequestStatus Status { get; set; } = CotizacionRequestStatus.Active;
 
         public ICollection<Cotizacion> Cotizaciones { get; set; } = [];
+        public ICollection<ChatRoom>   ChatRooms    { get; set; } = [];
     }
 }

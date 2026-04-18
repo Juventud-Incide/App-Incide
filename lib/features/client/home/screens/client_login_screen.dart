@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'widgets/custom_input_field.dart';
-import 'providers/auth_provider.dart';
+import '../../../auth/widgets/custom_input_field.dart';
+import '../../../auth/providers/auth_provider.dart';
 
 class ClientLoginScreen extends ConsumerStatefulWidget {
   const ClientLoginScreen({super.key});

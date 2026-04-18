@@ -31,6 +31,7 @@ builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<INotificationService, LoggingNotificationService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<ICotizacionService, CotizacionService>();
+builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtConfig["Key"];

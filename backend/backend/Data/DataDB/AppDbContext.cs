@@ -18,6 +18,8 @@ namespace backend.Data.DataDB
         public DbSet<ProviderCategory> ProviderCategories => Set<ProviderCategory>();
         public DbSet<ServiceRequest>   ServiceRequests    => Set<ServiceRequest>();
         public DbSet<Cotizacion>       Cotizaciones       => Set<Cotizacion>();
+        public DbSet<Question>         Questions          => Set<Question>();
+        public DbSet<QuestionOption>   QuestionOptions    => Set<QuestionOption>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -154,6 +156,30 @@ namespace backend.Data.DataDB
                  .HasFilter("\"IsDeleted\" = false");
 
                 e.HasIndex(c => new { c.ProviderId, c.Status, c.CreationDate });
+            });
+
+            // Question → Category
+            modelBuilder.Entity<Question>(e =>
+            {
+                e.HasKey(q => q.Id);
+                e.Property(q => q.Text).IsRequired().HasMaxLength(500);
+                e.HasOne(q => q.Category)
+                 .WithMany(c => c.Questions)
+                 .HasForeignKey(q => q.CategoryId)
+                 .OnDelete(DeleteBehavior.Restrict);
+                e.HasIndex(q => new { q.CategoryId, q.Order });
+            });
+
+            // QuestionOption → Question
+            modelBuilder.Entity<QuestionOption>(e =>
+            {
+                e.HasKey(o => o.Id);
+                e.Property(o => o.Text).IsRequired().HasMaxLength(200);
+                e.HasOne(o => o.Question)
+                 .WithMany(q => q.Options)
+                 .HasForeignKey(o => o.QuestionId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasIndex(o => new { o.QuestionId, o.Order });
             });
         }
     }

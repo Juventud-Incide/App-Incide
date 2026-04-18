@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/service_model.dart';
+import '../models/cotizacion_model.dart';
 
 // ─────────────────────────────────────────────────────────
 //            PROVEEDORES DE BÚSQUEDA
@@ -151,3 +152,79 @@ final recentServicesProvider = Provider<List<SearchSuggestion>>((ref) {
 final popularServicesProvider = Provider<List<SearchSuggestion>>((ref) {
   return ref.watch(allServicesProvider).take(3).toList();
 });
+
+// ─────────────────────────────────────────────────────────
+//  PROVEEDORES DE COTIZACIONES — Task #116
+// ─────────────────────────────────────────────────────────
+
+// ── Fuente única de datos mock ────────────────────────────────────────────
+// TODO (Backend): Reemplazar con un AsyncNotifierProvider que llame a
+//   GET /api/client/quotes  y mapee la respuesta con CotizacionModel.fromJson
+final allCotizacionesProvider = Provider<List<CotizacionModel>>((ref) {
+  return const [
+    CotizacionModel(
+      id: 'q1',
+      titulo: 'Fuga de agua en cocina',
+      descripcion: 'Reparación urgente de tubería bajo el fregadero.',
+      precioEstimado: 850.0,
+      estado: EstadoCotizacion.enEspera,
+    ),
+    CotizacionModel(
+      id: 'q2',
+      titulo: 'Instalación de AC',
+      descripcion: 'Instalación de aire acondicionado tipo mini-split.',
+      precioEstimado: 3200.0,
+      estado: EstadoCotizacion.aceptada,
+    ),
+    CotizacionModel(
+      id: 'q3',
+      titulo: 'Limpieza de Alfombras',
+      descripcion: 'Limpieza profunda de 3 alfombras en sala y recámaras.',
+      precioEstimado: 600.0,
+      estado: EstadoCotizacion.terminada,
+    ),
+    CotizacionModel(
+      id: 'q4',
+      titulo: 'Cortocircuito en sala',
+      descripcion: 'Diagnóstico y reparación del tablero eléctrico.',
+      precioEstimado: 1100.0,
+      estado: EstadoCotizacion.enEspera,
+    ),
+    CotizacionModel(
+      id: 'q5',
+      titulo: 'Instalación de regadera',
+      descripcion: 'Cambio completo de la regadera eléctrica en baño principal.',
+      precioEstimado: 750.0,
+      estado: EstadoCotizacion.aceptada,
+    ),
+    CotizacionModel(
+      id: 'q6',
+      titulo: 'Construcción de barda',
+      descripcion: 'Levantamiento de 10 metros lineales de barda perimetral.',
+      precioEstimado: 12000.0,
+      estado: EstadoCotizacion.terminada,
+    ),
+  ];
+});
+
+// ── Filtro activo de la pestaña seleccionada ──────────────────────────────
+final selectedCotizacionFilterProvider =
+    NotifierProvider<SelectedCotizacionFilterNotifier, EstadoCotizacion>(() {
+      return SelectedCotizacionFilterNotifier();
+    });
+
+class SelectedCotizacionFilterNotifier extends Notifier<EstadoCotizacion> {
+  @override
+  EstadoCotizacion build() => EstadoCotizacion.enEspera;
+  void update(EstadoCotizacion value) => state = value;
+}
+
+// ── Lista derivada ya filtrada por estado ─────────────────────────────────
+// Equivalente a searchSuggestionsProvider pero para cotizaciones.
+// La UI solo consume este provider con ref.watch — nunca accede a allCotizacionesProvider.
+final filteredCotizacionesProvider = Provider<List<CotizacionModel>>((ref) {
+  final filtroActivo = ref.watch(selectedCotizacionFilterProvider);
+  final todas = ref.watch(allCotizacionesProvider);
+  return todas.where((c) => c.estado == filtroActivo).toList();
+});
+

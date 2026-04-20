@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
@@ -55,7 +56,7 @@ class ProfActivatedScreen extends ConsumerWidget {
 
                     // --- 2. TÍTULOS ---
                     const Text(
-                      '¡Cuenta Activada!',
+                      AppStrings.activationTitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28,
@@ -65,7 +66,7 @@ class ProfActivatedScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 15),
                     const Text(
-                      'Tus documentos han sido validados exitosamente. Ya formas parte de la red de proveedores oficiales de INCIDE.',
+                      AppStrings.activationSubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -92,7 +93,7 @@ class ProfActivatedScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 15),
                           const Text(
-                            'Siguiente paso',
+                            AppStrings.activationNextStepsTitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 15,
@@ -102,7 +103,7 @@ class ProfActivatedScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Para enviarte oportunidades de trabajo, necesitaremos que configures tu ubicación en la siguiente pantalla.',
+                            AppStrings.activationNextStepsSubtitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13,
@@ -135,7 +136,7 @@ class ProfActivatedScreen extends ConsumerWidget {
                           elevation: 0,
                         ),
                         child: const Text(
-                          'Comenzar',
+                          AppStrings.activationNextStepsBtn,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,

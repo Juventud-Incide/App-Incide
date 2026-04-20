@@ -44,7 +44,7 @@ jobs:
       # Agregar aquí un job de 'flutter test' si tienes pruebas unitarias
 
       - name: Build APK
-        run: flutter build apk --release --build-number=${{ github.run_number }}
+        run: flutter build apk --release
 
       - name: Upload to Firebase App Distribution
         uses: w9jds/firebase-action@master
@@ -59,7 +59,7 @@ jobs:
         with:
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
           severity: info
-          details: "**Despliegue de Aplicación INCIDE exitoso**\nLa rama `develop` ha sido compilada y la nueva versión está disponible en Firebase App Distribution para el equipo de pruebas."
+          details: "✅ **Despliegue de Aplicación INCIDE exitoso**\nLa rama `develop` ha sido compilada y la nueva versión está disponible en Firebase App Distribution para el equipo de pruebas."
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
 
       - name: Notify Discord on Failure
@@ -68,5 +68,5 @@ jobs:
         with:
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
           severity: error
-          details: "**Falló el despliegue de Aplicación INCIDE**\nLa compilación o el envío a Firebase fallaron. Revisa los logs en GitHub Actions para identificar el error."
+          details: "❌ **Falló el despliegue de Aplicación INCIDE**\nLa compilación o el envío a Firebase fallaron. Revisa los logs en GitHub Actions para identificar el error."
           avatarUrl: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png

@@ -1,24 +1,22 @@
-import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
 
-/// Pantalla de éxito tras la validación manual del perfil del Proveedor.
+/// Pantalla de culminación del registro del Proveedor.
 ///
-/// Esta vista es un paso intermedio en el embudo de incorporación (Onboarding).
-/// Se muestra al usuario una vez que el equipo de administración aprueba su
-/// solicitud inicial, indicándole que el siguiente paso es la carga de documentos legales.
+/// **Rol en la Arquitectura:**
+/// Esta es la última pantalla de la fase "Pendiente". El usuario solo puede
+/// verla si su `ApplicationStatus` es `activated`.
 ///
-/// **Flujos de Navegación:**
-/// - Botón Primario: Navega al formulario de carga (`/prof-upload-docs`).
-/// - Botón Secundario: Cierra la sesión/flujo llevándolo al inicio (`/splash`)
-///   permitiendo al usuario continuar en otro momento.
-class ProfApprovedScreen extends StatelessWidget {
-  const ProfApprovedScreen({super.key});
+/// Al presionar el botón principal, se dispara un evento en Riverpod que cambia
+/// el estatus global a `aceptado`, liberando al usuario hacia el Dashboard o
+/// la solicitud de permisos GPS mediante el GoRouter.
+class ProfActivatedScreen extends ConsumerWidget {
+  const ProfActivatedScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -37,36 +35,37 @@ class ProfApprovedScreen extends StatelessWidget {
                   children: [
                     const Spacer(flex: 1),
 
-                    // --- 1. ILUSTRACIÓN / ICONO ---
+                    // --- 1. ILUSTRACIÓN / ICONO DE ÉXITO ---
                     Container(
-                      width: 110,
-                      height: 110,
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                        color: const Color(
+                          0xFF10B981,
+                        ).withValues(alpha: 0.15), // Verde éxito suave
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons
-                            .handshake_rounded, // Un apretón de manos celebrando la entrevista
-                        size: 55,
-                        color: AppColors.primaryBlue,
+                        Icons.verified_rounded,
+                        size: 65,
+                        color: Color(0xFF10B981), // Verde éxito sólido
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 35),
 
                     // --- 2. TÍTULOS ---
                     const Text(
-                      AppStrings.approvalTitle,
+                      '¡Cuenta Activada!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 26,
+                        fontSize: 28,
                         fontWeight: FontWeight.w900,
                         color: AppColors.textDark,
                       ),
                     ),
                     const SizedBox(height: 15),
                     const Text(
-                      AppStrings.approvalSubtitle,
+                      'Tus documentos han sido validados exitosamente. Ya formas parte de la red de proveedores oficiales de INCIDE.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -74,9 +73,9 @@ class ProfApprovedScreen extends StatelessWidget {
                         height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 35),
 
-                    // --- 3. CAJA DE CONTEXTO (Por qué pedimos documentos) ---
+                    // --- 3. CAJA DE CONTEXTO (Siguiente paso: GPS) ---
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -87,13 +86,13 @@ class ProfApprovedScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           const Icon(
-                            Icons.verified_user_rounded,
-                            color: Color(0xFF10B981),
-                            size: 30,
+                            Icons.location_on_rounded,
+                            color: AppColors.primaryBlue,
+                            size: 32,
                           ),
                           const SizedBox(height: 15),
                           const Text(
-                            AppStrings.finalStepTitle,
+                            'Siguiente paso',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 15,
@@ -103,7 +102,7 @@ class ProfApprovedScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            AppStrings.finalStepSubtitle,
+                            'Para enviarte oportunidades de trabajo, necesitaremos que configures tu ubicación en la siguiente pantalla.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13,
@@ -117,37 +116,36 @@ class ProfApprovedScreen extends StatelessWidget {
 
                     const Spacer(flex: 2),
 
-                    // --- 4. BOTÓN DE ACCIÓN ---
+                    // --- 4. BOTÓN DE ACCIÓN (Transición de Estado) ---
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          context.pushNamed('prof_upload_docs');
+                          ref
+                              .read(authControllerProvider.notifier)
+                              .completeActivation();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,
                           foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                           elevation: 0,
                         ),
                         child: const Text(
-                          AppStrings.uploadDocsBtn,
+                          'Comenzar',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
-                            height: 1.4,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 15),
-
-                    // --- 5. BOTÓN SECUNDARIO (Hacerlo después) ---
-                    CustomLogoutButton(text: AppStrings.uploadDocsLaterBtn),
                   ],
                 ),
               ),

@@ -161,8 +161,7 @@ class _ProposalBottomSheetState extends ConsumerState<ProposalBottomSheet> {
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
-                filled: true,
-                fillColor: const Color(0xFFF8F9FA),
+                fillColor: AppColors.inputFill,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,

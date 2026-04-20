@@ -123,7 +123,7 @@ class ClienteQuoteDetailScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const Divider(color: AppColors.borderGray, height: 1),
+              const Divider(color: AppColors.borderLight, height: 1),
               const SizedBox(height: 24),
               // Descripción
               const Text(
@@ -141,7 +141,7 @@ class ClienteQuoteDetailScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderGray),
+                  border: Border.all(color: AppColors.borderLight),
                 ),
                 child: Text(
                   cotizacion.descripcion,
@@ -161,7 +161,7 @@ class ClienteQuoteDetailScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.borderGray),
+                  border: Border.all(color: AppColors.borderLight),
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primaryBlue.withOpacity(0.04),

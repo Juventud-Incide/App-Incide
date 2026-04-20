@@ -88,6 +88,72 @@ namespace backend.Migrations
                     b.ToTable("Clients");
                 });
 
+            modelBuilder.Entity("backend.Data.Entities.Cotizacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("EstimatedHours")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ProposedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ProviderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RejectReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ServiceRequestId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceRequestId", "ProviderId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = false");
+
+                    b.HasIndex("ProviderId", "Status", "CreationDate");
+
+                    b.ToTable("Cotizaciones");
+                });
+
             modelBuilder.Entity("backend.Data.Entities.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -154,6 +220,12 @@ namespace backend.Migrations
 
                     b.Property<string>("AffiliationRejectionReason")
                         .HasColumnType("text");
+
+                    b.Property<bool>("Available")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("AvailableUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone");
@@ -298,6 +370,12 @@ namespace backend.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<decimal?>("EstimatedBudget")
+                        .HasColumnType("numeric");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -307,7 +385,29 @@ namespace backend.Migrations
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal>("Lat")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<decimal>("Lng")
+                        .HasColumnType("decimal(9,6)");
+
+                    b.Property<Point>("Location")
+                        .IsRequired()
+                        .HasColumnType("geography (Point, 4326)");
+
+                    b.Property<DateTime?>("PreferredDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("ServiceItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TargetProviderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -316,7 +416,15 @@ namespace backend.Migrations
 
                     b.HasIndex("CreationDate");
 
+                    b.HasIndex("Location");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Location"), "GIST");
+
                     b.HasIndex("ServiceItemId");
+
+                    b.HasIndex("TargetProviderId");
+
+                    b.HasIndex("Status", "Type", "TargetProviderId");
 
                     b.ToTable("ServiceRequests");
                 });
@@ -407,6 +515,25 @@ namespace backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("backend.Data.Entities.Cotizacion", b =>
+                {
+                    b.HasOne("backend.Data.Entities.Provider", "Provider")
+                        .WithMany("Cotizaciones")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("backend.Data.Entities.ServiceRequest", "ServiceRequest")
+                        .WithMany("Cotizaciones")
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Provider");
+
+                    b.Navigation("ServiceRequest");
+                });
+
             modelBuilder.Entity("backend.Data.Entities.Document", b =>
                 {
                     b.HasOne("backend.Data.Entities.Provider", "Provider")
@@ -473,9 +600,16 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("backend.Data.Entities.Provider", "TargetProvider")
+                        .WithMany()
+                        .HasForeignKey("TargetProviderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Client");
 
                     b.Navigation("ServiceItem");
+
+                    b.Navigation("TargetProvider");
                 });
 
             modelBuilder.Entity("backend.Data.Entities.Category", b =>
@@ -488,11 +622,18 @@ namespace backend.Migrations
             modelBuilder.Entity("backend.Data.Entities.Provider", b =>
                 {
                     b.Navigation("Categories");
+
+                    b.Navigation("Cotizaciones");
                 });
 
             modelBuilder.Entity("backend.Data.Entities.ServiceItem", b =>
                 {
                     b.Navigation("Requests");
+                });
+
+            modelBuilder.Entity("backend.Data.Entities.ServiceRequest", b =>
+                {
+                    b.Navigation("Cotizaciones");
                 });
 
             modelBuilder.Entity("backend.Data.Entities.User", b =>

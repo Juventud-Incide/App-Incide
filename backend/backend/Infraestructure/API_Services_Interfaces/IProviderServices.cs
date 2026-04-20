@@ -16,5 +16,7 @@ namespace backend.Infraestructure.API_Services_Interfaces
         Task<List<ProviderCategoryOutputDTO>> GetCategoriesAsync(int providerId, CancellationToken ct);
         Task<ProviderCategoryOutputDTO>       AssignCategoryAsync(int providerId, int categoryId, CancellationToken ct);
         Task<bool>                            RemoveCategoryAsync(int providerId, int categoryId, CancellationToken ct);
+
+        Task<bool> UpdateAvailabilityAsync(int userId, bool available, CancellationToken ct);
     }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 
 /// Campo de entrada de texto universal (Input Field) estandarizado.
@@ -44,6 +45,10 @@ class CustomInputField extends StatelessWidget {
   /// Número de líneas para campos de texto largos (ej. Descripciones).
   final int maxLines;
 
+  /// Lista de formateadores de entrada para restringir o formatear el texto.
+  final List<TextInputFormatter>? inputFormatters;
+
+  /// Constructor de la clase.
   const CustomInputField({
     super.key,
     required this.label,
@@ -56,6 +61,7 @@ class CustomInputField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.textCapitalization = TextCapitalization.none,
     this.maxLines = 1,
+    this.inputFormatters,
   });
 
   @override
@@ -83,6 +89,7 @@ class CustomInputField extends StatelessWidget {
           validator: validator,
           // Cambia el teclado si es correo para que muestre el '@' más fácil
           keyboardType: isPassword ? TextInputType.text : keyboardType,
+          inputFormatters: inputFormatters,
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: const TextStyle(color: Color(0xFF9CA3AF)), // Gris claro

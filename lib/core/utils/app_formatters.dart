@@ -29,6 +29,11 @@ class AppFormatters {
     LengthLimitingTextInputFormatter(13),
   ];
 
+  static final curpFormatter = [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+    LengthLimitingTextInputFormatter(18),
+  ];
+
   // 6. MÁSCARA DE TELÉFONO (Formato visual automático)
   static final phoneMask = MaskTextInputFormatter(
     mask: '(###) ###-####',

@@ -1,6 +1,8 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:app_incide/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../widgets/custom_dropdown_field.dart';
@@ -203,6 +205,10 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                         hintText: AppStrings.yearsExperienceHint,
                         controller: _yearsController,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          ...AppFormatters.digitsOnly,
+                          LengthLimitingTextInputFormatter(2),
+                        ],
                         validator: (value) => value == null || value.isEmpty
                             ? AppStrings.requiredFieldShort
                             : null,
@@ -216,6 +222,10 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                         hintText: AppStrings.cedulaHint,
                         controller: _cedulaController,
                         textCapitalization: TextCapitalization.characters,
+                        inputFormatters: [
+                          ...AppFormatters.digitsOnly,
+                          LengthLimitingTextInputFormatter(8),
+                        ],
                       ),
                     ),
                   ],
@@ -227,7 +237,8 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                   label: AppStrings.descriptionLabel,
                   hintText: AppStrings.descriptionHint,
                   controller: _descriptionController,
-                  maxLines: 5, // <-- AQUÍ USAMOS LA MAGIA DE LA NUEVA VARIABLE
+                  keyboardType: TextInputType.multiline,
+                  maxLines: 5,
                   textCapitalization: TextCapitalization.sentences,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {

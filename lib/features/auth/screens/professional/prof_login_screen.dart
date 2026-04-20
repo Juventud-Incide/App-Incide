@@ -1,3 +1,4 @@
+import 'package:app_incide/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -126,6 +127,8 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                   hintText: AppStrings.emailLoginHint,
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  textCapitalization: TextCapitalization.none,
+                  inputFormatters: AppFormatters.noSpaces,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppStrings.emailLoginEmpty;
@@ -152,6 +155,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                       _isPasswordVisible = !_isPasswordVisible;
                     });
                   },
+                  inputFormatters: AppFormatters.noSpaces,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return AppStrings.passwordLoginEmpty;

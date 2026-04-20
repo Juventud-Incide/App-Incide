@@ -1,6 +1,11 @@
+import 'package:app_incide/core/network/api_client.dart';
+import 'package:app_incide/features/auth/data/repositories/mock_auth_repository.dart';
+import 'package:app_incide/features/auth/domain/repositories/auth_repository.dart';
+import 'package:app_incide/features/auth/domain/repositories/network_auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:app_incide/core/constants/app_keys.dart';
 
 // ==========================================
 // 1. EL ESTADO INMUTABLE (La Memoria)
@@ -52,44 +57,21 @@ class AuthState {
 // ==========================================
 // 2. EL REPOSITORIO (Simulador de Backend)
 // ==========================================
-final authRepositoryProvider = Provider((ref) => MockAuthRepository());
+// 1. Un simple booleano para controlar el modo de desarrollo
+// Cambia esto a 'false' cuando el backend de C# esté listo para probar
+final useMocksProvider = Provider<bool>((ref) => true);
+// 2. El proveedor del repositorio que consumirá el resto de la app
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final useMocks = ref.watch(useMocksProvider);
 
-/// Capa de acceso a datos para la autenticación (Patrón Repositorio).
-///
-/// Aísla la lógica de red (API/Firebase) del manejador de estado.
-/// Actualmente utiliza datos en duro para simular respuestas del servidor
-/// y permitir el desarrollo Frontend sin bloqueos.
-class MockAuthRepository {
-  // Ahora pedimos el rol intentado para simular la separación de apps
-  /// Ejecuta la petición HTTP de inicio de sesión.
-  Future<String> login(
-    String email,
-    String password,
-    String requestedRole,
-  ) async {
-    // TODO: (BACKEND) - Reemplazar la simulación con el SDK de Firebase Auth o API PaaS.
-    await Future.delayed(const Duration(seconds: 2));
-
-    // Casos de prueba:
-
-    // --- CREDENCIAL EXCLUSIVA PARA CLIENTES ---
-    if (email == 'cliente@correo.com' && password == 'cliente123') {
-      return 'aceptado';
-    }
-    // --- CREDENCIALES GENERALES / PROFESIONISTAS ---
-    else if (email == 'admin@correo.com' && password == '12345678') {
-      return 'aceptado';
-    } else if (email == 'cliente@correo.com' && password == '12345678') {
-      return 'aceptado'; // Cuenta de prueba para el cliente
-    } else if (email == 'espera@correo.com') {
-      return 'pendiente';
-    } else if (email == 'rechazado@correo.com') {
-      return 'rechazado';
-    } else {
-      throw Exception('Correo o contraseña incorrectos');
-    }
+  if (useMocks) {
+    // Aquí devuelves tu MockAuthRepository actual que ya tenías
+    return MockAuthRepository();
+  } else {
+    // Inyectamos el ApiClient único (Singleton) que configuramos con Dio
+    return NetworkAuthRepository(ApiClient().dio);
   }
-}
+});
 
 // ==========================================
 // 3. EL CONTROLADOR DE ESTADO
@@ -114,9 +96,9 @@ class AuthController extends Notifier<AuthState> {
   Future<void> initialize() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-      final role = prefs.getString('user_role');
-      final status = prefs.getString('profile_status') ?? 'pendiente';
+      final token = prefs.getString(AppKeys.token);
+      final role = prefs.getString(AppKeys.role);
+      final status = prefs.getString(AppKeys.profileStatus) ?? 'pendiente';
 
       if (token != null && token.isNotEmpty) {
         final PermissionStatus locationStatus =
@@ -146,21 +128,25 @@ class AuthController extends Notifier<AuthState> {
 
     try {
       final repository = ref.read(authRepositoryProvider);
-      final resultStatus = await repository.login(email, password, role);
+
+      final responseData = await repository.login(email, password, role);
+
+      final String realToken = responseData['token'];
+      final String serverRole = responseData['role'];
+      final String userStatus = responseData['status'];
 
       // --- INTEGRACIÓN LOCAL SHAREDPREFERENCES ---
-      final token = 'dummy_token_${DateTime.now().millisecondsSinceEpoch}';
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('jwt_token', token);
-      await prefs.setString('user_role', role);
-      await prefs.setString('profile_status', resultStatus);
+      await prefs.setString(AppKeys.token, realToken);
+      await prefs.setString(AppKeys.role, serverRole);
+      await prefs.setString(AppKeys.profileStatus, userStatus);
 
       // Actualizamos el estado de memoria global (Riverpod)
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
-        role: role,
-        profileStatus: resultStatus,
+        role: serverRole,
+        profileStatus: userStatus,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -172,9 +158,9 @@ class AuthController extends Notifier<AuthState> {
   Future<void> logout() async {
     // 1. Limpiamos disco (SharedPreferences)
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
-    await prefs.remove('user_role');
-    await prefs.remove('profile_status');
+    await prefs.remove(AppKeys.token);
+    await prefs.remove(AppKeys.role);
+    await prefs.remove(AppKeys.profileStatus);
 
     // 2. Limpiamos RAM (Riverpod). Resetea todo a falso y nulo, pateándolo al login
     state = AuthState();

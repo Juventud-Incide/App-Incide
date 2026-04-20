@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/utils/app_formatters.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
@@ -110,6 +111,7 @@ class _ProposalBottomSheetState extends ConsumerState<ProposalBottomSheet> {
             TextField(
               controller: _messageController,
               maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                 hintText: AppStrings.messageHint,
                 hintStyle: const TextStyle(
@@ -142,7 +144,10 @@ class _ProposalBottomSheetState extends ConsumerState<ProposalBottomSheet> {
             const SizedBox(height: 8),
             TextField(
               controller: _priceController,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: AppFormatters.priceFormatter,
               decoration: InputDecoration(
                 prefixText: '\$ ',
                 prefixStyle: const TextStyle(

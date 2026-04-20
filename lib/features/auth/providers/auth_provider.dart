@@ -2,6 +2,7 @@ import 'package:app_incide/core/network/api_client.dart';
 import 'package:app_incide/features/auth/data/repositories/mock_auth_repository.dart';
 import 'package:app_incide/features/auth/domain/repositories/auth_repository.dart';
 import 'package:app_incide/features/auth/domain/repositories/network_auth_repository.dart';
+import 'package:app_incide/features/auth/domain/models/application_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -22,6 +23,7 @@ class AuthState {
   final String? role; // 'cliente' o 'proveedor'
   final String? profileStatus; // 'aceptado', 'pendiente', 'rechazado' o null
   final bool hasLocationPermission;
+  final ApplicationStatus? applicationStatus;
 
   AuthState({
     this.isLoading = false,
@@ -30,6 +32,7 @@ class AuthState {
     this.role,
     this.profileStatus,
     this.hasLocationPermission = false,
+    this.applicationStatus,
   });
 
   /// Crea una nueva copia del estado modificando solo las variables indicadas.
@@ -41,6 +44,7 @@ class AuthState {
     String? role,
     String? profileStatus,
     bool? hasLocationPermission,
+    ApplicationStatus? applicationStatus,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
@@ -50,6 +54,7 @@ class AuthState {
       profileStatus: profileStatus ?? this.profileStatus,
       hasLocationPermission:
           hasLocationPermission ?? this.hasLocationPermission,
+      applicationStatus: applicationStatus ?? this.applicationStatus,
     );
   }
 }
@@ -99,6 +104,7 @@ class AuthController extends Notifier<AuthState> {
       final token = prefs.getString(AppKeys.token);
       final role = prefs.getString(AppKeys.role);
       final status = prefs.getString(AppKeys.profileStatus) ?? 'pendiente';
+      final appStatusStr = prefs.getString(AppKeys.applicationStatus);
 
       if (token != null && token.isNotEmpty) {
         final PermissionStatus locationStatus =
@@ -110,6 +116,7 @@ class AuthController extends Notifier<AuthState> {
           isAuthenticated: true,
           role: role,
           profileStatus: status,
+          applicationStatus: parseAppStatus(appStatusStr),
           hasLocationPermission: hasLocation,
         );
       } else {
@@ -134,24 +141,52 @@ class AuthController extends Notifier<AuthState> {
       final String realToken = responseData['token'];
       final String serverRole = responseData['role'];
       final String userStatus = responseData['status'];
+      final String? pendingStep = responseData['pending_step'];
 
       // --- INTEGRACIÓN LOCAL SHAREDPREFERENCES ---
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppKeys.token, realToken);
       await prefs.setString(AppKeys.role, serverRole);
       await prefs.setString(AppKeys.profileStatus, userStatus);
-
+      if (pendingStep != null) {
+        await prefs.setString(AppKeys.applicationStatus, pendingStep); // NUEVO
+      }
       // Actualizamos el estado de memoria global (Riverpod)
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
         role: serverRole,
         profileStatus: userStatus,
+        applicationStatus: parseAppStatus(pendingStep),
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
       throw e.toString().replaceAll('Exception: ', '');
     }
+  }
+
+  /// Actualiza la fase de la aplicación del proveedor (Simula el cambio en backend)
+  Future<void> updateApplicationStatus(ApplicationStatus newStatus) async {
+    // 1. Guardamos en disco para que persista si cierra la app
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppKeys.applicationStatus, newStatus.name);
+
+    // 2. Actualizamos Riverpod (Esto despierta al GoRouter)
+    state = state.copyWith(applicationStatus: newStatus);
+  }
+
+  /// Se ejecuta cuando el usuario presiona "Comenzar" en la pantalla de éxito.
+  /// Cambia el estatus global del perfil, sacándolo del flujo "pendiente".
+  Future<void> completeActivation() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Guardamos el nuevo estatus en disco
+    await prefs.setString(AppKeys.profileStatus, 'aceptado');
+
+    // Actualizamos la memoria RAM (Riverpod).
+    // Al cambiar 'profileStatus' de 'pendiente' a 'aceptado', GoRouter ejecutará sus
+    // reglas nuevamente, y como la Regla 3 ya no aplica, pasará a la validación de GPS.
+    state = state.copyWith(profileStatus: 'aceptado');
   }
 
   /// Cierra la sesión activa del usuario limpiando disco y RAM simultáneamente.
@@ -161,7 +196,7 @@ class AuthController extends Notifier<AuthState> {
     await prefs.remove(AppKeys.token);
     await prefs.remove(AppKeys.role);
     await prefs.remove(AppKeys.profileStatus);
-
+    await prefs.remove(AppKeys.applicationStatus);
     // 2. Limpiamos RAM (Riverpod). Resetea todo a falso y nulo, pateándolo al login
     state = AuthState();
   }

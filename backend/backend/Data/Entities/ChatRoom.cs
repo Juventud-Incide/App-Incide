@@ -7,5 +7,7 @@ namespace backend.Data.Entities
 
         public int      ProviderId { get; set; }
         public Provider Provider   { get; set; } = default!;
+
+        public ICollection<ChatMessage> Messages { get; set; } = [];
     }
 }

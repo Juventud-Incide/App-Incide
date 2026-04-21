@@ -48,8 +48,9 @@ class QuotesTab extends ConsumerWidget {
   // ── Chips estilo igual al filtro de categorías del HomeTab ────────────
 
   Widget _buildFiltros(WidgetRef ref, EstadoCotizacion filtroActivo) {
-    final int selectedIndex =
-        _filtros.indexWhere((f) => f.estado == filtroActivo);
+    final int selectedIndex = _filtros.indexWhere(
+      (f) => f.estado == filtroActivo,
+    );
 
     return Container(
       color: AppColors.backgroundWhite,
@@ -78,8 +79,8 @@ class QuotesTab extends ConsumerWidget {
               alignment: selectedIndex == 0
                   ? Alignment.centerLeft
                   : selectedIndex == 1
-                      ? Alignment.center
-                      : Alignment.centerRight,
+                  ? Alignment.center
+                  : Alignment.centerRight,
               child: FractionallySizedBox(
                 widthFactor: 1.0 / _filtros.length, // Ocupa exactamente 1/3
                 heightFactor: 1.0,
@@ -218,9 +219,16 @@ class _QuoteCard extends StatelessWidget {
         },
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cotizacion.hasNewProposal
+                ? AppColors.primaryBlue.withOpacity(0.02)
+                : Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderGray, width: 1.0),
+            border: Border.all(
+              color: cotizacion.hasNewProposal
+                  ? AppColors.primaryBlue.withOpacity(0.6)
+                  : AppColors.borderGray,
+              width: cotizacion.hasNewProposal ? 1.5 : 1.0,
+            ),
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -277,28 +285,70 @@ class _QuoteCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: badgeColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: badgeColor.withOpacity(0.3),
-                        width: 1.0,
+                  // Badges
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (cotizacion.hasNewProposal)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.redAccent.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.notifications_active_rounded,
+                                color: Colors.white,
+                                size: 10,
+                              ),
+                              /*
+                              Text(
+                                'NUEVA',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              */
+                            ],
+                          ),
+                        ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: badgeColor.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: badgeColor.withOpacity(0.3),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Text(
+                          badgeLabel,
+                          style: TextStyle(
+                            color: badgeColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      badgeLabel,
-                      style: TextStyle(
-                        color: badgeColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    ],
                   ),
                 ],
               ),

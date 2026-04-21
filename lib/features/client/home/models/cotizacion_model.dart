@@ -21,6 +21,7 @@ class CotizacionModel {
   final String descripcion;
   final double precioEstimado;
   final EstadoCotizacion estado;
+  final bool hasNewProposal;
 
   const CotizacionModel({
     required this.id,
@@ -28,7 +29,26 @@ class CotizacionModel {
     required this.descripcion,
     required this.precioEstimado,
     required this.estado,
+    this.hasNewProposal = false,
   });
+
+  CotizacionModel copyWith({
+    String? id,
+    String? titulo,
+    String? descripcion,
+    double? precioEstimado,
+    EstadoCotizacion? estado,
+    bool? hasNewProposal,
+  }) {
+    return CotizacionModel(
+      id: id ?? this.id,
+      titulo: titulo ?? this.titulo,
+      descripcion: descripcion ?? this.descripcion,
+      precioEstimado: precioEstimado ?? this.precioEstimado,
+      estado: estado ?? this.estado,
+      hasNewProposal: hasNewProposal ?? this.hasNewProposal,
+    );
+  }
 
   // TODO (Backend): Descomentar al conectar la API real.
   // factory CotizacionModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +58,7 @@ class CotizacionModel {
   //     descripcion: json['descripcion'] as String,
   //     precioEstimado: (json['precioEstimado'] as num).toDouble(),
   //     estado: _estadoFromString(json['estado'] as String),
+  //     hasNewProposal: json['hasNewProposal'] as bool? ?? false,
   //   );
   // }
   //

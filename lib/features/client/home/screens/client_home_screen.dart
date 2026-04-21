@@ -5,6 +5,7 @@ import '../tabs/cliente_home_tab.dart';
 import '../tabs/cliente_my_quotes_tab.dart';
 import '../tabs/cliente_payments_tab.dart';
 import '../tabs/cliente_profile_tab.dart';
+import '../providers/home_providers.dart';
 
 class ClientHomeScreen extends ConsumerStatefulWidget {
   const ClientHomeScreen({super.key});
@@ -237,8 +238,8 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
             fontSize: 12,
           ),
           elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
+          items: [
+            const BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(bottom: 4.0),
                 child: Icon(Icons.home_rounded),
@@ -247,19 +248,24 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.request_quote_rounded),
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: Badge(
+                  isLabelVisible: ref.watch(hasUnreadProposalsProvider),
+                  backgroundColor: Colors.redAccent,
+                  smallSize: 10,
+                  child: const Icon(Icons.request_quote_rounded),
+                ),
               ),
               label: 'Cotizaciones',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(bottom: 4.0),
                 child: Icon(Icons.account_balance_wallet_rounded),
               ),
               label: 'Pagos',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Padding(
                 padding: EdgeInsets.only(bottom: 4.0),
                 child: Icon(Icons.person_rounded),

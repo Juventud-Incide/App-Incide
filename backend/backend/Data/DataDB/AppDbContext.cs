@@ -21,6 +21,7 @@ namespace backend.Data.DataDB
         public DbSet<Question>         Questions          => Set<Question>();
         public DbSet<QuestionOption>   QuestionOptions    => Set<QuestionOption>();
         public DbSet<ChatRoom>         ChatRooms          => Set<ChatRoom>();
+        public DbSet<ChatMessage>      ChatMessages       => Set<ChatMessage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -173,6 +174,22 @@ namespace backend.Data.DataDB
                  .OnDelete(DeleteBehavior.Restrict);
                 e.HasIndex(cr => new { cr.ServiceRequestId, cr.ProviderId })
                  .IsUnique();
+            });
+
+            // ChatMessage → ChatRoom + User
+            modelBuilder.Entity<ChatMessage>(e =>
+            {
+                e.HasKey(m => m.Id);
+                e.Property(m => m.Content).IsRequired().HasMaxLength(2000);
+                e.HasOne(m => m.ChatRoom)
+                 .WithMany(cr => cr.Messages)
+                 .HasForeignKey(m => m.ChatRoomId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.Sender)
+                 .WithMany()
+                 .HasForeignKey(m => m.SenderId)
+                 .OnDelete(DeleteBehavior.Restrict);
+                e.HasIndex(m => new { m.ChatRoomId, m.CreationDate });
             });
 
             // Question → Category

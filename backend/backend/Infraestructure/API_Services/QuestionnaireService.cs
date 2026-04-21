@@ -158,13 +158,23 @@ namespace backend.Infraestructure.API_Services
         public async Task<bool> DeleteAsync(int id, CancellationToken ct)
         {
             var question = await _context.Questions
+                .Include(q => q.Options)
                 .FirstOrDefaultAsync(q => q.Id == id && !q.IsDeleted, ct);
 
             if (question == null) return false;
 
+            var now = DateTime.UtcNow;
+
+            foreach (var opt in question.Options.Where(o => !o.IsDeleted))
+            {
+                opt.IsDeleted  = true;
+                opt.IsActive   = false;
+                opt.LastUpdate = now;
+            }
+
             question.IsDeleted  = true;
             question.IsActive   = false;
-            question.LastUpdate = DateTime.UtcNow;
+            question.LastUpdate = now;
 
             await _context.SaveChangesAsync(ct);
 

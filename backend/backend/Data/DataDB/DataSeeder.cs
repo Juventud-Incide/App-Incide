@@ -14,8 +14,9 @@ namespace backend.Data.DataDB
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var hasher  = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
 
-            // Evitar re-seed si ya hay datos
-        if (await context.Users.AnyAsync()) return;
+            // Cada sección verifica su propia tabla para permitir re-seed parcial
+
+            if (await context.Users.AnyAsync()) return; // Seed base ya aplicado
 
             // ── Usuarios ──────────────────────────────────────────────────────────
             var now = DateTime.UtcNow;
@@ -292,8 +293,11 @@ namespace backend.Data.DataDB
                 },
             };
 
-            context.Questions.AddRange(questions);
-            await context.SaveChangesAsync();
+            if (!await context.Questions.AnyAsync())
+            {
+                context.Questions.AddRange(questions);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

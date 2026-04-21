@@ -7,6 +7,7 @@ import '../tabs/cliente_payments_tab.dart';
 import '../tabs/cliente_profile_tab.dart';
 import '../providers/home_providers.dart';
 import '../widgets/client_banner_app_bar.dart';
+import '../widgets/client_bottom_nav_bar.dart';
 
 class ClientHomeScreen extends ConsumerStatefulWidget {
   const ClientHomeScreen({super.key});
@@ -93,69 +94,9 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
       body: _screens[_currentIndex],
 
       // --- BARRA DE NAVEGACIÓN INFERIOR ---
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 15,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppColors.primaryBlue,
-          unselectedItemColor: Colors.grey[400],
-          showUnselectedLabels: true,
-          selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 12,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
-          ),
-          elevation: 0,
-          items: [
-            const BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.home_rounded),
-              ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Badge(
-                  isLabelVisible: ref.watch(hasUnreadProposalsProvider),
-                  backgroundColor: Colors.redAccent,
-                  smallSize: 10,
-                  child: const Icon(Icons.request_quote_rounded),
-                ),
-              ),
-              label: 'Cotizaciones',
-            ),
-            const BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.account_balance_wallet_rounded),
-              ),
-              label: 'Pagos',
-            ),
-            const BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.only(bottom: 4.0),
-                child: Icon(Icons.person_rounded),
-              ),
-              label: 'Perfil',
-            ),
-          ],
-        ),
+      bottomNavigationBar: ClientBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
   }

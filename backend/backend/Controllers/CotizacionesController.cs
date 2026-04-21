@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using backend.Domain.DTOs.Cotizacion;
 using backend.Domain.Enum;
 using backend.Infraestructure.API_Services_Interfaces;
@@ -233,6 +234,10 @@ namespace backend.Controllers
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict(new { message = "Ya expresaste interés en esta solicitud." });
             }
             catch (Exception ex)
             {

@@ -42,6 +42,7 @@ import '../../features/client/home/screens/forgot_password_sent_screen.dart';
 import '../../features/client/home/screens/reset_password_screen.dart';
 import '../../features/client/home/screens/cliente_quote_detail_screen.dart';
 import '../../features/client/home/models/cotizacion_model.dart';
+import '../../features/client/home/screens/cliente_chat_screen.dart';
 
 // ==========================================
 // 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER
@@ -468,6 +469,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final cotizacion = state.extra as CotizacionModel;
           return ClienteQuoteDetailScreen(cotizacion: cotizacion);
+        },
+      ),
+      GoRoute(
+        path: '/cliente/chat/:cotizacionId',
+        name: 'cliente-chat',
+        builder: (context, state) {
+          final cotizacion = state.extra as CotizacionModel;
+          return ClienteChatScreen(cotizacion: cotizacion);
         },
       ),
 

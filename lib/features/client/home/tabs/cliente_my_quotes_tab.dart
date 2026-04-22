@@ -48,8 +48,9 @@ class QuotesTab extends ConsumerWidget {
   // ── Chips estilo igual al filtro de categorías del HomeTab ────────────
 
   Widget _buildFiltros(WidgetRef ref, EstadoCotizacion filtroActivo) {
-    final int selectedIndex =
-        _filtros.indexWhere((f) => f.estado == filtroActivo);
+    final int selectedIndex = _filtros.indexWhere(
+      (f) => f.estado == filtroActivo,
+    );
 
     return Container(
       color: AppColors.backgroundWhite,
@@ -78,8 +79,8 @@ class QuotesTab extends ConsumerWidget {
               alignment: selectedIndex == 0
                   ? Alignment.centerLeft
                   : selectedIndex == 1
-                      ? Alignment.center
-                      : Alignment.centerRight,
+                  ? Alignment.center
+                  : Alignment.centerRight,
               child: FractionallySizedBox(
                 widthFactor: 1.0 / _filtros.length, // Ocupa exactamente 1/3
                 heightFactor: 1.0,
@@ -337,7 +338,10 @@ class _QuoteCard extends StatelessWidget {
                   // Botón
                   GestureDetector(
                     onTap: () {
-                      // TODO(Backend): Conectar navegación real al chat en el futuro
+                      context.push(
+                        '/cliente/chat/${cotizacion.id}',
+                        extra: cotizacion,
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

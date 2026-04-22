@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.Infraestructure.API_Services;
 using backend.Infraestructure.API_Services_Interfaces;
 using backend.Data.Entities;
+using backend.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -32,6 +33,8 @@ builder.Services.AddScoped<INotificationService, LoggingNotificationService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<ICotizacionService, CotizacionService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddSignalR();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtConfig["Key"];
@@ -58,6 +61,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.Events = new JwtBearerEvents
         {
+            // JWT via query string para WebSockets (los browsers no pueden enviar headers en WS)
+            OnMessageReceived = ctx =>
+            {
+                var token = ctx.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(token) &&
+                    ctx.HttpContext.Request.Path.StartsWithSegments("/hubs/chat"))
+                    ctx.Token = token;
+                return Task.CompletedTask;
+            },
             OnTokenValidated = async ctx =>
             {
                 var jti = ctx.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
@@ -132,5 +144,6 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

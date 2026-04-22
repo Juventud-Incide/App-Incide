@@ -88,5 +88,19 @@ namespace backend.Infraestructure.API_Services
             // TODO: reemplazar por push notification real (FCM/OneSignal)
             return Task.CompletedTask;
         }
+
+        public Task NotifyNewChatMessageAsync(User recipient, ChatRoom room, ChatMessage message, CancellationToken ct)
+        {
+            var preview = message.Content.Length > 50
+                ? string.Concat(message.Content.AsSpan(0, 50), "…")
+                : message.Content;
+
+            _logger.LogInformation(
+                "[CHAT-NOTIF] Nuevo mensaje. RecipientId={RecipientId}, Email={Email}, RoomId={RoomId}, Preview=\"{Preview}\". TODO: reemplazar por FCM push notification.",
+                recipient.Id, recipient.Email, room.Id, preview);
+
+            // TODO: reemplazar por FCM push notification real
+            return Task.CompletedTask;
+        }
     }
 }

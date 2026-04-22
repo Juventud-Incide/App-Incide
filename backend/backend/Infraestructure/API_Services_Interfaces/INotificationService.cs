@@ -15,5 +15,8 @@ namespace backend.Infraestructure.API_Services_Interfaces
 
         Task NotifyClientProviderInterestedAsync(Client client, ServiceRequest request, Provider provider, CancellationToken ct);
         Task NotifyClientRequestCancelledAsync(Client client, ServiceRequest request, CancellationToken ct);
+
+        // TODO: reemplazar por FCM push notification real
+        Task NotifyNewChatMessageAsync(User recipient, ChatRoom room, ChatMessage message, CancellationToken ct);
     }
 }

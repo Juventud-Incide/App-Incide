@@ -1,3 +1,4 @@
+import 'package:app_incide/features/provider/chat/screens/chat_detail_screen.dart';
 import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:app_incide/features/provider/quotes/screens/prof_quotes_screen.dart';
 import 'package:flutter/material.dart';
@@ -374,6 +375,23 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) {
                       final quote = state.extra as QuoteModel;
                       return QuoteDetailScreen(quote: quote);
+                    },
+                  ),
+                  GoRoute(
+                    path: '/chat-detail/:chatId',
+                    name: 'chat_detail',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      // Extraemos si la cotización ya fue aceptada desde los parámetros
+                      // Ej: context.pushNamed('chat_detail', extra: {'isAccepted': true});
+                      final chatId = state.pathParameters['chatId'] ?? '';
+                      final extra = state.extra as Map<String, dynamic>?;
+                      final isAccepted = extra?['isAccepted'] ?? false;
+
+                      return ChatDetailScreen(
+                        chatId: chatId,
+                        isAccepted: isAccepted,
+                      );
                     },
                   ),
                 ],

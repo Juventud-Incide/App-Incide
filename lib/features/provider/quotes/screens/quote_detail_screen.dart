@@ -2,6 +2,7 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../models/quote_model.dart';
 import '../../../shared/widgets/quote_status_badge.dart';
@@ -267,6 +268,14 @@ class QuoteDetailScreen extends ConsumerWidget {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     // TODO: (ROUTING) Redirigir al Inbox
+                    final String currentChatId = quote.id.toString();
+                    context.pushNamed(
+                      'chat_detail',
+                      pathParameters: {'chatId': currentChatId},
+                      extra: {
+                        'isAccepted': quote.status == QuoteStatus.accepted,
+                      },
+                    );
                   },
                   icon: const Icon(Icons.chat_bubble_outline),
                   label: const Text(AppStrings.quoteOpenChatBtn),

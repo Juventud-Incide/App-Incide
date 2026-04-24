@@ -393,7 +393,7 @@ namespace backend.Infraestructure.API_Services
         {
             var provider = await _context.Providers
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.UserId == userId, ct)
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct)
                 ?? throw new InvalidOperationException("No provider profile found for this user.");
 
             if (provider.Status != ProviderStatus.Affiliated)
@@ -459,7 +459,7 @@ namespace backend.Infraestructure.API_Services
 
             var now = DateTime.UtcNow;
 
-            foreach (var c in request.Cotizaciones.Where(c => c.Status == CotizacionStatus.Submitted))
+            foreach (var c in request.Cotizaciones.Where(c => c.Status == CotizacionStatus.Submitted && !c.IsDeleted))
             {
                 c.Status     = CotizacionStatus.Withdrawn;
                 c.LastUpdate = now;

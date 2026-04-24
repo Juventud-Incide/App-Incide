@@ -342,15 +342,3 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
   }
 }
 
-final isTypingProvider = NotifierProvider<IsTypingNotifier, bool>(() {
-  return IsTypingNotifier();
-});
-
-class IsTypingNotifier extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void setTyping(bool value) {
-    state = value;
-  }
-}

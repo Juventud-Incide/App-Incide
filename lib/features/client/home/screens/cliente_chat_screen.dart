@@ -21,6 +21,7 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   bool _showScrollToBottomButton = false;
+  bool _isTyping = false;
 
   @override
   void initState() {
@@ -75,7 +76,9 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
           .read(chatMessagesProvider.notifier)
           .sendMessage(cotId, text, SenderType.client);
       _textController.clear();
-      Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) _scrollToBottom();
+      });
 
       // 2. Simular respuesta automática del proveedor para probar el estado "escribiendo..."
       // ----------------------------------------------------------------------
@@ -85,13 +88,13 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
       //
       // Al conectar con Sockets o Firebase:
       // 1. Borra todo este bloque de código (hasta la línea punteada inferior).
-      // 2. El proveedor de estado `isTypingProvider` se actualizará automáticamente
-      //    a través de eventos globales del servidor (ej. socket.on('typing')).
+      // 2. El estado `_isTyping` se actualizará de forma local
+      //    a través de eventos del servidor (ej. socket.on('typing')).
       // ----------------------------------------------------------------------
-      ref.read(isTypingProvider.notifier).setTyping(true);
+      setState(() => _isTyping = true);
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) {
-          ref.read(isTypingProvider.notifier).setTyping(false);
+          setState(() => _isTyping = false);
           ref
               .read(chatMessagesProvider.notifier)
               .sendMessage(
@@ -99,7 +102,9 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
                 'Entendido, lo revisaré y te confirmo.',
                 SenderType.provider,
               );
-          Future.delayed(const Duration(milliseconds: 100), _scrollToBottom);
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted) _scrollToBottom();
+          });
         }
       });
       // ----------------------------------------------------------------------
@@ -112,7 +117,6 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   Widget build(BuildContext context) {
     final allChats = ref.watch(chatMessagesProvider);
     final messages = allChats[widget.cotizacion.id] ?? [];
-    final isTyping = ref.watch(isTypingProvider);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundWhite,
@@ -134,8 +138,25 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
                       1, // +1 para el separador de fecha inicial
                   itemBuilder: (context, index) {
                     if (index == 0) {
-                      return const _DateSeparator(
-                        dateText: 'HOY, 16 DE FEBRERO',
+                      return _DateSeparator(
+                        dateText: (() {
+                          final now = DateTime.now();
+                          const months = [
+                            'ENERO',
+                            'FEBRERO',
+                            'MARZO',
+                            'ABRIL',
+                            'MAYO',
+                            'JUNIO',
+                            'JULIO',
+                            'AGOSTO',
+                            'SEPTIEMBRE',
+                            'OCTUBRE',
+                            'NOVIEMBRE',
+                            'DICIEMBRE',
+                          ];
+                          return 'HOY, ${now.day} DE ${months[now.month - 1]}';
+                        })(),
                       );
                     }
                     final message = messages[index - 1];
@@ -160,7 +181,7 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
           ),
 
           // Indicador de "escribiendo..."
-          if (isTyping)
+          if (_isTyping)
             Padding(
               padding: const EdgeInsets.only(left: 24, bottom: 8),
               child: Align(
@@ -488,7 +509,7 @@ class _ChatBubble extends StatelessWidget {
         : time.hour.toString();
     if (time.hour == 0) hour = '12';
     String minute = time.minute.toString().padLeft(2, '0');
-    String ampm = time.hour >= 12 ? 'am' : 'pm';
+    String ampm = time.hour >= 12 ? 'pm' : 'am';
     return '$hour:$minute $ampm';
   }
 }

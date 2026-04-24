@@ -44,30 +44,13 @@ namespace backend.Infraestructure.API_Services
             if (!categoryExists)
                 throw new KeyNotFoundException($"La categoría con id {categoryId} no existe.");
 
-            return await _context.Questions
+            var questions = await _context.Questions
                 .Where(q => q.CategoryId == categoryId && !q.IsDeleted)
                 .Include(q => q.Options)
                 .OrderBy(q => q.Order)
-                .Select(q => new QuestionOutputDTO
-                {
-                    Id         = q.Id,
-                    CategoryId = q.CategoryId,
-                    Text       = q.Text,
-                    Type       = q.Type.ToString(),
-                    IsRequired = q.IsRequired,
-                    Order      = q.Order,
-                    Options    = q.Options
-                                  .Where(o => !o.IsDeleted)
-                                  .OrderBy(o => o.Order)
-                                  .Select(o => new QuestionOptionOutputDTO
-                                  {
-                                      Id    = o.Id,
-                                      Text  = o.Text,
-                                      Order = o.Order
-                                  })
-                                  .ToList()
-                })
                 .ToListAsync(ct);
+
+            return questions.Select(ToDTO).ToList();
         }
 
         public async Task<QuestionOutputDTO> CreateAsync(int categoryId, QuestionDTO dto, CancellationToken ct)

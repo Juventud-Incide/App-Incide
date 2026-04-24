@@ -49,7 +49,7 @@ class _RoleCardState extends State<RoleCard> {
           border: Border.all(
             color: _isPressed
                 ? AppColors.primaryBlue
-                : AppColors.borderGray.withValues(alpha: 0.5),
+                : AppColors.borderLight.withValues(alpha: 0.5),
             width: 1.5,
           ),
           boxShadow: [

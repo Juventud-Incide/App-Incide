@@ -1,25 +1,10 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
+import 'package:app_incide/features/auth/domain/models/application_status.dart';
 import 'package:flutter/material.dart';
-
-/// Enumeración que representa la Máquina de Estados del proceso de admisión.
-///
-/// Define las etapas por las que debe pasar un proveedor antes de que
-/// se le permita el acceso al Dashboard principal de la aplicación.
-enum ApplicationStatus {
-  /// Recién registrado. Sus datos iniciales están siendo revisados.
-  pendingReview,
-
-  /// Aprobó la revisión inicial y se le asignó una entrevista presencial/virtual.
-  interviewScheduled,
-
-  /// Aprobó la entrevista y subió sus documentos. Esperando validación final.
-  validatingDocs,
-
-  /// Proceso completado. La cuenta está activa (este estado suele redirigir al Dashboard).
-  activated,
-}
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
 
 /// Sala de espera (Waiting Room) dinámica para el Proveedor.
 ///
@@ -31,20 +16,8 @@ enum ApplicationStatus {
 /// **Renderizado Condicional:**
 /// La interfaz se reconstruye por completo (textos, íconos, línea de tiempo, y
 /// la tarjeta de cita) evaluando el `ApplicationStatus` provisto por el Backend.
-class ProfReviewStatusScreen extends StatefulWidget {
+class ProfReviewStatusScreen extends ConsumerWidget {
   const ProfReviewStatusScreen({super.key});
-
-  @override
-  State<ProfReviewStatusScreen> createState() => _ProfReviewStatusScreenState();
-}
-
-class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
-  // --- MOCK DATA (Simulando respuesta del Backend) ---
-  // TODO: (BACKEND) - Reemplazar estas variables inyectando el perfil del usuario usando Riverpod (ej: `ref.watch(userProfileProvider).applicationStatus`)
-  final ApplicationStatus _currentStatus = ApplicationStatus.interviewScheduled;
-  final String _interviewDate = "Jueves 28 de Marzo, 10:00 AM";
-  final String _interviewLocation = "Oficinas INCIDE (Col. Centro, Hermosillo)";
-  // -----------------------------------------------------------
 
   /// Constructor del widget visual para cada paso de la línea de tiempo.
   ///
@@ -110,7 +83,16 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authControllerProvider);
+    final currentStatus =
+        authState.applicationStatus ?? ApplicationStatus.pendingReview;
+
+    // TODO: (BACKEND) - Extraer esto de un future provider de perfil cuando el backend lo envíe
+    const String interviewDate = "Jueves 28 de Marzo, 10:00 AM";
+    const String interviewLocation =
+        "Oficinas INCIDE (Col. Centro, Hermosillo)";
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -134,19 +116,19 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                       width: 90,
                       height: 90,
                       decoration: BoxDecoration(
-                        color: _currentStatus == ApplicationStatus.pendingReview
+                        color: currentStatus == ApplicationStatus.pendingReview
                             ? Colors.amber.withValues(alpha: 0.1)
                             : AppColors.primaryBlue.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        _currentStatus == ApplicationStatus.pendingReview
+                        currentStatus == ApplicationStatus.pendingReview
                             ? Icons
                                   .access_time_rounded // Reloj para revisión
                             : Icons
                                   .calendar_month_rounded, // Calendario para cita programada
                         size: 45,
-                        color: _currentStatus == ApplicationStatus.pendingReview
+                        color: currentStatus == ApplicationStatus.pendingReview
                             ? Colors.amber
                             : AppColors.primaryBlue,
                       ),
@@ -155,9 +137,9 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
 
                     // --- 2. TÍTULO Y DESCRIPCIÓN ---
                     Text(
-                      _currentStatus == ApplicationStatus.pendingReview
+                      currentStatus == ApplicationStatus.pendingReview
                           ? AppStrings.underReviewTitle
-                          : _currentStatus ==
+                          : currentStatus ==
                                 ApplicationStatus.interviewScheduled
                           ? AppStrings.interviewScheduledTitle
                           : AppStrings.documentValidationTitle,
@@ -170,9 +152,9 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      _currentStatus == ApplicationStatus.pendingReview
+                      currentStatus == ApplicationStatus.pendingReview
                           ? AppStrings.underReviewSubtitle1
-                          : _currentStatus ==
+                          : currentStatus ==
                                 ApplicationStatus.interviewScheduled
                           ? AppStrings.interviewScheduledSubtitle1
                           : AppStrings.documentValidationSubtitle1,
@@ -187,7 +169,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
 
                     // --- 3. TARJETA DE CITA (Solo visible si hay cita) ---
                     // Solo se inyecta en el árbol de widgets si existe una cita programada
-                    if (_currentStatus == ApplicationStatus.interviewScheduled)
+                    if (currentStatus == ApplicationStatus.interviewScheduled)
                       Container(
                         margin: const EdgeInsets.only(bottom: 30),
                         padding: const EdgeInsets.all(20),
@@ -228,7 +210,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _interviewDate,
+                                    interviewDate,
                                     style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.bold,
@@ -237,7 +219,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    _interviewLocation,
+                                    interviewLocation,
                                     style: const TextStyle(
                                       fontSize: 13,
                                       color: AppColors.textGray,
@@ -272,10 +254,10 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                           _buildTimelineStep(
                             title: AppStrings.reviewTimelineStep,
                             isCompleted:
-                                _currentStatus !=
+                                currentStatus !=
                                 ApplicationStatus.pendingReview,
                             isActive:
-                                _currentStatus ==
+                                currentStatus ==
                                 ApplicationStatus.pendingReview,
                           ),
 
@@ -283,11 +265,11 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                           _buildTimelineStep(
                             title: AppStrings.interviewTimelineStep,
                             isCompleted:
-                                _currentStatus ==
+                                currentStatus ==
                                     ApplicationStatus.validatingDocs ||
-                                _currentStatus == ApplicationStatus.activated,
+                                currentStatus == ApplicationStatus.activated,
                             isActive:
-                                _currentStatus ==
+                                currentStatus ==
                                 ApplicationStatus.interviewScheduled,
                           ),
 
@@ -295,9 +277,9 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                           _buildTimelineStep(
                             title: AppStrings.reviewDocsTimelineStep,
                             isCompleted:
-                                _currentStatus == ApplicationStatus.activated,
+                                currentStatus == ApplicationStatus.activated,
                             isActive:
-                                _currentStatus ==
+                                currentStatus ==
                                 ApplicationStatus.validatingDocs,
                           ),
 
@@ -305,7 +287,7 @@ class _ProfReviewStatusScreenState extends State<ProfReviewStatusScreen> {
                           _buildTimelineStep(
                             title: AppStrings.activatedTimelineStep,
                             isCompleted:
-                                _currentStatus == ApplicationStatus.activated,
+                                currentStatus == ApplicationStatus.activated,
                             isActive: false,
                             isLast: true,
                           ),

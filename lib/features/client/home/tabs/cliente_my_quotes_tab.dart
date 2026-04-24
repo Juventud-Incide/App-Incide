@@ -67,7 +67,7 @@ class QuotesTab extends ConsumerWidget {
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: AppColors.borderGray),
+          border: Border.all(color: AppColors.borderLight),
         ),
         padding: const EdgeInsets.all(4),
         child: Stack(
@@ -354,7 +354,7 @@ class _QuoteCard extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               // Reemplazo del Divider para evitar bugs de SDK web
-              Container(height: 1, color: AppColors.borderGray),
+              Container(height: 1, color: AppColors.borderLight),
               const SizedBox(height: 12),
               // ── Fila inferior: precio + botón chat ─────────────────
               Row(

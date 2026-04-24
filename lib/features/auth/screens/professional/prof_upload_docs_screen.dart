@@ -1,5 +1,8 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/auth/domain/models/application_status.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_upload_card.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
@@ -15,14 +18,15 @@ import 'package:app_incide/core/constants/app_strings.dart';
 /// Utiliza un getter reactivo `_allDocsUploaded` para evaluar constantemente si los
 /// cinco requisitos (INE, Domicilio, Cédula, Antecedentes, Foto) se han cumplido,
 /// alterando el estado visual y funcional del botón de envío final.
-class ProfUploadDocsScreen extends StatefulWidget {
+class ProfUploadDocsScreen extends ConsumerStatefulWidget {
   const ProfUploadDocsScreen({super.key});
 
   @override
-  State<ProfUploadDocsScreen> createState() => _ProfUploadDocsScreenState();
+  ConsumerState<ProfUploadDocsScreen> createState() =>
+      _ProfUploadDocsScreenState();
 }
 
-class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
+class _ProfUploadDocsScreenState extends ConsumerState<ProfUploadDocsScreen> {
   // TODO: (BACKEND) - Sustituir estos booleanos por objetos `File?` o URLs devueltas por Firebase Storage/AWS S3 una vez que el archivo sube al bucket.
 
   // Estados individuales de carga para cada documento
@@ -103,7 +107,9 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
   void _submitDocuments() {
     // La validación estricta ocurre aquí
     if (_allDocsUploaded) {
-      // TODO: (BACKEND) - Llamada para actualizar el estatus del proveedor a "En Revisión"
+      ref
+          .read(authControllerProvider.notifier)
+          .updateApplicationStatus(ApplicationStatus.validatingDocs);
       context.goNamed('prof_docs_success');
     } else {
       // UX: Retroalimentación inmediata si intenta forzar el envío prematuro
@@ -125,7 +131,14 @@ class _ProfUploadDocsScreenState extends State<ProfUploadDocsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              // Salida de emergencia si no hay historial
+              context.goNamed('prof_approved');
+            }
+          },
         ),
         title: const Text(
           AppStrings.docsTitle,

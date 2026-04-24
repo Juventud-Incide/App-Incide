@@ -7,7 +7,7 @@ namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Client,Provider")]
     public class ChatController : ControllerBase
     {
         private readonly IChatService _chatService;
@@ -39,7 +39,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
             }
         }
 
@@ -47,6 +47,9 @@ namespace backend.Controllers
         [HttpGet("rooms/{id}/messages")]
         public async Task<IActionResult> GetHistory(int id, [FromQuery] int limit = 50, CancellationToken ct = default)
         {
+            if (limit is < 1 or > 100)
+                return BadRequest(new { message = "limit debe estar entre 1 y 100." });
+
             try
             {
                 var messages = await _chatService.GetHistoryAsync(id, GetUserId(), limit, ct);
@@ -62,7 +65,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
             }
         }
     }

@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/utils/app_formatters.dart';
 import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -173,6 +174,7 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
                   onToggleVisibility: () =>
                       setState(() => _isPasswordVisible = !_isPasswordVisible),
                   textCapitalization: TextCapitalization.none,
+                  inputFormatters: AppFormatters.noSpaces,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return AppStrings.requiredField;
@@ -196,6 +198,7 @@ class _ProfNewPasswordScreenState extends State<ProfNewPasswordScreen> {
                   onToggleVisibility: () =>
                       setState(() => _isConfirmVisible = !_isConfirmVisible),
                   textCapitalization: TextCapitalization.none,
+                  inputFormatters: AppFormatters.noSpaces,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return AppStrings.requiredField;

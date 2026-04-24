@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
@@ -132,6 +133,7 @@ class _ProfForgotPasswordScreenState extends State<ProfForgotPasswordScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   textCapitalization: TextCapitalization.none,
+                  inputFormatters: [...AppFormatters.noSpaces],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return AppStrings.requiredField;

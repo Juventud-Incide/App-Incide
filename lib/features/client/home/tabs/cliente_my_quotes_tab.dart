@@ -48,8 +48,9 @@ class QuotesTab extends ConsumerWidget {
   // ── Chips estilo igual al filtro de categorías del HomeTab ────────────
 
   Widget _buildFiltros(WidgetRef ref, EstadoCotizacion filtroActivo) {
-    final int selectedIndex =
-        _filtros.indexWhere((f) => f.estado == filtroActivo);
+    final int selectedIndex = _filtros.indexWhere(
+      (f) => f.estado == filtroActivo,
+    );
 
     return Container(
       color: AppColors.backgroundWhite,
@@ -66,7 +67,7 @@ class QuotesTab extends ConsumerWidget {
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: AppColors.borderGray),
+          border: Border.all(color: AppColors.borderLight),
         ),
         padding: const EdgeInsets.all(4),
         child: Stack(
@@ -78,8 +79,8 @@ class QuotesTab extends ConsumerWidget {
               alignment: selectedIndex == 0
                   ? Alignment.centerLeft
                   : selectedIndex == 1
-                      ? Alignment.center
-                      : Alignment.centerRight,
+                  ? Alignment.center
+                  : Alignment.centerRight,
               child: FractionallySizedBox(
                 widthFactor: 1.0 / _filtros.length, // Ocupa exactamente 1/3
                 heightFactor: 1.0,
@@ -220,7 +221,7 @@ class _QuoteCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderGray, width: 1.0),
+            border: Border.all(color: AppColors.borderLight, width: 1.0),
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -304,7 +305,7 @@ class _QuoteCard extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               // Reemplazo del Divider para evitar bugs de SDK web
-              Container(height: 1, color: AppColors.borderGray),
+              Container(height: 1, color: AppColors.borderLight),
               const SizedBox(height: 12),
               // ── Fila inferior: precio + botón chat ─────────────────
               Row(

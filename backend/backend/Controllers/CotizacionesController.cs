@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using backend.Domain.DTOs.Cotizacion;
 using backend.Domain.Enum;
 using backend.Infraestructure.API_Services_Interfaces;
@@ -204,6 +205,60 @@ namespace backend.Controllers
                 if (!withdrawn)
                     return NotFound(new { message = "Cotizacion not found." });
                 return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        /// <summary>POST /api/cotizaciones/solicitudes/{id}/interes — Provider expresses interest and opens a chat room.</summary>
+        [Authorize(Roles = "Provider")]
+        [HttpPost("solicitudes/{id}/interes")]
+        public async Task<IActionResult> ExpressInterest(int id, CancellationToken ct)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+                var result = await _cotizacionService.ExpressInterestAsync(id, userId, ct);
+                return CreatedAtAction(nameof(GetRequestById), new { id = result.ServiceRequestId }, result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict(new { message = "Ya expresaste interés en esta solicitud." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        /// <summary>POST /api/cotizaciones/solicitudes/{id}/cancelar — Client cancels their service request.</summary>
+        [Authorize(Roles = "Client")]
+        [HttpPost("solicitudes/{id}/cancelar")]
+        public async Task<IActionResult> CancelServiceRequest(int id, CancellationToken ct)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+                await _cotizacionService.CancelServiceRequestAsync(id, userId, ct);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
             }
             catch (InvalidOperationException ex)
             {

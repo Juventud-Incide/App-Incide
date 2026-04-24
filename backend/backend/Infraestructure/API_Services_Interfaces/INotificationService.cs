@@ -12,5 +12,8 @@ namespace backend.Infraestructure.API_Services_Interfaces
         Task NotifyProviderAffiliationApprovedAsync(Provider provider, CancellationToken ct);
 
         Task NotifyProviderAffiliationRejectedAsync(Provider provider, string reason, CancellationToken ct);
+
+        Task NotifyClientProviderInterestedAsync(Client client, ServiceRequest request, Provider provider, CancellationToken ct);
+        Task NotifyClientRequestCancelledAsync(Client client, ServiceRequest request, CancellationToken ct);
     }
 }

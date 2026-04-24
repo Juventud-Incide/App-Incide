@@ -18,5 +18,7 @@ namespace backend.Infraestructure.API_Services_Interfaces
         Task<CotizacionOutputDTO> SubmitCotizacionAsync(int requestId, int userId, SubmitCotizacionDTO dto, CancellationToken ct);
         Task<List<CotizacionOutputDTO>> GetMyCotizacionesAsync(int userId, CancellationToken ct);
         Task<bool> WithdrawCotizacionAsync(int cotizacionId, int userId, CancellationToken ct);
+        Task<ChatRoomOutputDTO> ExpressInterestAsync(int serviceRequestId, int userId, CancellationToken ct);
+        Task CancelServiceRequestAsync(int serviceRequestId, int userId, CancellationToken ct);
     }
 }

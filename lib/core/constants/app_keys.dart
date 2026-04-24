@@ -7,4 +7,5 @@ class AppKeys {
   static const String token = 'jwt_token';
   static const String role = 'user_role';
   static const String profileStatus = 'profile_status';
+  static const String applicationStatus = 'application_status';
 }

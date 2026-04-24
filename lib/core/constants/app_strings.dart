@@ -213,6 +213,15 @@ class AppStrings {
   static const String estimatedTimeValue = '1 a 2 días hábiles';
   static const String seeUpdateBtn = 'Ver estado de mi solicitud';
 
+  // --- Pantalla de Activación de Cuenta ---
+  static const String activationTitle = '¡Cuenta Activada!';
+  static const String activationSubtitle =
+      'Tus documentos han sido validados exitosamente. Ya formas parte de la red de proveedores oficiales de INCIDE.';
+  static const String activationNextStepsTitle = 'Siguiente paso';
+  static const String activationNextStepsSubtitle =
+      'Para enviarte oportunidades de trabajo, necesitaremos que configures tu ubicación en la siguiente pantalla.';
+  static const String activationNextStepsBtn = 'Comenzar';
+
   // --- Pantalla de Shell de Dashboard de proveedores ---
   static const String shellHome = 'Inicio';
   static const String shellQuotes = 'Cotizaciones';

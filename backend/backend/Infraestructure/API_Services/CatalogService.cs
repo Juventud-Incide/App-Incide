@@ -61,10 +61,6 @@ namespace backend.Infraestructure.API_Services
                 .Take(10)
                 .ToListAsync(ct);
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> e4d874d (feat: add service item CRUD to CatalogService)
         private static ServiceItemOutputDTO ToServiceDTO(ServiceItem s) => new()
         {
             Id           = s.Id,

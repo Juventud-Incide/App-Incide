@@ -127,35 +127,9 @@ namespace backend.Infraestructure.API_Services
                 ? query.Where(cr => cr.ServiceRequest.ClientId == client.Id)
                 : query.Where(cr => cr.ProviderId == provider!.Id);
 
-            var rooms = await query
+            return await query
                 .OrderByDescending(cr => cr.LastUpdate)
-                .ToListAsync(ct);
-
-            if (rooms.Count == 0)
-                return [];
-
-            var roomIds = rooms.Select(r => r.Id).ToList();
-
-            // One query for last message + unread count; group in memory
-            var allMessages = await _context.ChatMessages
-                .Where(m => roomIds.Contains(m.ChatRoomId) && !m.IsDeleted)
-                .OrderByDescending(m => m.CreationDate)
-                .ToListAsync(ct);
-
-            var lastMsgByRoom = allMessages
-                .GroupBy(m => m.ChatRoomId)
-                .ToDictionary(g => g.Key, g => g.First());
-
-            var unreadByRoom = allMessages
-                .Where(m => !m.IsRead && m.SenderId != userId)
-                .GroupBy(m => m.ChatRoomId)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            return rooms.Select(cr =>
-            {
-                lastMsgByRoom.TryGetValue(cr.Id, out var lastMsg);
-                unreadByRoom.TryGetValue(cr.Id, out var unread);
-                return new ChatRoomSummaryOutputDTO
+                .Select(cr => new ChatRoomSummaryOutputDTO
                 {
                     Id                 = cr.Id,
                     ServiceRequestId   = cr.ServiceRequestId,
@@ -164,12 +138,21 @@ namespace backend.Infraestructure.API_Services
                     ProviderName       = $"{cr.Provider.User.FirstName} {cr.Provider.User.LastName}",
                     ClientId           = cr.ServiceRequest.ClientId,
                     ClientName         = $"{cr.ServiceRequest.Client.User.FirstName} {cr.ServiceRequest.Client.User.LastName}",
-                    LastMessageContent = lastMsg?.Content,
-                    LastMessageAt      = lastMsg?.CreationDate,
-                    UnreadCount        = unread,
-                    CreationDate       = cr.CreationDate
-                };
-            }).ToList();
+                    LastMessageContent = cr.Messages
+                        .Where(m => !m.IsDeleted)
+                        .OrderByDescending(m => m.CreationDate)
+                        .Select(m => m.Content)
+                        .FirstOrDefault(),
+                    LastMessageAt = cr.Messages
+                        .Where(m => !m.IsDeleted)
+                        .OrderByDescending(m => m.CreationDate)
+                        .Select(m => (DateTime?)m.CreationDate)
+                        .FirstOrDefault(),
+                    UnreadCount    = cr.Messages
+                        .Count(m => !m.IsDeleted && !m.IsRead && m.SenderId != userId),
+                    CreationDate   = cr.CreationDate
+                })
+                .ToListAsync(ct);
         }
     }
 }

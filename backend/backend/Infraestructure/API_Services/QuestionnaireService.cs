@@ -75,6 +75,9 @@ namespace backend.Infraestructure.API_Services
 
             if (dto.Type == Domain.Enum.QuestionType.MultipleChoice)
             {
+                if (dto.Options is not { Count: > 0 })
+                    throw new ArgumentException("Una pregunta de opción múltiple debe tener al menos una opción.");
+
                 question.Options = dto.Options.Select((o, i) => new QuestionOption
                 {
                     Text         = o.Text,
@@ -115,6 +118,9 @@ namespace backend.Infraestructure.API_Services
 
             if (dto.Type == Domain.Enum.QuestionType.MultipleChoice)
             {
+                if (dto.Options is not { Count: > 0 })
+                    throw new ArgumentException("Una pregunta de opción múltiple debe tener al menos una opción.");
+
                 var newOptions = dto.Options.Select((o, i) => new QuestionOption
                 {
                     QuestionId   = question.Id,

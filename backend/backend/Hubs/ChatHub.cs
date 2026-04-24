@@ -67,7 +67,8 @@ namespace backend.Hubs
                 var message = await _chatService.SaveMessageAsync(
                     chatRoomId, userId, content.Trim(), Context.ConnectionAborted);
 
-                await Clients.Group(GroupName(chatRoomId)).SendAsync("ReceiveMessage", message);
+                await Clients.Caller.SendAsync("ReceiveMessage", message);
+                await Clients.OthersInGroup(GroupName(chatRoomId)).SendAsync("ReceiveMessage", message);
             }
             catch (KeyNotFoundException ex)    { throw new HubException(ex.Message); }
             catch (UnauthorizedAccessException) { throw new HubException("Access denied."); }

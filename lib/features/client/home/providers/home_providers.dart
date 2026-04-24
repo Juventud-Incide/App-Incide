@@ -176,7 +176,7 @@ class AllCotizacionesNotifier extends Notifier<List<CotizacionModel>> {
         precioEstimado: 850.0,
         estado: EstadoCotizacion.enEspera,
         hasNewProposal:
-            true, // Propiedad activada para probar, poner en false para volverlo a lo normal, es para puro mock
+            false, // Estado por defecto del mock; activar solo vía simulateNewProposal
       ),
       CotizacionModel(
         id: 'q2',
@@ -217,6 +217,8 @@ class AllCotizacionesNotifier extends Notifier<List<CotizacionModel>> {
     ];
   }
 
+  // TODO(Backend): Eliminar este método cuando exista un backend real.
+  @visibleForTesting
   void simulateNewProposal(String id) {
     state = state.map((c) {
       if (c.id == id) {

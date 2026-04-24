@@ -5,7 +5,6 @@ import '../tabs/cliente_home_tab.dart';
 import '../tabs/cliente_my_quotes_tab.dart';
 import '../tabs/cliente_payments_tab.dart';
 import '../tabs/cliente_profile_tab.dart';
-import '../providers/home_providers.dart';
 import '../widgets/client_banner_app_bar.dart';
 import '../widgets/client_bottom_nav_bar.dart';
 

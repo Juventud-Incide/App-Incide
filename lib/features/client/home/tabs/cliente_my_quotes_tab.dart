@@ -226,7 +226,7 @@ class _QuoteCard extends StatelessWidget {
             border: Border.all(
               color: cotizacion.hasNewProposal
                   ? AppColors.primaryBlue.withOpacity(0.6)
-                  : AppColors.borderGray,
+                  : AppColors.borderLight,
               width: cotizacion.hasNewProposal ? 1.5 : 1.0,
             ),
           ),

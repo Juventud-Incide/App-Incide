@@ -102,6 +102,12 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Dev", policy =>
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -140,6 +146,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+if (app.Environment.IsDevelopment())
+    app.UseCors("Dev");
+
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();

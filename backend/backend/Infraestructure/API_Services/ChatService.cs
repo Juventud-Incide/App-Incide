@@ -57,6 +57,12 @@ namespace backend.Infraestructure.API_Services
         public async Task<ChatMessageOutputDTO> SaveMessageAsync(
             int chatRoomId, int senderUserId, string content, CancellationToken ct)
         {
+            content = content?.Trim() ?? string.Empty;
+            if (content.Length == 0)
+                throw new ArgumentException("El mensaje no puede estar vacío.");
+            if (content.Length > 2000)
+                throw new ArgumentException("El mensaje no puede superar los 2000 caracteres.");
+
             var room       = await GetAuthorizedRoomAsync(chatRoomId, senderUserId, ct);
             var isClient   = room.ServiceRequest.Client.UserId == senderUserId;
             var senderUser = isClient ? room.ServiceRequest.Client.User : room.Provider.User;

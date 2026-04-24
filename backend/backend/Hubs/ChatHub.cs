@@ -72,6 +72,7 @@ namespace backend.Hubs
             }
             catch (KeyNotFoundException ex)    { throw new HubException(ex.Message); }
             catch (UnauthorizedAccessException) { throw new HubException("Access denied."); }
+            catch (ArgumentException ex)        { throw new HubException(ex.Message); }
         }
     }
 }

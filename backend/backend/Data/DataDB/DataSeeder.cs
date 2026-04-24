@@ -14,8 +14,9 @@ namespace backend.Data.DataDB
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var hasher  = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
 
-            // Evitar re-seed si ya hay datos
-        if (await context.Users.AnyAsync()) return;
+            // Cada sección verifica su propia tabla para permitir re-seed parcial
+
+            if (await context.Users.AnyAsync()) return; // Seed base ya aplicado
 
             // ── Usuarios ──────────────────────────────────────────────────────────
             var now = DateTime.UtcNow;
@@ -229,6 +230,74 @@ namespace backend.Data.DataDB
 
             context.Cotizaciones.Add(seedCotizacion);
             await context.SaveChangesAsync();
+
+            // ── Cuestionario por categoría ────────────────────────────────────────
+            QuestionOption Opt(string text, int order) => new()
+            {
+                Text = text, Order = order,
+                IsActive = true, CreationDate = now, LastUpdate = now
+            };
+
+            var questions = new List<Question>
+            {
+                // Plomería
+                new() {
+                    CategoryId = catPlomeria.Id, Text = "¿Cuál es el problema principal?",
+                    Type = QuestionType.MultipleChoice, IsRequired = true, Order = 1,
+                    IsActive = true, CreationDate = now, LastUpdate = now,
+                    Options = [ Opt("Fuga de agua", 1), Opt("Tubería rota", 2), Opt("Sin agua", 3), Opt("Otro", 4) ]
+                },
+                new() {
+                    CategoryId = catPlomeria.Id, Text = "¿Cuántos baños tiene el inmueble?",
+                    Type = QuestionType.Numeric, IsRequired = false, Order = 2,
+                    IsActive = true, CreationDate = now, LastUpdate = now
+                },
+
+                // Electricidad
+                new() {
+                    CategoryId = catElectricidad.Id, Text = "¿Qué necesita instalar o reparar?",
+                    Type = QuestionType.MultipleChoice, IsRequired = true, Order = 1,
+                    IsActive = true, CreationDate = now, LastUpdate = now,
+                    Options = [ Opt("Contacto", 1), Opt("Interruptor", 2), Opt("Cableado", 3), Opt("Panel eléctrico", 4) ]
+                },
+                new() {
+                    CategoryId = catElectricidad.Id, Text = "¿Cuántos puntos eléctricos requiere?",
+                    Type = QuestionType.Numeric, IsRequired = false, Order = 2,
+                    IsActive = true, CreationDate = now, LastUpdate = now
+                },
+
+                // Carpintería
+                new() {
+                    CategoryId = catCarpinteria.Id, Text = "¿Qué tipo de trabajo necesita?",
+                    Type = QuestionType.MultipleChoice, IsRequired = true, Order = 1,
+                    IsActive = true, CreationDate = now, LastUpdate = now,
+                    Options = [ Opt("Instalación de muebles", 1), Opt("Reparación", 2), Opt("Fabricación a medida", 3) ]
+                },
+                new() {
+                    CategoryId = catCarpinteria.Id, Text = "Descripción adicional del trabajo",
+                    Type = QuestionType.Text, IsRequired = false, Order = 2,
+                    IsActive = true, CreationDate = now, LastUpdate = now
+                },
+
+                // Limpieza
+                new() {
+                    CategoryId = catLimpieza.Id, Text = "¿Tipo de limpieza?",
+                    Type = QuestionType.MultipleChoice, IsRequired = true, Order = 1,
+                    IsActive = true, CreationDate = now, LastUpdate = now,
+                    Options = [ Opt("Hogar", 1), Opt("Oficina", 2), Opt("Post-obra", 3) ]
+                },
+                new() {
+                    CategoryId = catLimpieza.Id, Text = "¿Cuántos metros cuadrados aproximadamente?",
+                    Type = QuestionType.Numeric, IsRequired = false, Order = 2,
+                    IsActive = true, CreationDate = now, LastUpdate = now
+                },
+            };
+
+            if (!await context.Questions.AnyAsync())
+            {
+                context.Questions.AddRange(questions);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

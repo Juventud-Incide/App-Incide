@@ -1,3 +1,5 @@
+import 'package:app_incide/features/auth/domain/models/application_status.dart';
+import 'package:app_incide/features/auth/screens/professional/prof_activated_screen.dart';
 import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:app_incide/features/provider/quotes/screens/prof_quotes_screen.dart';
 import 'package:flutter/material.dart';
@@ -114,22 +116,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/prof-register',
         '/prof-forgot-password',
         '/prof-forgot-password-sent',
-        /*'/prof-otp',
-        '/prof-experience',
-        '/prof-review-status',
-        '/prof-success',
-        '/prof-approved',
-        '/prof-upload-docs',
-        '/prof-docs-success',
-        '/prof-rejected',
-        '/prof-docs-revision',*/
         '/login-cliente',
         '/registro-cliente',
         '/verif-correo-cliente',
         '/forgot-password',
         '/forgot-password-sent',
         '/reset-password',
-        /*'/client-location-permission',*/
       ];
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
@@ -145,7 +137,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         if (role == 'proveedor') {
           switch (status) {
             case 'pendiente':
-              return '/prof-approved';
+              // Dependiendo de su fase exacta, lo mandamos a su reanudación
+              switch (authState.applicationStatus) {
+                case ApplicationStatus.activated:
+                  return '/prof-activated';
+                case ApplicationStatus.uploadingDocs:
+                  return '/prof-approved';
+                case ApplicationStatus.correctingDocs:
+                  return '/prof-docs-revision';
+                case ApplicationStatus.validatingDocs:
+                case ApplicationStatus.pendingReview:
+                case ApplicationStatus.interviewScheduled:
+                default:
+                  return '/prof-review-status';
+              }
             case 'rechazado':
               return '/prof-rejected';
             case 'aceptado':
@@ -177,16 +182,48 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (role == 'proveedor') {
         // Fase 1: Filtro de Estatus (Revisión de Documentos)
         if (status == 'pendiente') {
-          final allowedPendiente = [
-            '/prof-approved',
-            '/prof-upload-docs',
-            '/prof-docs-success',
-            '/prof-docs-revision',
-            '/prof-review-status',
-          ];
-          // Si intenta escapar, lo regresamos a su inicio de flujo
-          if (!allowedPendiente.contains(targetPath)) return '/prof-approved';
-          return null;
+          final subStatus = authState.applicationStatus;
+          switch (subStatus) {
+            case ApplicationStatus.activated:
+              if (targetPath != '/prof-activated') return '/prof-activated';
+              return null;
+
+            case ApplicationStatus.uploadingDocs:
+              final allowedDocs = [
+                'prof-approved',
+                '/prof-upload-docs',
+                '/prof-docs-success',
+                '/prof-docs-revision',
+              ];
+              if (!allowedDocs.contains(targetPath)) return '/prof-approved';
+              return null;
+
+            case ApplicationStatus.correctingDocs:
+              final allowedDocs = ['/prof-docs-revision', '/prof-docs-success'];
+              if (!allowedDocs.contains(targetPath)) {
+                return '/prof-docs-revision';
+              }
+              return null;
+
+            case ApplicationStatus.validatingDocs:
+              final allowedValidating = [
+                '/prof-docs-success',
+                '/prof-review-status',
+              ];
+              if (!allowedValidating.contains(targetPath)) {
+                return '/prof-review-status';
+              }
+              return null;
+
+            case ApplicationStatus.pendingReview:
+            case ApplicationStatus.interviewScheduled:
+            default:
+              // Solo tiene permitido estar en la sala de espera
+              if (targetPath != '/prof-review-status') {
+                return '/prof-review-status';
+              }
+              return null;
+          }
         }
 
         if (status == 'rechazado') {
@@ -295,6 +332,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/prof-rejected',
         name: 'prof_rejected',
         builder: (context, state) => const ProfRejectedScreen(),
+      ),
+      GoRoute(
+        path: '/prof-activated',
+        name: 'prof_activated',
+        builder: (context, state) => const ProfActivatedScreen(),
       ),
       GoRoute(
         path: '/prof-docs-revision',

@@ -1,4 +1,5 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
@@ -197,6 +198,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   hintText: '',
                   controller: _nameController,
                   textCapitalization: TextCapitalization.words,
+                  inputFormatters: AppFormatters.nameFormatter,
                   validator: (value) => value == null || value.isEmpty
                       ? AppStrings.requiredField
                       : null,
@@ -207,6 +209,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   hintText: '',
                   controller: _lastNameController,
                   textCapitalization: TextCapitalization.words,
+                  inputFormatters: AppFormatters.nameFormatter,
                   validator: (value) => value == null || value.isEmpty
                       ? AppStrings.requiredField
                       : null,
@@ -219,6 +222,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   textCapitalization: TextCapitalization.none,
+                  inputFormatters: AppFormatters.noSpaces,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return AppStrings.requiredField;
@@ -236,6 +240,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   textCapitalization: TextCapitalization.none,
+                  inputFormatters: [AppFormatters.phoneMask],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return AppStrings.requiredField;
@@ -261,6 +266,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                     return null;
                   },
                   textCapitalization: TextCapitalization.none,
+                  inputFormatters: AppFormatters.noSpaces,
                 ),
 
                 // SECCIÓN: DATOS LEGALES (Validación Oficial MX)
@@ -270,6 +276,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   hintText: AppStrings.curpHint,
                   controller: _curpController,
                   textCapitalization: TextCapitalization.characters,
+                  inputFormatters: AppFormatters.curpFormatter,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppStrings.requiredField;
@@ -292,6 +299,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   hintText: AppStrings.rfcHint,
                   controller: _rfcController,
                   textCapitalization: TextCapitalization.characters,
+                  inputFormatters: AppFormatters.rfcFormatter,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppStrings.requiredField;

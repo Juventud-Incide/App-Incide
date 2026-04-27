@@ -44,7 +44,8 @@ import '../../features/client/home/screens/forgot_password_sent_screen.dart';
 import '../../features/client/home/screens/reset_password_screen.dart';
 import '../../features/client/home/screens/cliente_quote_detail_screen.dart';
 import '../../features/client/home/models/cotizacion_model.dart';
-
+import '../../features/client/home/screens/cliente_chat_screen.dart';
+import '../../features/client/home/providers/home_providers.dart';
 // ==========================================
 // 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER
 // ==========================================
@@ -508,8 +509,58 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/cliente/cotizacion/:cotizacionId',
         name: 'cliente-cotizacion-detalle',
         builder: (context, state) {
-          final cotizacion = state.extra as CotizacionModel;
+          final cotizacionId = state.pathParameters['cotizacionId'] ?? '';
+          CotizacionModel? cotizacion;
+
+          if (state.extra is CotizacionModel) {
+            cotizacion = state.extra as CotizacionModel;
+          } else {
+            final allCotizaciones = ref.read(allCotizacionesProvider);
+            try {
+              cotizacion = allCotizaciones.firstWhere(
+                (c) => c.id == cotizacionId,
+              );
+            } catch (_) {
+              cotizacion = null;
+            }
+          }
+
+          if (cotizacion == null || cotizacion.id != cotizacionId) {
+            return const Scaffold(
+              body: Center(child: Text('Error: Cotización no encontrada')),
+            );
+          }
+
           return ClienteQuoteDetailScreen(cotizacion: cotizacion);
+        },
+      ),
+      GoRoute(
+        path: '/cliente/chat/:cotizacionId',
+        name: 'cliente-chat',
+        builder: (context, state) {
+          final cotizacionId = state.pathParameters['cotizacionId'] ?? '';
+          CotizacionModel? cotizacion;
+
+          if (state.extra is CotizacionModel) {
+            cotizacion = state.extra as CotizacionModel;
+          } else {
+            final allCotizaciones = ref.read(allCotizacionesProvider);
+            try {
+              cotizacion = allCotizaciones.firstWhere(
+                (c) => c.id == cotizacionId,
+              );
+            } catch (_) {
+              cotizacion = null;
+            }
+          }
+
+          if (cotizacion == null || cotizacion.id != cotizacionId) {
+            return const Scaffold(
+              body: Center(child: Text('Error: Cotización no encontrada')),
+            );
+          }
+
+          return ClienteChatScreen(cotizacion: cotizacion);
         },
       ),
 

@@ -340,18 +340,7 @@ final filteredPagosProvider = Provider<List<PagoModel>>((ref) {
   return todos.where((p) => p.estado == filtroActivo).toList();
 });
 
-// ── Resumen financiero del cliente ────────────────────────────────────────
-class ResumenPagos {
-  final int pagosCompletados;
-  final int pagosPendientes;
-  final int cantidadPagos;
 
-  const ResumenPagos({
-    required this.pagosCompletados,
-    required this.pagosPendientes,
-    required this.cantidadPagos,
-  });
-}
 
 final resumenPagosProvider = Provider<ResumenPagos>((ref) {
   final todos = ref.watch(allPagosProvider);

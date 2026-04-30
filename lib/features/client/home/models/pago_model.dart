@@ -59,3 +59,16 @@ class PagoModel {
   //   }
   // }
 }
+
+// ── Resumen financiero del cliente ────────────────────────────────────────
+class ResumenPagos {
+  final int pagosCompletados;
+  final int pagosPendientes;
+  final int cantidadPagos;
+
+  const ResumenPagos({
+    required this.pagosCompletados,
+    required this.pagosPendientes,
+    required this.cantidadPagos,
+  });
+}

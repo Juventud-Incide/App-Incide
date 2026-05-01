@@ -369,4 +369,3 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
     };
   }
 }
-

@@ -302,7 +302,7 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.borderGray, width: 1)),
+        border: Border(top: BorderSide(color: AppColors.borderLight, width: 1)),
       ),
       child: SafeArea(
         child: Row(
@@ -368,7 +368,7 @@ class _DateSeparator extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.borderGray.withOpacity(0.5),
+            color: AppColors.borderLight.withOpacity(0.5),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
@@ -414,7 +414,7 @@ class _ChatBubble extends StatelessWidget {
                     : Colors
                           .white, // Azul claro (cliente) vs Blanco (proveedor)
                 border: !isClient
-                    ? Border.all(color: AppColors.borderGray)
+                    ? Border.all(color: AppColors.borderLight)
                     : null,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
@@ -446,7 +446,7 @@ class _ChatBubble extends StatelessWidget {
                               Container(
                                 width: 250,
                                 height: 150,
-                                color: AppColors.borderGray,
+                                color: AppColors.borderLight,
                                 child: const Icon(
                                   Icons.image_not_supported,
                                   color: AppColors.textGray,

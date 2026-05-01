@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
-import '../models/cotizacion_model.dart';
-import '../providers/home_providers.dart';
+import '../../models/cotizacion_model.dart';
+import '../../providers/home_providers.dart';
 
 // ─────────────────────────────────────────────────────────
 // Task #116 — Pestaña "Mis Cotizaciones"
@@ -62,7 +62,7 @@ class QuotesTab extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -90,7 +90,7 @@ class QuotesTab extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryBlue.withOpacity(0.3),
+                        color: AppColors.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -143,7 +143,7 @@ class QuotesTab extends ConsumerWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withOpacity(0.07),
+              color: AppColors.primaryBlue.withValues(alpha: 0.07),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -220,12 +220,12 @@ class _QuoteCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: cotizacion.hasNewProposal
-                ? AppColors.primaryBlue.withOpacity(0.02)
+                ? AppColors.primaryBlue.withValues(alpha: 0.02)
                 : Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: cotizacion.hasNewProposal
-                  ? AppColors.primaryBlue.withOpacity(0.6)
+                  ? AppColors.primaryBlue.withValues(alpha: 0.6)
                   : AppColors.borderLight,
               width: cotizacion.hasNewProposal ? 1.5 : 1.0,
             ),
@@ -244,7 +244,7 @@ class _QuoteCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryBlue.withOpacity(0.08),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
@@ -298,7 +298,7 @@ class _QuoteCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.redAccent.withOpacity(0.3),
+                                color: Colors.redAccent.withValues(alpha: 0.3),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -332,10 +332,10 @@ class _QuoteCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: badgeColor.withOpacity(0.12),
+                          color: badgeColor.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: badgeColor.withOpacity(0.3),
+                            color: badgeColor.withValues(alpha: 0.3),
                             width: 1.0,
                           ),
                         ),

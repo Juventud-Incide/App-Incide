@@ -44,7 +44,7 @@ import '../../features/client/home/screens/forgot_password_sent_screen.dart';
 import '../../features/client/home/screens/reset_password_screen.dart';
 import '../../features/client/home/tabs/Cotizaciones/cliente_quote_detail_screen.dart';
 import '../../features/client/home/models/cotizacion_model.dart';
-import '../../features/client/home/screens/cliente_chat_screen.dart';
+import '../../features/client/home/screens/chat/cliente_chat_screen.dart';
 import '../../features/client/home/providers/home_providers.dart';
 // ==========================================
 // 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER

@@ -1,10 +1,13 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../models/cotizacion_model.dart';
-import '../models/chat_message_model.dart';
-import '../providers/home_providers.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../models/cotizacion_model.dart';
+import '../../models/chat_message_model.dart';
+import '../../providers/home_providers.dart';
+import 'chat_input_bar.dart';
 
 // --- Pantalla Principal ---
 
@@ -19,7 +22,6 @@ class ClienteChatScreen extends ConsumerStatefulWidget {
 
 class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _textController = TextEditingController();
   bool _showScrollToBottomButton = false;
   bool _isTyping = false;
 
@@ -53,7 +55,6 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
-    _textController.dispose();
     super.dispose();
   }
 
@@ -67,15 +68,15 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
     }
   }
 
-  void _sendMessage() {
-    final text = _textController.text.trim();
-    if (text.isNotEmpty) {
+  void _sendMessage(String text, Attachment? attachment) {
+    if (text.isNotEmpty || attachment != null) {
       final cotId = widget.cotizacion.id;
+
       // 1. Cliente envía mensaje
       ref
           .read(chatMessagesProvider.notifier)
-          .sendMessage(cotId, text, SenderType.client);
-      _textController.clear();
+          .sendMessage(cotId, text, SenderType.client, attachment);
+
       Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) _scrollToBottom();
       });
@@ -197,8 +198,7 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
               ),
             ),
 
-          // Barra de entrada de texto
-          _buildInputBar(),
+          ChatInputBar(onSendMessage: _sendMessage),
         ],
       ),
     );
@@ -295,62 +295,6 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
       ],
     );
   }
-
-  // Barra de Input (Texto e iconos)
-  Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.borderLight, width: 1)),
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            const Icon(Icons.attach_file, color: AppColors.textGray),
-            const SizedBox(width: 12),
-            const Icon(Icons.camera_alt, color: AppColors.textGray),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundWhite,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: TextField(
-                  controller: _textController,
-                  decoration: const InputDecoration(
-                    hintText: 'Escribe un mensaje...',
-                    hintStyle: TextStyle(
-                      color: AppColors.textGray,
-                      fontSize: 14,
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  onSubmitted: (_) => _sendMessage(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: _sendMessage,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryBlue,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.send, color: Colors.white, size: 18),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // --- Componentes Adicionales ---
@@ -432,7 +376,62 @@ class _ChatBubble extends StatelessWidget {
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
-                  // Imagen
+                  // --- Archivo adjunto (si existe) ---
+                  if (message.attachment != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: message.attachment!.type == AttachmentType.image
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: kIsWeb
+                                  ? Image.network(
+                                      message.attachment!.path,
+                                      width: 250,
+                                      fit: BoxFit.contain,
+                                    )
+                                  : Image.file(
+                                      File(message.attachment!.path),
+                                      width: 250,
+                                      fit: BoxFit.contain,
+                                    ),
+                            )
+                          : Container(
+                              width: 200,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isClient
+                                    ? Colors.white
+                                    : AppColors.backgroundWhite,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.borderLight,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.insert_drive_file,
+                                    color: Colors.orange,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      message.attachment!.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+
+                  // Imagen original por compatibilidad con mocks antiguos
                   if (message.imageUrl != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),

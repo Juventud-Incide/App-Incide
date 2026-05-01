@@ -352,12 +352,13 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
     };
   }
 
-  void sendMessage(String cotizacionId, String text, SenderType sender) {
+  void sendMessage(String cotizacionId, String text, SenderType sender, [Attachment? attachment]) {
     final currentChat = state[cotizacionId] ?? [];
 
     final newMessage = ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      text: text,
+      text: text.isNotEmpty ? text : null,
+      attachment: attachment,
       sender: sender,
       timestamp: DateTime.now(),
       isRead: false,

@@ -387,7 +387,10 @@ class _QuoteCard extends StatelessWidget {
                   // Botón
                   GestureDetector(
                     onTap: () {
-                      // TODO(Backend): Conectar navegación real al chat en el futuro
+                      context.push(
+                        '/cliente/chat/${cotizacion.id}',
+                        extra: cotizacion,
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/service_model.dart';
 import '../models/cotizacion_model.dart';
+import '../models/chat_message_model.dart';
 
 // ─────────────────────────────────────────────────────────
 //            PROVEEDORES DE BÚSQUEDA
@@ -256,4 +257,115 @@ final filteredCotizacionesProvider = Provider<List<CotizacionModel>>((ref) {
   return todas.where((c) => c.estado == filtroActivo).toList();
 });
 
+// ─────────────────────────────────────────────────────────
+//            PROVEEDORES DE CHAT
+// ─────────────────────────────────────────────────────────
 
+final chatMessagesProvider =
+    NotifierProvider<ChatMessagesNotifier, Map<String, List<ChatMessage>>>(() {
+      return ChatMessagesNotifier();
+    });
+
+class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
+  @override
+  Map<String, List<ChatMessage>> build() {
+    return {
+      'q1': [
+        ChatMessage(
+          id: '1',
+          text:
+              'Hola, vi tu solicitud para la fuga de agua. ¿Podrías enviarme un video?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
+        ),
+        ChatMessage(
+          id: '2',
+          text: 'Claro, en un momento te lo envío.',
+          sender: SenderType.client,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+          isRead: true,
+        ),
+      ],
+      'q2': [
+        ChatMessage(
+          id: '1',
+          text:
+              'Buenas tardes. Para la instalación del AC, ¿ya tienes los equipos o te los cotizo también?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+        ),
+      ],
+      'q3': [
+        ChatMessage(
+          id: '1',
+          text: 'Hola. ¿De qué tamaño son las alfombras?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+        ChatMessage(
+          id: '2',
+          text: 'Son medianas, como de 2x2 metros.',
+          sender: SenderType.client,
+          timestamp: DateTime.now().subtract(const Duration(hours: 23)),
+          isRead: true,
+        ),
+        ChatMessage(
+          id: '3',
+          text: 'Perfecto, el precio se mantiene igual.',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(hours: 22)),
+        ),
+      ],
+      'q4': [
+        ChatMessage(
+          id: '1',
+          text:
+              'Hola, veo que tienes un cortocircuito. Voy para allá en 20 minutos.',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
+        ),
+      ],
+      'q5': [
+        ChatMessage(
+          id: '1',
+          text: '¿La regadera es eléctrica o normal?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+        ),
+        ChatMessage(
+          id: '2',
+          text: 'Es eléctrica.',
+          sender: SenderType.client,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
+          isRead: true,
+        ),
+      ],
+      'q6': [
+        ChatMessage(
+          id: '1',
+          text:
+              'El levantamiento de barda tomará aproximadamente 3 días. ¿Empezamos el lunes?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(days: 2)),
+        ),
+      ],
+    };
+  }
+
+  void sendMessage(String cotizacionId, String text, SenderType sender) {
+    final currentChat = state[cotizacionId] ?? [];
+
+    final newMessage = ChatMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      text: text,
+      sender: sender,
+      timestamp: DateTime.now(),
+      isRead: false,
+    );
+
+    state = {
+      ...state,
+      cotizacionId: [...currentChat, newMessage],
+    };
+  }
+}

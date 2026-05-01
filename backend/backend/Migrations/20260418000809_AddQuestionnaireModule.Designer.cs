@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using backend.Data.DataDB;
 namespace backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260418000809_AddQuestionnaireModule")]
+    partial class AddQuestionnaireModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,85 +58,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("backend.Data.Entities.ChatMessage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChatRoomId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("SenderId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SenderId");
-
-                    b.HasIndex("ChatRoomId", "CreationDate");
-
-                    b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("backend.Data.Entities.ChatRoom", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ProviderId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ServiceRequestId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProviderId");
-
-                    b.HasIndex("ServiceRequestId", "ProviderId")
-                        .IsUnique();
-
-                    b.ToTable("ChatRooms");
                 });
 
             modelBuilder.Entity("backend.Data.Entities.Client", b =>
@@ -665,44 +589,6 @@ namespace backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("backend.Data.Entities.ChatMessage", b =>
-                {
-                    b.HasOne("backend.Data.Entities.ChatRoom", "ChatRoom")
-                        .WithMany("Messages")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("backend.Data.Entities.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
-
-                    b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("backend.Data.Entities.ChatRoom", b =>
-                {
-                    b.HasOne("backend.Data.Entities.Provider", "Provider")
-                        .WithMany()
-                        .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("backend.Data.Entities.ServiceRequest", "ServiceRequest")
-                        .WithMany("ChatRooms")
-                        .HasForeignKey("ServiceRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Provider");
-
-                    b.Navigation("ServiceRequest");
-                });
-
             modelBuilder.Entity("backend.Data.Entities.Client", b =>
                 {
                     b.HasOne("backend.Data.Entities.User", "User")
@@ -842,11 +728,6 @@ namespace backend.Migrations
                     b.Navigation("Services");
                 });
 
-            modelBuilder.Entity("backend.Data.Entities.ChatRoom", b =>
-                {
-                    b.Navigation("Messages");
-                });
-
             modelBuilder.Entity("backend.Data.Entities.Provider", b =>
                 {
                     b.Navigation("Categories");
@@ -866,8 +747,6 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Data.Entities.ServiceRequest", b =>
                 {
-                    b.Navigation("ChatRooms");
-
                     b.Navigation("Cotizaciones");
                 });
 

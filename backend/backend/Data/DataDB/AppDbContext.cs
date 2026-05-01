@@ -18,6 +18,10 @@ namespace backend.Data.DataDB
         public DbSet<ProviderCategory> ProviderCategories => Set<ProviderCategory>();
         public DbSet<ServiceRequest>   ServiceRequests    => Set<ServiceRequest>();
         public DbSet<Cotizacion>       Cotizaciones       => Set<Cotizacion>();
+        public DbSet<Question>         Questions          => Set<Question>();
+        public DbSet<QuestionOption>   QuestionOptions    => Set<QuestionOption>();
+        public DbSet<ChatRoom>         ChatRooms          => Set<ChatRoom>();
+        public DbSet<ChatMessage>      ChatMessages       => Set<ChatMessage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -154,6 +158,62 @@ namespace backend.Data.DataDB
                  .HasFilter("\"IsDeleted\" = false");
 
                 e.HasIndex(c => new { c.ProviderId, c.Status, c.CreationDate });
+            });
+
+            // ChatRoom → ServiceRequest + Provider
+            modelBuilder.Entity<ChatRoom>(e =>
+            {
+                e.HasKey(cr => cr.Id);
+                e.HasOne(cr => cr.ServiceRequest)
+                 .WithMany(sr => sr.ChatRooms)
+                 .HasForeignKey(cr => cr.ServiceRequestId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(cr => cr.Provider)
+                 .WithMany()
+                 .HasForeignKey(cr => cr.ProviderId)
+                 .OnDelete(DeleteBehavior.Restrict);
+                e.HasIndex(cr => new { cr.ServiceRequestId, cr.ProviderId })
+                 .IsUnique();
+            });
+
+            // ChatMessage → ChatRoom + User
+            modelBuilder.Entity<ChatMessage>(e =>
+            {
+                e.HasKey(m => m.Id);
+                e.Property(m => m.Content).IsRequired().HasMaxLength(2000);
+                e.HasOne(m => m.ChatRoom)
+                 .WithMany(cr => cr.Messages)
+                 .HasForeignKey(m => m.ChatRoomId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.Sender)
+                 .WithMany()
+                 .HasForeignKey(m => m.SenderId)
+                 .OnDelete(DeleteBehavior.Restrict);
+                e.HasIndex(m => new { m.ChatRoomId, m.CreationDate });
+            });
+
+            // Question → Category
+            modelBuilder.Entity<Question>(e =>
+            {
+                e.HasKey(q => q.Id);
+                e.Property(q => q.Text).IsRequired().HasMaxLength(500);
+                e.HasOne(q => q.Category)
+                 .WithMany(c => c.Questions)
+                 .HasForeignKey(q => q.CategoryId)
+                 .OnDelete(DeleteBehavior.Restrict);
+                e.HasIndex(q => new { q.CategoryId, q.Order });
+            });
+
+            // QuestionOption → Question
+            modelBuilder.Entity<QuestionOption>(e =>
+            {
+                e.HasKey(o => o.Id);
+                e.Property(o => o.Text).IsRequired().HasMaxLength(200);
+                e.HasOne(o => o.Question)
+                 .WithMany(q => q.Options)
+                 .HasForeignKey(o => o.QuestionId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasIndex(o => new { o.QuestionId, o.Order });
             });
         }
     }

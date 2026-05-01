@@ -11,11 +11,13 @@ namespace backend.Infraestructure.API_Services
 {
     public class CotizacionService : ICotizacionService
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext          _context;
+        private readonly INotificationService  _notifications;
 
-        public CotizacionService(AppDbContext context)
+        public CotizacionService(AppDbContext context, INotificationService notifications)
         {
-            _context = context;
+            _context       = context;
+            _notifications = notifications;
         }
 
         // ── Mappers ──────────────────────────────────────────────────────────
@@ -385,6 +387,91 @@ namespace backend.Infraestructure.API_Services
 
             await _context.SaveChangesAsync(ct);
             return true;
+        }
+
+        public async Task<ChatRoomOutputDTO> ExpressInterestAsync(int serviceRequestId, int userId, CancellationToken ct)
+        {
+            var provider = await _context.Providers
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct)
+                ?? throw new InvalidOperationException("No provider profile found for this user.");
+
+            if (provider.Status != ProviderStatus.Affiliated)
+                throw new InvalidOperationException("Only affiliated providers can express interest.");
+
+            if (!provider.Available)
+                throw new InvalidOperationException("Provider must be available to express interest.");
+
+            var request = await _context.ServiceRequests
+                .Include(sr => sr.Client).ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(sr => sr.Id == serviceRequestId && !sr.IsDeleted, ct)
+                ?? throw new KeyNotFoundException($"Service request {serviceRequestId} not found.");
+
+            if (request.Status != CotizacionRequestStatus.Active)
+                throw new InvalidOperationException("Service request is no longer active.");
+
+            if (request.Type == CotizacionType.Targeted && request.TargetProviderId != provider.Id)
+                throw new InvalidOperationException("This request is directed to a different provider.");
+
+            var existingRoom = await _context.ChatRooms
+                .FirstOrDefaultAsync(cr => cr.ServiceRequestId == serviceRequestId && cr.ProviderId == provider.Id, ct);
+
+            if (existingRoom != null)
+                throw new InvalidOperationException("You already expressed interest in this request.");
+
+            var room = new ChatRoom
+            {
+                ServiceRequestId = serviceRequestId,
+                ProviderId       = provider.Id,
+                IsActive         = true,
+                CreationDate     = DateTime.UtcNow,
+                LastUpdate       = DateTime.UtcNow
+            };
+
+            _context.ChatRooms.Add(room);
+            await _context.SaveChangesAsync(ct);
+
+            await _notifications.NotifyClientProviderInterestedAsync(request.Client, request, provider, ct);
+
+            return new ChatRoomOutputDTO
+            {
+                Id               = room.Id,
+                ServiceRequestId = room.ServiceRequestId,
+                ProviderId       = room.ProviderId,
+                CreationDate     = room.CreationDate
+            };
+        }
+
+        public async Task CancelServiceRequestAsync(int serviceRequestId, int userId, CancellationToken ct)
+        {
+            var client = await _context.Clients
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.UserId == userId, ct)
+                ?? throw new InvalidOperationException("No client profile found for this user.");
+
+            var request = await _context.ServiceRequests
+                .Include(sr => sr.Cotizaciones)
+                .FirstOrDefaultAsync(sr => sr.Id == serviceRequestId && sr.ClientId == client.Id && !sr.IsDeleted, ct)
+                ?? throw new KeyNotFoundException($"Service request {serviceRequestId} not found.");
+
+            if (request.Status != CotizacionRequestStatus.Active)
+                throw new InvalidOperationException("Only active service requests can be cancelled.");
+
+            var now = DateTime.UtcNow;
+
+            foreach (var c in request.Cotizaciones.Where(c => c.Status == CotizacionStatus.Submitted && !c.IsDeleted))
+            {
+                c.Status     = CotizacionStatus.Withdrawn;
+                c.LastUpdate = now;
+            }
+
+            request.Status     = CotizacionRequestStatus.Cancelled;
+            request.IsActive   = false;
+            request.LastUpdate = now;
+
+            await _context.SaveChangesAsync(ct);
+
+            await _notifications.NotifyClientRequestCancelledAsync(client, request, ct);
         }
     }
 }

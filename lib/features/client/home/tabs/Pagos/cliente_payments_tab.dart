@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../models/pago_model.dart';
-import '../providers/pagos_providers.dart';
-import 'package:intl/intl.dart';
-import '../widgets/pago_card.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../models/pago_model.dart';
+import '../../providers/pagos_providers.dart';
+import 'pago_card.dart';
 
 // ─────────────────────────────────────────────────────────
 // Pestaña "Mis Pagos"
@@ -40,8 +39,7 @@ class PaymentsTab extends ConsumerWidget {
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                   itemCount: pagos.length,
-                  itemBuilder: (context, index) =>
-                      PagoCard(pago: pagos[index]),
+                  itemBuilder: (context, index) => PagoCard(pago: pagos[index]),
                 ),
         ),
       ],
@@ -355,7 +353,6 @@ class _ResumenItem extends StatelessWidget {
     );
   }
 }
-
 
 // ─────────────────────────────────────────────────────────
 // Definición de filtros

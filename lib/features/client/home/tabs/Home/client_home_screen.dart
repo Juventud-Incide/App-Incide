@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../tabs/cliente_home_tab.dart';
-import '../tabs/cliente_my_quotes_tab.dart';
-import '../tabs/cliente_payments_tab.dart';
-import '../tabs/cliente_profile_tab.dart';
-import '../widgets/client_banner_app_bar.dart';
-import '../widgets/client_bottom_nav_bar.dart';
+import '../../../../../core/theme/app_colors.dart';
+import 'cliente_home_tab.dart';
+import '../Cotizaciones/cliente_my_quotes_tab.dart';
+import '../Pagos/cliente_payments_tab.dart';
+import '../cliente_profile_tab.dart';
+import '../../widgets/client_banner_app_bar.dart';
+import '../../widgets/client_bottom_nav_bar.dart';
 
 class ClientHomeScreen extends ConsumerStatefulWidget {
   const ClientHomeScreen({super.key});

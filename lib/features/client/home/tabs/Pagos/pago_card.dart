@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../models/pago_model.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../models/pago_model.dart';
 
 // ─────────────────────────────────────────────────────────
 // Tarjeta de Pago
@@ -40,13 +40,13 @@ class PagoCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: pago.estado == EstadoPago.pendiente
-                ? const Color(0xFFF59E0B).withOpacity(0.4)
+                ? const Color(0xFFF59E0B).withValues(alpha: 0.4)
                 : AppColors.borderLight,
             width: pago.estado != EstadoPago.pagado ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -65,7 +65,7 @@ class PagoCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: badgeColor.withOpacity(0.1),
+                    color: badgeColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
@@ -120,10 +120,10 @@ class PagoCard extends StatelessWidget {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: badgeColor.withOpacity(0.12),
+                    color: badgeColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: badgeColor.withOpacity(0.3),
+                      color: badgeColor.withValues(alpha: 0.3),
                       width: 1.0,
                     ),
                   ),

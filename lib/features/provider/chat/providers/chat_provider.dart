@@ -64,6 +64,22 @@ final chatProvider =
       return ChatNotifier();
     });
 
+// Proveedor derivado que calcula los mensajes no leídos de un chat específico
+final unreadCountProvider = Provider.family<int, String>((ref, chatId) {
+  final messages = ref.watch(chatProvider)[chatId] ?? [];
+
+  // 2. Filtramos y contamos
+  return messages.where((msg) {
+    final isFromOther = !msg.isMine; // Que lo haya enviado la otra persona
+    final isNotSystem =
+        msg.type != MessageType.system; // Ignoramos mensajes del sistema
+    final isUnread =
+        msg.status != MessageStatus.read; // Que no esté marcado como leído
+
+    return isFromOther && isNotSystem && isUnread;
+  }).length;
+});
+
 // ==========================================
 // DATOS FALSOS BASADOS EN TU MOCKUP VISUAL
 // ==========================================
@@ -91,6 +107,7 @@ final List<ChatMessage> _mockMessages = [
     isMine: false,
     type: MessageType.text,
     timestamp: DateTime(2026, 2, 16, 10, 30),
+    status: MessageStatus.read,
   ),
   ChatMessage(
     id: 'msg_3',
@@ -101,6 +118,7 @@ final List<ChatMessage> _mockMessages = [
     isMine: false,
     type: MessageType.image,
     timestamp: DateTime(2026, 2, 16, 10, 31),
+    status: MessageStatus.read,
   ),
   ChatMessage(
     id: 'msg_4',
@@ -109,5 +127,6 @@ final List<ChatMessage> _mockMessages = [
     isMine: true,
     type: MessageType.text,
     timestamp: DateTime(2026, 2, 16, 10, 31),
+    status: MessageStatus.sent,
   ),
 ];

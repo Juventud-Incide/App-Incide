@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
-import '../models/cotizacion_model.dart';
-import '../providers/home_providers.dart';
+import '../../models/cotizacion_model.dart';
+import '../../providers/home_providers.dart';
 
 // ─────────────────────────────────────────────────────────
 // Task #116 — Pestaña "Mis Cotizaciones"
@@ -48,8 +48,9 @@ class QuotesTab extends ConsumerWidget {
   // ── Chips estilo igual al filtro de categorías del HomeTab ────────────
 
   Widget _buildFiltros(WidgetRef ref, EstadoCotizacion filtroActivo) {
-    final int selectedIndex =
-        _filtros.indexWhere((f) => f.estado == filtroActivo);
+    final int selectedIndex = _filtros.indexWhere(
+      (f) => f.estado == filtroActivo,
+    );
 
     return Container(
       color: AppColors.backgroundWhite,
@@ -61,12 +62,12 @@ class QuotesTab extends ConsumerWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: AppColors.borderGray),
+          border: Border.all(color: AppColors.borderLight),
         ),
         padding: const EdgeInsets.all(4),
         child: Stack(
@@ -78,8 +79,8 @@ class QuotesTab extends ConsumerWidget {
               alignment: selectedIndex == 0
                   ? Alignment.centerLeft
                   : selectedIndex == 1
-                      ? Alignment.center
-                      : Alignment.centerRight,
+                  ? Alignment.center
+                  : Alignment.centerRight,
               child: FractionallySizedBox(
                 widthFactor: 1.0 / _filtros.length, // Ocupa exactamente 1/3
                 heightFactor: 1.0,
@@ -89,7 +90,7 @@ class QuotesTab extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryBlue.withOpacity(0.3),
+                        color: AppColors.primaryBlue.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -142,7 +143,7 @@ class QuotesTab extends ConsumerWidget {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.primaryBlue.withOpacity(0.07),
+              color: AppColors.primaryBlue.withValues(alpha: 0.07),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -218,9 +219,16 @@ class _QuoteCard extends StatelessWidget {
         },
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: cotizacion.hasNewProposal
+                ? AppColors.primaryBlue.withValues(alpha: 0.02)
+                : Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderGray, width: 1.0),
+            border: Border.all(
+              color: cotizacion.hasNewProposal
+                  ? AppColors.primaryBlue.withValues(alpha: 0.6)
+                  : AppColors.borderLight,
+              width: cotizacion.hasNewProposal ? 1.5 : 1.0,
+            ),
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -236,7 +244,7 @@ class _QuoteCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryBlue.withOpacity(0.08),
+                      color: AppColors.primaryBlue.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
@@ -277,34 +285,76 @@ class _QuoteCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: badgeColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: badgeColor.withOpacity(0.3),
-                        width: 1.0,
+                  // Badges
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (cotizacion.hasNewProposal)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.redAccent.withValues(alpha: 0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.notifications_active_rounded,
+                                color: Colors.white,
+                                size: 10,
+                              ),
+                              /*
+                              Text(
+                                'NUEVA',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              */
+                            ],
+                          ),
+                        ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: badgeColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: badgeColor.withValues(alpha: 0.3),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Text(
+                          badgeLabel,
+                          style: TextStyle(
+                            color: badgeColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      badgeLabel,
-                      style: TextStyle(
-                        color: badgeColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    ],
                   ),
                 ],
               ),
               const SizedBox(height: 14),
               // Reemplazo del Divider para evitar bugs de SDK web
-              Container(height: 1, color: AppColors.borderGray),
+              Container(height: 1, color: AppColors.borderLight),
               const SizedBox(height: 12),
               // ── Fila inferior: precio + botón chat ─────────────────
               Row(
@@ -337,7 +387,10 @@ class _QuoteCard extends StatelessWidget {
                   // Botón
                   GestureDetector(
                     onTap: () {
-                      // TODO(Backend): Conectar navegación real al chat en el futuro
+                      context.push(
+                        '/cliente/chat/${cotizacion.id}',
+                        extra: cotizacion,
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

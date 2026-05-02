@@ -1,5 +1,6 @@
 using backend.Data.Entities;
 using backend.Infraestructure.API_Services_Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace backend.Infraestructure.API_Services
 {
@@ -60,6 +61,45 @@ namespace backend.Infraestructure.API_Services
                 reason,
                 reason);
 
+            return Task.CompletedTask;
+        }
+
+        public Task NotifyClientProviderInterestedAsync(Client client, ServiceRequest request, Provider provider, CancellationToken ct)
+        {
+            var clientName   = $"{client.User.FirstName} {client.User.LastName}";
+            var providerName = $"{provider.User.FirstName} {provider.User.LastName}";
+
+            _logger.LogInformation(
+                "[COTIZACION-NOTIF] Proveedor interesado. ClientId={ClientId}, Nombre={ClientName}, SolicitudId={RequestId}, ProviderId={ProviderId}, Proveedor={ProviderName}. Mensaje: '{ProviderName} está interesado en tu solicitud.'",
+                client.Id, clientName, request.Id, provider.Id, providerName, providerName);
+
+            // TODO: reemplazar por push notification real (FCM/OneSignal)
+            return Task.CompletedTask;
+        }
+
+        public Task NotifyClientRequestCancelledAsync(Client client, ServiceRequest request, CancellationToken ct)
+        {
+            var clientName = $"{client.User.FirstName} {client.User.LastName}";
+
+            _logger.LogInformation(
+                "[COTIZACION-NOTIF] Solicitud cancelada. ClientId={ClientId}, Nombre={ClientName}, SolicitudId={RequestId}. Mensaje: 'Tu solicitud #{RequestId} ha sido cancelada.'",
+                client.Id, clientName, request.Id, request.Id);
+
+            // TODO: reemplazar por push notification real (FCM/OneSignal)
+            return Task.CompletedTask;
+        }
+
+        public Task NotifyNewChatMessageAsync(User recipient, ChatRoom room, ChatMessage message, CancellationToken ct)
+        {
+            var preview = message.Content.Length > 50
+                ? string.Concat(message.Content.AsSpan(0, 50), "…")
+                : message.Content;
+
+            _logger.LogInformation(
+                "[CHAT-NOTIF] Nuevo mensaje. RecipientId={RecipientId}, Email={Email}, RoomId={RoomId}, Preview=\"{Preview}\". TODO: reemplazar por FCM push notification.",
+                recipient.Id, recipient.Email, room.Id, preview);
+
+            // TODO: reemplazar por FCM push notification real
             return Task.CompletedTask;
         }
     }

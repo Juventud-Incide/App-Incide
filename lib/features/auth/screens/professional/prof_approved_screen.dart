@@ -122,7 +122,7 @@ class ProfApprovedScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          context.goNamed('prof_upload_docs');
+                          context.pushNamed('prof_upload_docs');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryBlue,

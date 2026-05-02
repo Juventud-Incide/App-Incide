@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/service_model.dart';
 import '../models/cotizacion_model.dart';
+import '../models/chat_message_model.dart';
 
 // ─────────────────────────────────────────────────────────
 //            PROVEEDORES DE BÚSQUEDA
@@ -160,51 +161,79 @@ final popularServicesProvider = Provider<List<SearchSuggestion>>((ref) {
 // ── Fuente única de datos mock ────────────────────────────────────────────
 // TODO (Backend): Reemplazar con un AsyncNotifierProvider que llame a
 //   GET /api/client/quotes  y mapee la respuesta con CotizacionModel.fromJson
-final allCotizacionesProvider = Provider<List<CotizacionModel>>((ref) {
-  return const [
-    CotizacionModel(
-      id: 'q1',
-      titulo: 'Fuga de agua en cocina',
-      descripcion: 'Reparación urgente de tubería bajo el fregadero.',
-      precioEstimado: 850.0,
-      estado: EstadoCotizacion.enEspera,
-    ),
-    CotizacionModel(
-      id: 'q2',
-      titulo: 'Instalación de AC',
-      descripcion: 'Instalación de aire acondicionado tipo mini-split.',
-      precioEstimado: 3200.0,
-      estado: EstadoCotizacion.aceptada,
-    ),
-    CotizacionModel(
-      id: 'q3',
-      titulo: 'Limpieza de Alfombras',
-      descripcion: 'Limpieza profunda de 3 alfombras en sala y recámaras.',
-      precioEstimado: 600.0,
-      estado: EstadoCotizacion.terminada,
-    ),
-    CotizacionModel(
-      id: 'q4',
-      titulo: 'Cortocircuito en sala',
-      descripcion: 'Diagnóstico y reparación del tablero eléctrico.',
-      precioEstimado: 1100.0,
-      estado: EstadoCotizacion.enEspera,
-    ),
-    CotizacionModel(
-      id: 'q5',
-      titulo: 'Instalación de regadera',
-      descripcion: 'Cambio completo de la regadera eléctrica en baño principal.',
-      precioEstimado: 750.0,
-      estado: EstadoCotizacion.aceptada,
-    ),
-    CotizacionModel(
-      id: 'q6',
-      titulo: 'Construcción de barda',
-      descripcion: 'Levantamiento de 10 metros lineales de barda perimetral.',
-      precioEstimado: 12000.0,
-      estado: EstadoCotizacion.terminada,
-    ),
-  ];
+final allCotizacionesProvider =
+    NotifierProvider<AllCotizacionesNotifier, List<CotizacionModel>>(() {
+      return AllCotizacionesNotifier();
+    });
+
+class AllCotizacionesNotifier extends Notifier<List<CotizacionModel>> {
+  @override
+  List<CotizacionModel> build() {
+    return const [
+      CotizacionModel(
+        id: 'q1',
+        titulo: 'Fuga de agua en cocina',
+        descripcion: 'Reparación urgente de tubería bajo el fregadero.',
+        precioEstimado: 850.0,
+        estado: EstadoCotizacion.enEspera,
+        hasNewProposal:
+            false, // Estado por defecto del mock; activar solo vía simulateNewProposal
+      ),
+      CotizacionModel(
+        id: 'q2',
+        titulo: 'Instalación de AC',
+        descripcion: 'Instalación de aire acondicionado tipo mini-split.',
+        precioEstimado: 3200.0,
+        estado: EstadoCotizacion.aceptada,
+      ),
+      CotizacionModel(
+        id: 'q3',
+        titulo: 'Limpieza de Alfombras',
+        descripcion: 'Limpieza profunda de 3 alfombras en sala y recámaras.',
+        precioEstimado: 600.0,
+        estado: EstadoCotizacion.terminada,
+      ),
+      CotizacionModel(
+        id: 'q4',
+        titulo: 'Cortocircuito en sala',
+        descripcion: 'Diagnóstico y reparación del tablero eléctrico.',
+        precioEstimado: 1100.0,
+        estado: EstadoCotizacion.enEspera,
+      ),
+      CotizacionModel(
+        id: 'q5',
+        titulo: 'Instalación de regadera',
+        descripcion:
+            'Cambio completo de la regadera eléctrica en baño principal.',
+        precioEstimado: 750.0,
+        estado: EstadoCotizacion.aceptada,
+      ),
+      CotizacionModel(
+        id: 'q6',
+        titulo: 'Construcción de barda',
+        descripcion: 'Levantamiento de 10 metros lineales de barda perimetral.',
+        precioEstimado: 12000.0,
+        estado: EstadoCotizacion.terminada,
+      ),
+    ];
+  }
+
+  // TODO(Backend): Eliminar este método cuando exista un backend real.
+  @visibleForTesting
+  void simulateNewProposal(String id) {
+    state = state.map((c) {
+      if (c.id == id) {
+        return c.copyWith(hasNewProposal: true);
+      }
+      return c;
+    }).toList();
+  }
+}
+
+// ── Notificación de Nuevas Propuestas ─────────────────────────────────────
+final hasUnreadProposalsProvider = Provider<bool>((ref) {
+  final cotizaciones = ref.watch(allCotizacionesProvider);
+  return cotizaciones.any((c) => c.hasNewProposal);
 });
 
 // ── Filtro activo de la pestaña seleccionada ──────────────────────────────
@@ -228,3 +257,115 @@ final filteredCotizacionesProvider = Provider<List<CotizacionModel>>((ref) {
   return todas.where((c) => c.estado == filtroActivo).toList();
 });
 
+// ─────────────────────────────────────────────────────────
+//            PROVEEDORES DE CHAT
+// ─────────────────────────────────────────────────────────
+
+final chatMessagesProvider =
+    NotifierProvider<ChatMessagesNotifier, Map<String, List<ChatMessage>>>(() {
+      return ChatMessagesNotifier();
+    });
+
+class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
+  @override
+  Map<String, List<ChatMessage>> build() {
+    return {
+      'q1': [
+        ChatMessage(
+          id: '1',
+          text:
+              'Hola, vi tu solicitud para la fuga de agua. ¿Podrías enviarme un video?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
+        ),
+        ChatMessage(
+          id: '2',
+          text: 'Claro, en un momento te lo envío.',
+          sender: SenderType.client,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+          isRead: true,
+        ),
+      ],
+      'q2': [
+        ChatMessage(
+          id: '1',
+          text:
+              'Buenas tardes. Para la instalación del AC, ¿ya tienes los equipos o te los cotizo también?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(hours: 1)),
+        ),
+      ],
+      'q3': [
+        ChatMessage(
+          id: '1',
+          text: 'Hola. ¿De qué tamaño son las alfombras?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+        ChatMessage(
+          id: '2',
+          text: 'Son medianas, como de 2x2 metros.',
+          sender: SenderType.client,
+          timestamp: DateTime.now().subtract(const Duration(hours: 23)),
+          isRead: true,
+        ),
+        ChatMessage(
+          id: '3',
+          text: 'Perfecto, el precio se mantiene igual.',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(hours: 22)),
+        ),
+      ],
+      'q4': [
+        ChatMessage(
+          id: '1',
+          text:
+              'Hola, veo que tienes un cortocircuito. Voy para allá en 20 minutos.',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
+        ),
+      ],
+      'q5': [
+        ChatMessage(
+          id: '1',
+          text: '¿La regadera es eléctrica o normal?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+        ),
+        ChatMessage(
+          id: '2',
+          text: 'Es eléctrica.',
+          sender: SenderType.client,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
+          isRead: true,
+        ),
+      ],
+      'q6': [
+        ChatMessage(
+          id: '1',
+          text:
+              'El levantamiento de barda tomará aproximadamente 3 días. ¿Empezamos el lunes?',
+          sender: SenderType.provider,
+          timestamp: DateTime.now().subtract(const Duration(days: 2)),
+        ),
+      ],
+    };
+  }
+
+  void sendMessage(String cotizacionId, String text, SenderType sender) {
+    final currentChat = state[cotizacionId] ?? [];
+
+    final newMessage = ChatMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      text: text,
+      sender: sender,
+      timestamp: DateTime.now(),
+      isRead: false,
+    );
+
+    state = {
+      ...state,
+      cotizacionId: [...currentChat, newMessage],
+    };
+  }
+}

@@ -1,4 +1,5 @@
 import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:app_incide/features/provider/quotes/widgets/chat_button_badge.dart';
 import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -263,27 +264,17 @@ class QuoteDetailScreen extends ConsumerWidget {
 
             // Botón principal de acción (Comunicación)
             Expanded(
-              child: SizedBox(
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: (ROUTING) Redirigir al Inbox
-                    final String currentChatId = quote.id.toString();
-                    context.pushNamed(
-                      'chat_detail',
-                      pathParameters: {'chatId': currentChatId},
-                      extra: {
-                        'isAccepted': quote.status == QuoteStatus.accepted,
-                      },
-                    );
-                  },
-                  icon: const Icon(Icons.chat_bubble_outline),
-                  label: const Text(AppStrings.quoteOpenChatBtn),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryBlue,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
+              child: ChatButtonBadge(
+                chatId: q.id.toString(),
+                onPressed: () {
+                  final String currentChatId = q.id.toString();
+                  context.pushNamed(
+                    'chat_detail',
+                    pathParameters: {'chatId': currentChatId},
+                    extra: {'isAccepted': q.status == QuoteStatus.accepted},
+                  );
+                },
+                isPrimaryStyle: true,
               ),
             ),
           ],

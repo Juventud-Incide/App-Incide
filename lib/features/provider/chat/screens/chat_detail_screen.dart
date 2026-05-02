@@ -73,7 +73,7 @@ class ChatDetailScreen extends ConsumerWidget {
           ),
 
           // Barra de entrada de texto
-          const ChatInputBar(),
+          ChatInputBar(chatId: chatId),
         ],
       ),
     );

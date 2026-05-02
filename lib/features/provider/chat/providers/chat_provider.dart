@@ -36,6 +36,26 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
       chatId: [...currentMessages, newMessage],
     };
   }
+
+  void sendTextMessage(String chatId, String text) {
+    if (text.trim().isEmpty) return;
+
+    final newMessage = ChatMessage(
+      id: DateTime.now().toString(),
+      content: text.trim(),
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime.now(),
+      status: MessageStatus.sent,
+    );
+
+    final currentMessages = state[chatId] ?? [];
+
+    state = {
+      ...state,
+      chatId: [...currentMessages, newMessage],
+    };
+  }
 }
 
 // 2. El único Provider sobreviviente en Riverpod 3.0

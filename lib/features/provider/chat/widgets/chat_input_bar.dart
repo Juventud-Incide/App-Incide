@@ -1,29 +1,34 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
-class ChatInputBar extends StatefulWidget {
-  const ChatInputBar({super.key});
+class ChatInputBar extends ConsumerStatefulWidget {
+  final String chatId;
+  const ChatInputBar({super.key, required this.chatId});
 
   @override
-  State<ChatInputBar> createState() => _ChatInputBarState();
+  ConsumerState<ChatInputBar> createState() => _ChatInputBarState();
 }
 
-class _ChatInputBarState extends State<ChatInputBar> {
+class _ChatInputBarState extends ConsumerState<ChatInputBar> {
   final TextEditingController _textController = TextEditingController();
-
-  void _sendMessage() {
-    if (_textController.text.trim().isEmpty) return;
-
-    // TODO: Conectar con el Notifier para enviar el texto
-    print("Enviando: ${_textController.text}");
-
-    _textController.clear();
-  }
 
   @override
   void dispose() {
     _textController.dispose();
     super.dispose();
+  }
+
+  void _handleSend() {
+    final text = _textController.text;
+    if (text.trim().isNotEmpty) {
+      // Disparamos la función del provider
+      ref.read(chatProvider.notifier).sendTextMessage(widget.chatId, text);
+
+      // Limpiamos la caja de texto
+      _textController.clear();
+    }
   }
 
   @override
@@ -79,7 +84,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
             const SizedBox(width: 8),
             // Botón de enviar
             GestureDetector(
-              onTap: _sendMessage,
+              onTap: _handleSend,
               child: Container(
                 height: 45,
                 width: 45,

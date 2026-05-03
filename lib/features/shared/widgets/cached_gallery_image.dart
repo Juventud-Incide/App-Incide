@@ -1,7 +1,10 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CachedGalleryImage extends StatelessWidget {
+class CachedGalleryImage extends ConsumerStatefulWidget {
   final String imageUrl;
   final double height;
   final double width;
@@ -16,18 +19,48 @@ class CachedGalleryImage extends StatelessWidget {
   });
 
   @override
+  ConsumerState<CachedGalleryImage> createState() => _CachedGalleryImageState();
+}
+
+class _CachedGalleryImageState extends ConsumerState<CachedGalleryImage> {
+  Key _imageKey = UniqueKey();
+
+  void _forceRetry() async {
+    await CachedNetworkImage.evictFromCache(widget.imageUrl);
+
+    if (mounted) {
+      setState(() {
+        _imageKey = UniqueKey();
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    ref.listen(networkStreamProvider, (previous, next) {
+      if (next.hasValue) {
+        // connectivity_plus v6+ devuelve una lista de conexiones.
+        // Si NO contiene 'none', significa que tenemos internet (Wi-Fi, Datos, etc.)
+        final hasInternet = !next.value!.contains(ConnectivityResult.none);
+
+        if (hasInternet) {
+          _forceRetry();
+        }
+      }
+    });
+
     return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(widget.borderRadius),
       child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        height: height,
-        width: width,
+        key: _imageKey,
+        imageUrl: widget.imageUrl,
+        height: widget.height,
+        width: widget.width,
         fit: BoxFit.cover,
         placeholder: (context, url) => Container(
           color: Colors.grey.shade200,
-          height: height,
-          width: width,
+          height: widget.height,
+          width: widget.width,
           child: const Center(
             child: SizedBox(
               height: 20,
@@ -37,11 +70,32 @@ class CachedGalleryImage extends StatelessWidget {
           ),
         ),
 
-        errorWidget: (context, url, error) => Container(
-          color: Colors.grey.shade200,
-          height: height,
-          width: width,
-          child: Icon(Icons.broken_image_outlined, color: Colors.grey.shade400),
+        errorWidget: (context, url, error) => GestureDetector(
+          onTap: _forceRetry,
+          child: Container(
+            color: Colors.grey.shade200,
+            height: widget.height,
+            width: widget.width,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.refresh_rounded,
+                  color: Colors.grey.shade500,
+                  size: 28,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Reintentar',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

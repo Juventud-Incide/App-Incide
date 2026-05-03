@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/chat_message.dart';
 import 'dart:async'; // Necesario para usar la clase Timer
 import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 // 1. Usamos Notifier normal, manejando un Mapa (Diccionario) de chats por ID
 class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
@@ -213,6 +214,11 @@ final unreadCountProvider = Provider.family<int, String>((ref, chatId) {
 
     return isFromOther && isNotSystem && isUnread;
   }).length;
+});
+
+/// Proveedor global que escucha los cambios de conectividad en tiempo real.
+final networkStreamProvider = StreamProvider<List<ConnectivityResult>>((ref) {
+  return Connectivity().onConnectivityChanged;
 });
 
 // ==========================================

@@ -1,4 +1,5 @@
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -7,6 +8,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isReadOnly;
   final String realName;
   final String serviceTitle;
+  final String? clientAvatarUrl;
   final VoidCallback onMarkAsCompleted;
 
   const ChatAppBar({
@@ -16,6 +18,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.isReadOnly,
     required this.realName,
     required this.serviceTitle,
+    this.clientAvatarUrl,
     required this.onMarkAsCompleted,
   });
 
@@ -27,6 +30,23 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         ? realName.substring(0, 2).toUpperCase()
         : 'CL';
     final avatarColor = isAccepted ? const Color(0xFFC4B5FD) : Colors.grey[400];
+
+    final bool shouldShowImage =
+        isAccepted && clientAvatarUrl != null && clientAvatarUrl!.isNotEmpty;
+
+    // Widget reutilizable para las iniciales (Placeholder / Fallback)
+    Widget initialsAvatar() => CircleAvatar(
+      backgroundColor: avatarColor,
+      radius: 18,
+      child: Text(
+        displayInitials,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
 
     return AppBar(
       backgroundColor: AppColors.primaryBlue,
@@ -43,18 +63,17 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Row(
         children: [
-          CircleAvatar(
-            backgroundColor: avatarColor,
-            radius: 18,
-            child: Text(
-              displayInitials,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
+          if (shouldShowImage)
+            CachedNetworkImage(
+              imageUrl: clientAvatarUrl!,
+              imageBuilder: (context, imageProvider) =>
+                  CircleAvatar(radius: 18, backgroundImage: imageProvider),
+              // Mientras carga, o si la URL está rota, mostramos tus iniciales
+              placeholder: (context, url) => initialsAvatar(),
+              errorWidget: (context, url, error) => initialsAvatar(),
+            )
+          else
+            initialsAvatar(),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

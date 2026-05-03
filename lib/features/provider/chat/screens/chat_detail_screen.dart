@@ -82,6 +82,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         isReadOnly: isReadOnly,
         realName: currentQuote.clientName,
         serviceTitle: currentQuote.title,
+        clientAvatarUrl: currentQuote.clientAvatarUrl,
         onMarkAsCompleted: () => QuoteDialogs.showCompletionDialog(
           context: context,
           ref: ref,

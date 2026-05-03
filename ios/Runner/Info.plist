@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+    <string>INCIDE necesita acceso a tu cámara para que puedas tomar y enviar evidencias de los trabajos o problemas.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>INCIDE necesita acceso a tu galería para que puedas seleccionar fotos de las instalaciones y enviarlas por el chat.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>INCIDE necesita tu ubicación para enviarte cotizaciones y trabajos disponibles exactamente en tu zona.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

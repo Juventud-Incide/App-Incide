@@ -44,6 +44,8 @@ dependencies:
   intl: ^0.20.1
   cached_network_image: ^3.4.1
   connectivity_plus: ^7.1.1
+  image_picker: ^1.2.2
+  file_picker: ^11.0.2
 
 dev_dependencies:
   flutter_test:

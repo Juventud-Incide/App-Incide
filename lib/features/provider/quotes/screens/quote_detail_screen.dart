@@ -155,7 +155,8 @@ class QuoteDetailScreen extends ConsumerWidget {
   /// el nombre, teléfono y fotografía permanecen ofuscados o genéricos para
   /// proteger la PII (Personally Identifiable Information) del cliente.
   Widget _buildClientInfoCard(QuoteModel q) {
-    final isAccepted = q.status == QuoteStatus.accepted;
+    final isAccepted =
+        q.status == QuoteStatus.accepted || q.status == QuoteStatus.completed;
     final bool showPhoto =
         isAccepted &&
         q.clientAvatarUrl != null &&

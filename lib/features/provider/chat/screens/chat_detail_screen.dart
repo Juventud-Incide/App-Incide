@@ -76,6 +76,22 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     }
   }
 
+  String _formatDateDivider(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final messageDate = DateTime(date.year, date.month, date.day);
+
+    if (messageDate == today) {
+      return 'Hoy';
+    } else if (messageDate == yesterday) {
+      return 'Ayer';
+    } else {
+      // Si es más viejo, mostramos ej: "15/05/2026"
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final messages =
@@ -140,7 +156,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   index -= 1;
                 }
 
-                if (index == messages.length) {
+                if (index == displayMessages.length) {
                   return const Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Center(child: CircularProgressIndicator()),
@@ -148,12 +164,70 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                 }
 
                 final message = displayMessages[index];
+                bool showDateDivider = false;
 
-                if (message.type == MessageType.system) {
-                  return SystemBubble(text: message.content);
+                if (index == displayMessages.length - 1) {
+                  showDateDivider = true;
+                } else {
+                  // Comparamos con el mensaje "anterior" cronológicamente (index + 1 en reverse)
+                  final previousMessage = displayMessages[index + 1];
+
+                  final currentDate = DateTime(
+                    message.timestamp.year,
+                    message.timestamp.month,
+                    message.timestamp.day,
+                  );
+                  final previousDate = DateTime(
+                    previousMessage.timestamp.year,
+                    previousMessage.timestamp.month,
+                    previousMessage.timestamp.day,
+                  );
+
+                  if (currentDate != previousDate) {
+                    showDateDivider = true;
+                  }
                 }
 
-                return MessageBubble(message: message);
+                Widget messageWidget;
+                if (message.type == MessageType.system) {
+                  messageWidget = SystemBubble(text: message.content);
+                } else {
+                  messageWidget = MessageBubble(message: message);
+                }
+
+                if (showDateDivider) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 24,
+                          horizontal: 16,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blueGrey.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          _formatDateDivider(message.timestamp),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.blueGrey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      // Y debajo de la fecha, el mensaje correspondiente
+                      messageWidget,
+                    ],
+                  );
+                }
+
+                return messageWidget;
               },
             ),
           ),

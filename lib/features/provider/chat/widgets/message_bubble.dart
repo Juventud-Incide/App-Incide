@@ -159,6 +159,7 @@ class MessageBubble extends StatelessWidget {
               if (message.type == MessageType.text)
                 Text(
                   message.content,
+                  textAlign: TextAlign.start,
                   style: TextStyle(color: textColor, fontSize: 14, height: 1.3),
                 ),
 

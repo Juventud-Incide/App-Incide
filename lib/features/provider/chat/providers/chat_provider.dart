@@ -8,7 +8,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
   @override
   Map<String, List<ChatMessage>> build() {
-    return {'Q-002': _mockMessages};
+    return mockChats;
   }
 
   void addSystemMessage(String chatId, String text) {
@@ -206,7 +206,7 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
 
     // Generamos unos mensajes antiguos falsos
     final olderMessages = List.generate(
-      10,
+      50,
       (index) => ChatMessage(
         id: 'old_msg_${DateTime.now().millisecondsSinceEpoch}_$index',
         content: 'Mensaje antiguo del historial #$index',
@@ -214,6 +214,7 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
         type: MessageType.text,
         // Les ponemos fechas más viejas restando días/horas
         timestamp: DateTime.now().subtract(Duration(days: 1, hours: index)),
+        status: MessageStatus.read,
       ),
     );
 
@@ -289,50 +290,218 @@ final networkStreamProvider = StreamProvider<List<ConnectivityResult>>((ref) {
 // ==========================================
 // DATOS FALSOS BASADOS EN TU MOCKUP VISUAL
 // ==========================================
-final List<ChatMessage> _mockMessages = [
-  ChatMessage(
-    id: 'msg_0',
-    content: 'HOY, 16 DE FEBRERO',
-    isMine: false,
-    type: MessageType.system,
-    timestamp: DateTime(2026, 2, 16, 8, 0),
-  ),
-  ChatMessage(
-    id: 'msg_1',
-    content:
-        'Hola Angie, muchas gracias por aceptar la cotización. Quedo agendado para mañana a las 10:00 AM. ¿Me podrías confirmar si los equipos ya están en planta baja o hay que subirlos a un techo?',
-    isMine: true,
-    type: MessageType.text,
-    timestamp: DateTime(2026, 2, 16, 10, 15),
-    status: MessageStatus.read,
-  ),
-  ChatMessage(
-    id: 'msg_2',
-    content:
-        'Hola Ángel. Qué bueno saludarte. Sí, mira te paso la foto, los equipos están en la cochera, pero la instalación de 2 de ellos es en el segundo piso.',
-    isMine: false,
-    type: MessageType.text,
-    timestamp: DateTime(2026, 2, 16, 10, 30),
-    // status: MessageStatus.read,
-  ),
-  ChatMessage(
-    id: 'msg_3',
-    content:
-        'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=400',
-    caption:
-        'Hola Ángel. Qué bueno saludarte. Sí, mira te paso la foto, los equipos están en la cochera, pero la instalación de 2 de ellos es en el segundo piso.',
-    isMine: false,
-    type: MessageType.image,
-    timestamp: DateTime(2026, 2, 16, 10, 31),
-    // status: MessageStatus.read,
-  ),
-  ChatMessage(
-    id: 'msg_4',
-    content:
-        'Perfecto, no hay problema, yo llevo el equipo para maniobras. Nos vemos mañana puntual.',
-    isMine: true,
-    type: MessageType.text,
-    timestamp: DateTime(2026, 2, 16, 10, 31),
-    status: MessageStatus.sent,
-  ),
-];
+final mockChats = <String, List<ChatMessage>>{
+  // =================================================================
+  // CHAT 1: CONSTRUCCIÓN DE HABITACIÓN (Pendiente - Activo)
+  // ID: 'Q-001'
+  // =================================================================
+  'Q-001': [
+    ChatMessage(
+      id: 'q001_sys',
+      content: 'INICIO DEL CHAT - COTIZACIÓN #Q-001',
+      isMine: false,
+      type: MessageType.system,
+      timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 5)),
+    ),
+    ChatMessage(
+      id: 'q001_m1',
+      content:
+          'Buen día. Necesito ampliar mi casa con un cuarto extra de 4x4m en el patio trasero. ¿Podrían hacerme un presupuesto?',
+      isMine: false,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 4)),
+    ),
+    ChatMessage(
+      id: 'q001_m2',
+      content:
+          '¡Hola! Claro que sí, con gusto lo revisamos. Para darte un estimado más preciso, ¿tendrás alguna foto del patio donde se planea la construcción?',
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 3)),
+      status: MessageStatus.read,
+    ),
+    ChatMessage(
+      id: 'q001_m3',
+      content:
+          'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400&auto=format&fit=crop',
+      caption:
+          'Te comparto la foto. La idea es levantarlo pegado a la barda del fondo.',
+      isMine: false,
+      type: MessageType.image,
+      timestamp: DateTime.now().subtract(const Duration(minutes: 45)),
+    ),
+    ChatMessage(
+      id: 'q001_m4',
+      content:
+          'Perfecto, ya veo el espacio. El terreno se ve nivelado, lo cual ayuda mucho. Te preparo la cotización desglosada con material y mano de obra, te la envío por aquí en un par de horas.',
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
+      status: MessageStatus.sent,
+    ),
+  ],
+
+  // =================================================================
+  // CHAT 2: INSTALACIÓN DE EQUIPOS (Tu Mock Original)
+  // ID: 'Q-002'
+  // =================================================================
+  'Q-002': [
+    ChatMessage(
+      id: 'q002_sys',
+      content: 'INICIO DEL CHAT - COTIZACIÓN #Q-002',
+      isMine: false,
+      type: MessageType.system,
+      timestamp: DateTime(2026, 2, 16, 10, 0),
+    ),
+    ChatMessage(
+      id: 'q002_m1',
+      content:
+          'Hola Angie, muchas gracias por aceptar la cotización. Quedo agendado para mañana a las 10:00 AM. ¿Me podrías confirmar si los equipos ya están en planta baja o hay que subirlos a un techo?',
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime(2026, 2, 16, 10, 15),
+      status: MessageStatus.read,
+    ),
+    ChatMessage(
+      id: 'q002_m2',
+      content:
+          'Hola Ángel. Qué bueno saludarte. Sí, mira te paso la foto, los equipos están en la cochera, pero la instalación de 2 de ellos es en el segundo piso.',
+      isMine: false,
+      type: MessageType.text,
+      timestamp: DateTime(2026, 2, 16, 10, 30),
+    ),
+    ChatMessage(
+      id: 'q002_m3',
+      content:
+          'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=400',
+      caption:
+          'Hola Ángel. Qué bueno saludarte. Sí, mira te paso la foto, los equipos están en la cochera, pero la instalación de 2 de ellos es en el segundo piso.',
+      isMine: false,
+      type: MessageType.image,
+      timestamp: DateTime(2026, 2, 16, 10, 31),
+    ),
+    ChatMessage(
+      id: 'q002_m4',
+      content:
+          'Perfecto, no hay problema, yo llevo el equipo para maniobras. Nos vemos mañana puntual.',
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime(2026, 2, 16, 10, 31),
+      status: MessageStatus.sent,
+    ),
+  ],
+
+  // =================================================================
+  // CHAT 3: REPARACIÓN DE TUBERÍA (Completada - Solo Lectura)
+  // ID: 'Q-003'
+  // =================================================================
+  'Q-003': [
+    ChatMessage(
+      id: 'q003_sys1',
+      content: 'INICIO DEL CHAT - COTIZACIÓN #Q-003',
+      isMine: false,
+      type: MessageType.system,
+      timestamp: DateTime.now().subtract(const Duration(days: 5, hours: 10)),
+    ),
+    ChatMessage(
+      id: 'q003_m1',
+      content:
+          '¡Buenas tardes! Tengo una urgencia. Hay una fuga de agua en el baño principal y ya se me hizo una inundación leve debajo del lavabo, tuve que cerrar la llave de paso.',
+      isMine: false,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 5, hours: 9)),
+    ),
+    ChatMessage(
+      id: 'q003_m2',
+      content:
+          'Buenas tardes. No te preocupes, tengo una cuadrilla cerca de la zona. Llegamos en 20 minutos para controlar la fuga.',
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(
+        const Duration(days: 5, hours: 8, minutes: 40),
+      ),
+      status: MessageStatus.read,
+    ),
+    ChatMessage(
+      id: 'q003_m3',
+      content:
+          'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=400&auto=format&fit=crop',
+      caption:
+          'Listo, el problema era el empaque de la manguera flexible (coflex) que ya estaba muy desgastado. Se reemplazó por uno nuevo de acero trenzado y ya abrimos la llave de paso sin problemas.',
+      isMine: true,
+      type: MessageType.image,
+      timestamp: DateTime.now().subtract(const Duration(days: 5, hours: 6)),
+      status: MessageStatus.read,
+    ),
+    ChatMessage(
+      id: 'q003_m4',
+      content:
+          'Excelente trabajo, muchas gracias por la rapidez. Quedo al pendiente de la factura.',
+      isMine: false,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 5, hours: 5)),
+    ),
+    ChatMessage(
+      id: 'q003_sys2',
+      content: 'SERVICIO MARCADO COMO COMPLETADO',
+      isMine: false,
+      type: MessageType.system,
+      timestamp: DateTime.now().subtract(const Duration(days: 5, hours: 4)),
+    ),
+  ],
+
+  // =================================================================
+  // CHAT 4: MANTENIMIENTO MINI SPLIT (Rechazada - Solo Lectura)
+  // ID: 'Q-004'
+  // =================================================================
+  'Q-004': [
+    ChatMessage(
+      id: 'q004_sys1',
+      content: 'INICIO DEL CHAT - COTIZACIÓN #Q-004',
+      isMine: false,
+      type: MessageType.system,
+      timestamp: DateTime.now().subtract(const Duration(days: 10, hours: 8)),
+    ),
+    ChatMessage(
+      id: 'q004_m1',
+      content:
+          'Hola, buenas tardes. Requiero mantenimiento preventivo para un Mini Split de 1.5 toneladas. El equipo está funcionando bien, pero ya le toca servicio profundo (evaporadora y condensadora) antes de que se nos venga el calor fuerte de este mes.',
+      isMine: false,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 10, hours: 7)),
+    ),
+    ChatMessage(
+      id: 'q004_m2',
+      content:
+          'Hola, claro que sí. Es muy buena idea hacerlo ahorita. El servicio profundo con lavado a presión y revisión de gas refrigerante lo tenemos en \$850 MXN. Tenemos disponibilidad para el próximo jueves por la mañana.',
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 10, hours: 5)),
+      status: MessageStatus.read,
+    ),
+    ChatMessage(
+      id: 'q004_m3',
+      content:
+          'Se me complica un poco la fecha, me urgía para esta misma semana por los horarios en los que estoy en casa. De igual forma te agradezco mucho la atención, voy a buscar otra opción más próxima. ¡Gracias!',
+      isMine: false,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 9, hours: 14)),
+    ),
+    ChatMessage(
+      id: 'q004_m4',
+      content:
+          'Comprendo perfectamente. Quedamos a la orden para cualquier otro servicio en el futuro. ¡Excelente día!',
+      isMine: true,
+      type: MessageType.text,
+      timestamp: DateTime.now().subtract(const Duration(days: 9, hours: 13)),
+      status: MessageStatus.read,
+    ),
+    ChatMessage(
+      id: 'q004_sys2',
+      content: 'LA COTIZACIÓN FUE RECHAZADA POR EL CLIENTE',
+      isMine: false,
+      type: MessageType.system,
+      timestamp: DateTime.now().subtract(const Duration(days: 9, hours: 12)),
+    ),
+  ],
+};

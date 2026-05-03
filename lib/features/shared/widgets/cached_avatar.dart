@@ -1,3 +1,4 @@
+import 'package:app_incide/features/shared/widgets/full_screen_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,13 +73,26 @@ class _CachedAvatarState extends ConsumerState<CachedAvatar> {
       return initialsWidget();
     }
 
-    return CachedNetworkImage(
-      key: _avatarKey,
-      imageUrl: widget.imageUrl!,
-      imageBuilder: (context, imageProvider) =>
-          CircleAvatar(radius: widget.radius, backgroundImage: imageProvider),
-      placeholder: (context, url) => initialsWidget(),
-      errorWidget: (context, url, error) => initialsWidget(),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => FullScreenImageViewer(
+              imageSource: widget.imageUrl!,
+              isNetwork: true,
+              heroTag: widget.imageUrl!,
+            ),
+          ),
+        );
+      },
+      child: CachedNetworkImage(
+        key: _avatarKey,
+        imageUrl: widget.imageUrl!,
+        imageBuilder: (context, imageProvider) =>
+            CircleAvatar(radius: widget.radius, backgroundImage: imageProvider),
+        placeholder: (context, url) => initialsWidget(),
+        errorWidget: (context, url, error) => initialsWidget(),
+      ),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:app_incide/features/shared/widgets/cached_gallery_image.dart';
+import 'package:app_incide/features/shared/widgets/full_screen_image_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 import '../domain/models/chat_message.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -86,46 +88,66 @@ class MessageBubble extends StatelessWidget {
                         height: 200,
                         borderRadius: 8.0,
                       )
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.file(
-                          File(message.content),
-                          width: MediaQuery.of(context).size.width * 0.75,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-              if (message.type == MessageType.document)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(
-                      alpha: 0.05,
-                    ), // Fondo gris suave
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.insert_drive_file,
-                        color: Colors.deepPurple,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      Flexible(
-                        child: Text(
-                          message.content.split('/').last,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                    : GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => FullScreenImageViewer(
+                                imageSource: message.content,
+                                isNetwork: false,
+                                heroTag: message.id,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Hero(
+                          tag: message.id,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.file(
+                              File(message.content),
+                              width: MediaQuery.of(context).size.width * 0.75,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ],
+
+              if (message.type == MessageType.document)
+                GestureDetector(
+                  onTap: () async {
+                    await OpenFilex.open(message.content);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.insert_drive_file,
+                          color: Colors.deepPurple,
+                          size: 32,
+                        ),
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: Text(
+                            message.content.split('/').last,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 

@@ -1,3 +1,4 @@
+import 'package:app_incide/features/shared/widgets/full_screen_image_viewer.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -49,51 +50,65 @@ class _CachedGalleryImageState extends ConsumerState<CachedGalleryImage> {
       }
     });
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(widget.borderRadius),
-      child: CachedNetworkImage(
-        key: _imageKey,
-        imageUrl: widget.imageUrl,
-        height: widget.height,
-        width: widget.width,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          color: Colors.grey.shade200,
-          height: widget.height,
-          width: widget.width,
-          child: const Center(
-            child: SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => FullScreenImageViewer(
+              imageSource: widget.imageUrl,
+              isNetwork: true,
+              heroTag: widget
+                  .imageUrl, // Usamos la URL como identificador único para la animación Hero
             ),
           ),
-        ),
-
-        errorWidget: (context, url, error) => GestureDetector(
-          onTap: _forceRetry,
-          child: Container(
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(widget.borderRadius),
+        child: CachedNetworkImage(
+          key: _imageKey,
+          imageUrl: widget.imageUrl,
+          height: widget.height,
+          width: widget.width,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(
             color: Colors.grey.shade200,
             height: widget.height,
             width: widget.width,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.refresh_rounded,
-                  color: Colors.grey.shade500,
-                  size: 28,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Reintentar',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.bold,
+            child: const Center(
+              child: SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+
+          errorWidget: (context, url, error) => GestureDetector(
+            onTap: _forceRetry,
+            child: Container(
+              color: Colors.grey.shade200,
+              height: widget.height,
+              width: widget.width,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.refresh_rounded,
+                    color: Colors.grey.shade500,
+                    size: 28,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    'Reintentar',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -66,6 +66,44 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
     );
   }
 
+  void sendImageMessage(String chatId, String imagePath, String? caption) {
+    // 1. Creas el mensaje de tipo imagen pasándole la ruta local del archivo
+    final newMessage = ChatMessage(
+      id: DateTime.now().toString(),
+      content: imagePath,
+      caption: caption,
+      isMine: true,
+      type: MessageType.image,
+      timestamp: DateTime.now(),
+      status: MessageStatus.sent,
+    );
+
+    final currentMessages = state[chatId] ?? [];
+
+    state = {
+      ...state,
+      chatId: [...currentMessages, newMessage],
+    };
+  }
+
+  void sendDocumentMessage(String chatId, String filePath, String? caption) {
+    final newMessage = ChatMessage(
+      id: DateTime.now().toString(),
+      content: filePath,
+      caption: caption,
+      isMine: true,
+      type: MessageType.document,
+      timestamp: DateTime.now(),
+    );
+
+    final currentMessages = state[chatId] ?? [];
+
+    state = {
+      ...state,
+      chatId: [...currentMessages, newMessage],
+    };
+  }
+
   // Función para marcar como leídos los mensajes recibidos al abrir el chat
   void markMessagesAsRead(String chatId) {
     final currentMessages = state[chatId];

@@ -95,8 +95,43 @@ class MessageBubble extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                       ),
+              if (message.type == MessageType.document)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(
+                      alpha: 0.05,
+                    ), // Fondo gris suave
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.insert_drive_file,
+                        color: Colors.deepPurple,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: Text(
+                          message.content.split('/').last,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-              if (message.type == MessageType.image && message.caption != null)
+              if ((message.type == MessageType.image ||
+                      message.type == MessageType.document) &&
+                  message.caption != null)
                 const SizedBox(height: 8.0),
 
               if (message.type == MessageType.text)
@@ -104,10 +139,21 @@ class MessageBubble extends StatelessWidget {
                   message.content,
                   style: TextStyle(color: textColor, fontSize: 14, height: 1.3),
                 ),
-              if (message.type == MessageType.image && message.caption != null)
-                Text(
-                  message.caption!,
-                  style: TextStyle(color: textColor, fontSize: 14, height: 1.3),
+
+              if ((message.type == MessageType.image ||
+                      message.type == MessageType.document) &&
+                  message.caption != null)
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    message.caption!,
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                      height: 1.3,
+                    ),
+                  ),
                 ),
 
               const SizedBox(height: 4.0),

@@ -1,4 +1,7 @@
 import 'package:app_incide/features/provider/chat/widgets/typing_bubble.dart';
+import 'package:app_incide/features/provider/quotes/models/quote_model.dart';
+import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
+import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/chat_provider.dart';
@@ -61,21 +64,26 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     final displayMessages = messages.reversed.toList();
     final typingMap = ref.watch(typingProvider);
     final isTyping = typingMap[widget.chatId] ?? false;
+    final currentQuote = ref
+        .watch(quotesProvider)
+        .firstWhere((q) => q.id == widget.chatId);
+    final isCompletedByProvider = currentQuote.providerMarkedCompleted;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: ChatAppBar(
-        isAccepted: widget.isAccepted,
-        realName: 'Angie Serna', // A futuro esto vendrá de un provider
-        serviceTitle: 'Instalación de 4 Minisplits (2 Ton)',
-        onMarkAsCompleted: () {
-          ref
-              .read(chatProvider.notifier)
-              .addSystemMessage(
-                widget.chatId,
-                'Has marcado este servicio como completado.',
-              );
-        },
+        isAccepted:
+            currentQuote.status == QuoteStatus.accepted ||
+            currentQuote.status == QuoteStatus.completed,
+        isCompleted: isCompletedByProvider,
+        realName: currentQuote.clientName,
+        serviceTitle: currentQuote.title,
+        onMarkAsCompleted: () => QuoteDialogs.showCompletionDialog(
+          context: context,
+          ref: ref,
+          chatId: widget.chatId,
+          isCurrentlyCompleted: isCompletedByProvider,
+        ),
       ),
       body: Column(
         children: [

@@ -1,5 +1,8 @@
+import 'package:app_incide/features/provider/quotes/models/quote_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/chat_message.dart';
+import 'dart:async'; // Necesario para usar la clase Timer
+import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
 
 // 1. Usamos Notifier normal, manejando un Mapa (Diccionario) de chats por ID
 class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
@@ -116,6 +119,46 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
       ...state,
       chatId: [...currentMessages, newMessage],
     };
+  }
+
+  // Guardamos el temporizador en memoria para poder cancelarlo si el usuario se arrepiente
+  Timer? _completionTimer;
+
+  void toggleServiceCompletion(String chatId, bool isCompleting) {
+    if (isCompleting) {
+      // 1. Mensaje de sistema inicial
+      addSystemMessage(
+        chatId,
+        'Has marcado este servicio como completado. A la espera de confirmación del cliente.',
+      );
+      ref.read(quotesProvider.notifier).toggleProviderCompletion(chatId, true);
+
+      // 2. Simulamos al cliente desde su app confirmando después de 5 segundos
+      _completionTimer?.cancel();
+      _completionTimer = Timer(const Duration(seconds: 5), () {
+        final quotes = ref.read(quotesProvider);
+        final currentQuote = quotes.firstWhere((q) => q.id == chatId);
+
+        if (currentQuote.providerMarkedCompleted) {
+          ref
+              .read(quotesProvider.notifier)
+              .toggleClientCompletion(chatId, true);
+          addSystemMessage(
+            chatId,
+            'El cliente ha confirmado la finalización. El servicio ha sido cerrado con éxito.',
+          );
+        }
+      });
+    } else {
+      // 4. El usuario canceló la finalización ANTES o DESPUÉS de que el cliente aceptara
+      _completionTimer?.cancel();
+
+      addSystemMessage(
+        chatId,
+        'Has cancelado la finalización. El servicio vuelve a estar en curso.',
+      );
+      ref.read(quotesProvider.notifier).toggleProviderCompletion(chatId, false);
+    }
   }
 }
 

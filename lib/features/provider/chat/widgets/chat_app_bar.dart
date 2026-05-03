@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isAccepted;
+  final bool isCompleted;
   final String realName;
   final String serviceTitle;
   final VoidCallback onMarkAsCompleted;
@@ -10,6 +11,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatAppBar({
     super.key,
     required this.isAccepted,
+    required this.isCompleted,
     required this.realName,
     required this.serviceTitle,
     required this.onMarkAsCompleted,
@@ -92,14 +94,17 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert, color: Colors.white),
           onSelected: (value) {
-            // TODO: Lógica para "Marcar como completado"
             if (value == 'complete') onMarkAsCompleted();
           },
           itemBuilder: (BuildContext context) {
             return [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'complete',
-                child: Text('Marcar como Completado'),
+                child: Text(
+                  isCompleted
+                      ? 'Cancelar Completado'
+                      : 'Marcar como Completado',
+                ),
               ),
               const PopupMenuItem(
                 value: 'report',

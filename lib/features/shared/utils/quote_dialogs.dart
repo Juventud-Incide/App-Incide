@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
+import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
 
 /// Clase utilitaria (Utility Class) para centralizar y gestionar diálogos modales.
 ///
@@ -79,5 +80,108 @@ class QuoteDialogs {
         ],
       ),
     );
+  }
+
+  static Future<void> showCompletionDialog({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String chatId,
+    required bool isCurrentlyCompleted,
+  }) async {
+    final title = !isCurrentlyCompleted
+        ? '¿Marcar como completado?'
+        : '¿Cancelar finalización?';
+    final content = !isCurrentlyCompleted
+        ? 'Se enviará una notificación al cliente para que confirme que el trabajo ha finalizado.'
+        : 'El servicio volverá a estar en curso y el cliente ya no podrá confirmarlo.';
+    final confirmText = !isCurrentlyCompleted
+        ? 'Sí, completar'
+        : 'Sí, cancelar';
+    final confirmColor = !isCurrentlyCompleted
+        ? Colors.green
+        : Colors.redAccent;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        // 1. Centramos el título
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        // 2. Centramos el contenido para que haga simetría con el título
+        content: Text(
+          content,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey.shade700, height: 1.4),
+        ),
+        // Ajustamos el padding para que los botones tengan buen espacio
+        actionsPadding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: 16,
+          top: 8,
+        ),
+        actions: [
+          // 3. Fila con Expanded para lograr el 50% / 50%
+          Row(
+            children: [
+              // Botón Volver (50%)
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey.shade700,
+                      side: BorderSide(color: Colors.grey.shade300),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text(
+                      'Volver',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12), // Separación entre botones
+              // Botón de Acción (50%)
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: confirmColor,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: Text(
+                      confirmText,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      ref
+          .read(chatProvider.notifier)
+          .toggleServiceCompletion(chatId, !isCurrentlyCompleted);
+    }
   }
 }

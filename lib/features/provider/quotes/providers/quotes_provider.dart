@@ -187,6 +187,53 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
     ];
   }
 
+  /// Actualiza dinámicamente el estado de cualquier cotización.
+  ///
+  /// Este método general evita la creación de múltiples funciones redundantes
+  /// (ej. markAsCompleted, markAsAccepted, etc.) y centraliza la mutación del estado.
+  void updateStatus(String quoteId, QuoteStatus newStatus) {
+    state = [
+      for (final quote in state)
+        if (quote.id == quoteId) quote.copyWith(status: newStatus) else quote,
+    ];
+  }
+
+  /// 1. El proveedor acciona su interruptor
+  void toggleProviderCompletion(String quoteId, bool isCompleted) {
+    state = [
+      for (final quote in state)
+        if (quote.id == quoteId)
+          _evaluateConsensus(
+            quote.copyWith(providerMarkedCompleted: isCompleted),
+          )
+        else
+          quote,
+    ];
+  }
+
+  /// 2. El cliente acciona su interruptor (Físicamente desde su app, o vía nuestra simulación)
+  void toggleClientCompletion(String quoteId, bool isCompleted) {
+    state = [
+      for (final quote in state)
+        if (quote.id == quoteId)
+          _evaluateConsensus(quote.copyWith(clientMarkedCompleted: isCompleted))
+        else
+          quote,
+    ];
+  }
+
+  /// 3. El Cerebro: Revisa si ambas llaves están giradas para cerrar el trato
+  QuoteModel _evaluateConsensus(QuoteModel quote) {
+    // Si AMBOS están de acuerdo, el estado oficial pasa a ser 'completed' (o finalized)
+    if (quote.providerMarkedCompleted && quote.clientMarkedCompleted) {
+      return quote.copyWith(status: QuoteStatus.completed);
+    }
+
+    // Si alguno de los dos falta, o alguien se arrepiente y cancela,
+    // el estado debe mantenerse (o regresar) a 'accepted' (en curso)
+    return quote.copyWith(status: QuoteStatus.accepted);
+  }
+
   /// Transforma una [OpportunityModel] del mercado en una [QuoteModel] activa.
   ///
   /// **Flujo de Negocio:**
@@ -222,6 +269,4 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
     // Actualización de estado agregando el nuevo elemento al inicio (LIFO).
     state = [newQuote, ...state];
   }
-
-  // TODO: Implementar lógica de persistencia para `markAsCompleted()` y `sendMessage()`.
 }

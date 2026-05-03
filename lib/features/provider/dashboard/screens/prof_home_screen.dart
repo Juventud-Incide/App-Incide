@@ -4,7 +4,6 @@ import 'package:app_incide/features/provider/dashboard/widgets/stat_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/custom_filter_chip.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
-import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:app_incide/features/provider/profile/providers/provider_profile_provider.dart';
 import 'package:app_incide/features/provider/dashboard/providers/opportunity_provider.dart';
 import 'package:app_incide/features/shared/widgets/cached_avatar.dart';

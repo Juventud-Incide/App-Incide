@@ -7,7 +7,7 @@ import '../widgets/chat_input_bar.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/system_bubble.dart';
 
-class ChatDetailScreen extends ConsumerWidget {
+class ChatDetailScreen extends ConsumerStatefulWidget {
   final String chatId;
   final bool isAccepted;
 
@@ -18,36 +18,47 @@ class ChatDetailScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Escuchamos el provider de mensajes
+  ConsumerState<ChatDetailScreen> createState() => _ChatDetailScreenState();
+}
+
+class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Usamos addPostFrameCallback por seguridad en Flutter.
+    // Esto le dice al framework: "Espera a que la pantalla termine de dibujarse
+    // por primera vez, y justo después, ejecuta esta función".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(chatProvider.notifier).markMessagesAsRead(widget.chatId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final messages =
-        ref.watch(chatProvider)[chatId] ??
+        ref.watch(chatProvider)[widget.chatId] ??
         [
           ChatMessage(
             id: 'sys',
-            content: 'INICIO DEL CHAT - COTIZACIÓN #$chatId',
+            content: 'INICIO DEL CHAT - COTIZACIÓN #${widget.chatId}',
             isMine: false,
             type: MessageType.system,
             timestamp: DateTime.now(),
           ),
         ];
-
-    // 2. LA MAGIA: Invertimos el orden del arreglo en memoria.
-    // Ahora el mensaje más reciente está en el index 0.
     final displayMessages = messages.reversed.toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: ChatAppBar(
-        isAccepted: isAccepted,
-        realName: 'Angie Serna',
+        isAccepted: widget.isAccepted,
+        realName: 'Angie Serna', // A futuro esto vendrá de un provider
         serviceTitle: 'Instalación de 4 Minisplits (2 Ton)',
         onMarkAsCompleted: () {
-          // Llamamos al Notifier y le decimos qué chat actualizar
           ref
               .read(chatProvider.notifier)
               .addSystemMessage(
-                chatId,
+                widget.chatId,
                 'Has marcado este servicio como completado.',
               );
         },
@@ -73,7 +84,7 @@ class ChatDetailScreen extends ConsumerWidget {
           ),
 
           // Barra de entrada de texto
-          ChatInputBar(chatId: chatId),
+          ChatInputBar(chatId: widget.chatId),
         ],
       ),
     );

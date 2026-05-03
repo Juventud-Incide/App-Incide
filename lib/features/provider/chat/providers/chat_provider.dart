@@ -56,6 +56,27 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
       chatId: [...currentMessages, newMessage],
     };
   }
+
+  // Función para marcar como leídos los mensajes recibidos al abrir el chat
+  void markMessagesAsRead(String chatId) {
+    final currentMessages = state[chatId];
+    if (currentMessages == null || currentMessages.isEmpty) return;
+
+    bool changed = false;
+    final updatedMessages = currentMessages.map((msg) {
+      // Si el mensaje NO es mío y su estado NO es 'read', lo actualizamos
+      if (!msg.isMine && msg.status != MessageStatus.read) {
+        changed = true;
+        return msg.copyWith(status: MessageStatus.read);
+      }
+      return msg;
+    }).toList();
+
+    // Solo repintamos el estado si realmente hubo cambios (optimización de memoria)
+    if (changed) {
+      state = {...state, chatId: updatedMessages};
+    }
+  }
 }
 
 // 2. El único Provider sobreviviente en Riverpod 3.0
@@ -107,7 +128,7 @@ final List<ChatMessage> _mockMessages = [
     isMine: false,
     type: MessageType.text,
     timestamp: DateTime(2026, 2, 16, 10, 30),
-    status: MessageStatus.read,
+    // status: MessageStatus.read,
   ),
   ChatMessage(
     id: 'msg_3',
@@ -118,7 +139,7 @@ final List<ChatMessage> _mockMessages = [
     isMine: false,
     type: MessageType.image,
     timestamp: DateTime(2026, 2, 16, 10, 31),
-    status: MessageStatus.read,
+    // status: MessageStatus.read,
   ),
   ChatMessage(
     id: 'msg_4',

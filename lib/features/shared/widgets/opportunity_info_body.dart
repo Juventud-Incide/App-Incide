@@ -285,6 +285,9 @@ class OpportunityInfoBody extends StatelessWidget {
         itemBuilder: (context, index) {
           final imageUrl = photoUrls[index];
 
+          // 2. EVALUACIÓN DE RED VS LOCAL
+          final isNetworkImage = imageUrl.startsWith('http');
+
           return Container(
             width: 100,
             margin: const EdgeInsets.only(right: 12),
@@ -292,12 +295,31 @@ class OpportunityInfoBody extends StatelessWidget {
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: CachedGalleryImage(
-              imageUrl: imageUrl,
-              height: 24,
-              width: 24,
-              borderRadius: 12,
-            ),
+            child: isNetworkImage
+                ? CachedGalleryImage(
+                    imageUrl: imageUrl,
+                    height: 100,
+                    width: 100,
+                    borderRadius: 12,
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      imageUrl,
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 100,
+                        width: 100,
+                        color: Colors.red.shade100,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ),
           );
         },
       ),

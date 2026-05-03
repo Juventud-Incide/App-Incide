@@ -55,6 +55,12 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
       ...state,
       chatId: [...currentMessages, newMessage],
     };
+
+    // Lanzamos la simulación de respuesta sin usar 'await' para no bloquear la UI
+    simulateClientReply(
+      chatId,
+      '¡Entendido! Muchas gracias por la información.',
+    );
   }
 
   // Función para marcar como leídos los mensajes recibidos al abrir el chat
@@ -77,13 +83,79 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
       state = {...state, chatId: updatedMessages};
     }
   }
+
+  // Agrega esto dentro de tu clase ChatNotifier
+  Future<void> simulateClientReply(String chatId, String text) async {
+    // 1. Encendemos el indicador de "Escribiendo..." para este chat
+    ref.read(typingProvider.notifier).setTyping(chatId, true);
+
+    // 2. Simulamos el tiempo que tarda la persona en escribir (ej. 3 segundos)
+    await Future.delayed(const Duration(seconds: 3));
+
+    // 3. Apagamos el indicador
+    ref.read(typingProvider.notifier).setTyping(chatId, false);
+
+    // 4. Verificamos la "Presencia" del usuario
+    final currentActiveChat = ref.read(activeChatProvider);
+    final isUserInThisChat = currentActiveChat == chatId;
+
+    // 5. Creamos el mensaje. Si el usuario está viendo el chat, nace como 'read'.
+    // Si está en el menú, nace como 'delivered' (lo que sumará +1 al globo rojo).
+    final newMessage = ChatMessage(
+      id: DateTime.now().toString(),
+      content: text,
+      isMine: false,
+      type: MessageType.text,
+      timestamp: DateTime.now(),
+      status: isUserInThisChat ? MessageStatus.read : MessageStatus.delivered,
+    );
+
+    // 6. Insertamos el mensaje en la memoria
+    final currentMessages = state[chatId] ?? [];
+    state = {
+      ...state,
+      chatId: [...currentMessages, newMessage],
+    };
+  }
 }
 
-// 2. El único Provider sobreviviente en Riverpod 3.0
+// ==========================================
+// 1. PROVIDER DE PRESENCIA (Chat Activo)
+// ==========================================
+class ActiveChatNotifier extends Notifier<String?> {
+  @override
+  String? build() => null; // Inicia sin ningún chat abierto
+
+  void setActiveChat(String? chatId) {
+    state = chatId;
+  }
+}
+
+// ==========================================
+// 2. PROVIDER DE ESCRIBIENDO (Typing)
+// ==========================================
+class TypingNotifier extends Notifier<Map<String, bool>> {
+  @override
+  Map<String, bool> build() => {}; // Inicia con un mapa vacío
+
+  void setTyping(String chatId, bool isTyping) {
+    // Clonamos el mapa y actualizamos solo el estado del chat específico
+    state = {...state, chatId: isTyping};
+  }
+}
+
 final chatProvider =
     NotifierProvider<ChatNotifier, Map<String, List<ChatMessage>>>(() {
       return ChatNotifier();
     });
+
+final activeChatProvider = NotifierProvider<ActiveChatNotifier, String?>(() {
+  return ActiveChatNotifier();
+});
+
+final typingProvider = NotifierProvider<TypingNotifier, Map<String, bool>>(() {
+  return TypingNotifier();
+});
 
 // Proveedor derivado que calcula los mensajes no leídos de un chat específico
 final unreadCountProvider = Provider.family<int, String>((ref, chatId) {

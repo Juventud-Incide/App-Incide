@@ -1,3 +1,4 @@
+import 'package:app_incide/features/provider/chat/widgets/typing_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/chat_provider.dart';
@@ -22,15 +23,26 @@ class ChatDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
+  late final ActiveChatNotifier _activeNotifier;
+
   @override
   void initState() {
     super.initState();
+    _activeNotifier = ref.read(activeChatProvider.notifier);
     // Usamos addPostFrameCallback por seguridad en Flutter.
     // Esto le dice al framework: "Espera a que la pantalla termine de dibujarse
     // por primera vez, y justo después, ejecuta esta función".
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 1. Reportamos que estamos DENTRO de este chat
+      _activeNotifier.setActiveChat(widget.chatId);
       ref.read(chatProvider.notifier).markMessagesAsRead(widget.chatId);
     });
+  }
+
+  @override
+  void dispose() {
+    Future.microtask(() => _activeNotifier.setActiveChat(null));
+    super.dispose();
   }
 
   @override
@@ -47,6 +59,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           ),
         ];
     final displayMessages = messages.reversed.toList();
+    final typingMap = ref.watch(typingProvider);
+    final isTyping = typingMap[widget.chatId] ?? false;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
@@ -70,8 +84,17 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             child: ListView.builder(
               padding: const EdgeInsets.only(bottom: 20, top: 10),
               reverse: true,
-              itemCount: displayMessages.length,
+              itemCount: displayMessages.length + (isTyping ? 1 : 0),
               itemBuilder: (context, index) {
+                // Si están escribiendo, la burbuja animada toma el índice 0 (abajo de todo)
+                if (isTyping) {
+                  if (index == 0) {
+                    return const TypingBubble();
+                  }
+                  // Desplazamos el resto de los mensajes un lugar hacia arriba
+                  index -= 1;
+                }
+
                 final message = displayMessages[index];
 
                 if (message.type == MessageType.system) {

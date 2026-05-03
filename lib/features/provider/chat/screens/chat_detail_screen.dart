@@ -28,9 +28,14 @@ class ChatDetailScreen extends ConsumerStatefulWidget {
 class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   late final ActiveChatNotifier _activeNotifier;
 
+  final ScrollController _scrollController = ScrollController();
+
+  bool _isLoadingMore = false;
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_scrollListener);
     _activeNotifier = ref.read(activeChatProvider.notifier);
     // Usamos addPostFrameCallback por seguridad en Flutter.
     // Esto le dice al framework: "Espera a que la pantalla termine de dibujarse
@@ -45,7 +50,30 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
   @override
   void dispose() {
     Future.microtask(() => _activeNotifier.setActiveChat(null));
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollListener() {
+    // Si estamos a 200 pixeles o menos de llegar al límite superior del historial...
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoadingMore) {
+        _fetchOlderMessages();
+      }
+    }
+  }
+
+  Future<void> _fetchOlderMessages() async {
+    setState(() {
+      _isLoadingMore = true;
+    });
+    await ref.read(chatProvider.notifier).loadOlderMessages(widget.chatId);
+    if (mounted) {
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
   }
 
   @override
@@ -95,9 +123,13 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           // Área de mensajes
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.only(bottom: 20, top: 10),
               reverse: true,
-              itemCount: displayMessages.length + (isTyping ? 1 : 0),
+              itemCount:
+                  displayMessages.length +
+                  (isTyping ? 1 : 0) +
+                  (_isLoadingMore ? 1 : 0),
               itemBuilder: (context, index) {
                 // Si están escribiendo, la burbuja animada toma el índice 0 (abajo de todo)
                 if (isTyping) {
@@ -106,6 +138,13 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                   }
                   // Desplazamos el resto de los mensajes un lugar hacia arriba
                   index -= 1;
+                }
+
+                if (index == messages.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
                 }
 
                 final message = displayMessages[index];

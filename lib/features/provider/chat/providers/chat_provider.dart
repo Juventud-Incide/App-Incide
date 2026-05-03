@@ -198,6 +198,33 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
       ref.read(quotesProvider.notifier).toggleProviderCompletion(chatId, false);
     }
   }
+
+  // Simula la petición a la base de datos para cargar mensajes antiguos
+  Future<void> loadOlderMessages(String chatId) async {
+    // Simulamos un retraso de red de 1.5 segundos
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    // Generamos unos mensajes antiguos falsos
+    final olderMessages = List.generate(
+      10,
+      (index) => ChatMessage(
+        id: 'old_msg_${DateTime.now().millisecondsSinceEpoch}_$index',
+        content: 'Mensaje antiguo del historial #$index',
+        isMine: index % 2 == 0, // Alternamos entre tuyos y del cliente
+        type: MessageType.text,
+        // Les ponemos fechas más viejas restando días/horas
+        timestamp: DateTime.now().subtract(Duration(days: 1, hours: index)),
+      ),
+    );
+
+    // Obtenemos los mensajes que ya tenemos para este chat específico
+    final currentChatMessages = state[chatId] ?? [];
+
+    state = {
+      ...state,
+      chatId: [...olderMessages.reversed, ...currentChatMessages],
+    };
+  }
 }
 
 // ==========================================

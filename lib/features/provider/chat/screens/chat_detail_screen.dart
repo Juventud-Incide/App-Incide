@@ -68,6 +68,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         .watch(quotesProvider)
         .firstWhere((q) => q.id == widget.chatId);
     final isCompletedByProvider = currentQuote.providerMarkedCompleted;
+    final isReadOnly =
+        currentQuote.status == QuoteStatus.completed ||
+        currentQuote.status == QuoteStatus.rejected;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
@@ -76,6 +79,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             currentQuote.status == QuoteStatus.accepted ||
             currentQuote.status == QuoteStatus.completed,
         isCompleted: isCompletedByProvider,
+        isReadOnly: isReadOnly,
         realName: currentQuote.clientName,
         serviceTitle: currentQuote.title,
         onMarkAsCompleted: () => QuoteDialogs.showCompletionDialog(
@@ -115,7 +119,44 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           ),
 
           // Barra de entrada de texto
-          ChatInputBar(chatId: widget.chatId),
+          if (isReadOnly)
+            Container(
+              width: double.infinity,
+              color: Colors.grey.shade300,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.lock_outline,
+                      color: Colors.grey.shade600,
+                      size: 24,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Servicio Finalizado',
+                      style: TextStyle(
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Este chat ha sido archivado y es de solo lectura.',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ChatInputBar(chatId: widget.chatId),
         ],
       ),
     );

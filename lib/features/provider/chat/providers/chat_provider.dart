@@ -1,4 +1,3 @@
-import 'package:app_incide/features/provider/quotes/models/quote_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/chat_message.dart';
 import 'dart:async'; // Necesario para usar la clase Timer

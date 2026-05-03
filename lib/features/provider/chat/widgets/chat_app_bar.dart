@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isAccepted;
   final bool isCompleted;
+  final bool isReadOnly;
   final String realName;
   final String serviceTitle;
   final VoidCallback onMarkAsCompleted;
@@ -12,6 +13,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     required this.isAccepted,
     required this.isCompleted,
+    required this.isReadOnly,
     required this.realName,
     required this.serviceTitle,
     required this.onMarkAsCompleted,
@@ -83,7 +85,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         // Si no está aceptado, no mostramos el botón de llamada
-        if (isAccepted)
+        if (isAccepted && !isReadOnly)
           IconButton(
             icon: const Icon(Icons.phone, color: Colors.white),
             onPressed: () {
@@ -91,28 +93,29 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             },
           ),
         // Menú de opciones (para marcar como completado en el futuro)
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
-          onSelected: (value) {
-            if (value == 'complete') onMarkAsCompleted();
-          },
-          itemBuilder: (BuildContext context) {
-            return [
-              PopupMenuItem(
-                value: 'complete',
-                child: Text(
-                  isCompleted
-                      ? 'Cancelar Completado'
-                      : 'Marcar como Completado',
+        if (!isReadOnly)
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, color: Colors.white),
+            onSelected: (value) {
+              if (value == 'complete') onMarkAsCompleted();
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                  value: 'complete',
+                  child: Text(
+                    isCompleted
+                        ? 'Cancelar Completado'
+                        : 'Marcar como Completado',
+                  ),
                 ),
-              ),
-              const PopupMenuItem(
-                value: 'report',
-                child: Text('Reportar problema'),
-              ),
-            ];
-          },
-        ),
+                const PopupMenuItem(
+                  value: 'report',
+                  child: Text('Reportar problema'),
+                ),
+              ];
+            },
+          ),
       ],
     );
   }

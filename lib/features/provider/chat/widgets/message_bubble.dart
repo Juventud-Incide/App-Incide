@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:app_incide/features/shared/widgets/cached_gallery_image.dart';
 import 'package:flutter/material.dart';
 import '../domain/models/chat_message.dart';
 
@@ -76,10 +79,22 @@ class MessageBubble extends StatelessWidget {
                 : CrossAxisAlignment.start,
             children: [
               if (message.type == MessageType.image)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(message.content, fit: BoxFit.cover),
-                ),
+                message.content.startsWith('http')
+                    ? CachedGalleryImage(
+                        imageUrl: message.content,
+                        width: MediaQuery.of(context).size.width * 0.75,
+                        height: 200,
+                        borderRadius: 8.0,
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.file(
+                          File(message.content),
+                          width: MediaQuery.of(context).size.width * 0.75,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
 
               if (message.type == MessageType.image && message.caption != null)
                 const SizedBox(height: 8.0),

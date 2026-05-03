@@ -1,4 +1,5 @@
 import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:app_incide/features/shared/widgets/cached_gallery_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -291,31 +292,11 @@ class OpportunityInfoBody extends StatelessWidget {
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
             ),
-            // Usamos ClipRRect para que la imagen respete las esquinas redondeadas del contenedor
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover, // Evita que la imagen se deforme
-                // Feedback visual durante la descarga
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  );
-                },
-
-                // Fallback visual si falla la carga
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Icon(Icons.broken_image, color: Colors.grey),
-                  );
-                },
-              ),
+            child: CachedGalleryImage(
+              imageUrl: imageUrl,
+              height: 24,
+              width: 24,
+              borderRadius: 12,
             ),
           );
         },

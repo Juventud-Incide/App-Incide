@@ -1,6 +1,7 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/provider/quotes/widgets/chat_button_badge.dart';
 import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
+import 'package:app_incide/features/shared/widgets/cached_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -157,10 +158,6 @@ class QuoteDetailScreen extends ConsumerWidget {
   Widget _buildClientInfoCard(QuoteModel q) {
     final isAccepted =
         q.status == QuoteStatus.accepted || q.status == QuoteStatus.completed;
-    final bool showPhoto =
-        isAccepted &&
-        q.clientAvatarUrl != null &&
-        q.clientAvatarUrl!.isNotEmpty;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -170,22 +167,13 @@ class QuoteDetailScreen extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.1),
-            backgroundImage: showPhoto
-                ? NetworkImage(q.clientAvatarUrl!)
-                : null,
-            child: !showPhoto
-                ? Text(
-                    q.clientName[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.primaryBlue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  )
-                : null,
+          CachedAvatar(
+            imageUrl: q.clientAvatarUrl,
+            radius: 24, // Ajusta al tamaño que tenías en tu diseño
+            fallbackColor: AppColors.primaryBlue.withValues(alpha: 0.1),
+            textColor: AppColors.textDark,
+            // Extraemos las iniciales dinámicamente
+            fallbackInitials: q.clientName.substring(0, 2).toUpperCase(),
           ),
           const SizedBox(width: 16),
           Expanded(

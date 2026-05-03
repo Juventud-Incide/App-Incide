@@ -6,6 +6,7 @@ import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:app_incide/features/provider/profile/providers/provider_profile_provider.dart';
+import 'package:app_incide/features/shared/widgets/cached_avatar.dart';
 import 'package:app_incide/features/shared/widgets/provider_notification_bell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -135,64 +136,12 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  CircleAvatar(
+                  CachedAvatar(
+                    imageUrl: profile.avatarUrl,
                     radius: 28,
-                    backgroundColor: Colors.white.withValues(alpha: 0.9),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-
-                      // 1. EVALUAMOS SI HAY URL DE FOTO
-                      child:
-                          (profile.avatarUrl != null &&
-                              profile.avatarUrl!.isNotEmpty)
-                          ? Image.network(
-                              profile.avatarUrl!,
-                              fit: BoxFit.cover,
-                              width: 56,
-                              height: 56,
-
-                              // 2. MIENTRAS CARGA (Spinner)
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const Center(
-                                      child: SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: AppColors.primaryBlue,
-                                        ),
-                                      ),
-                                    );
-                                  },
-
-                              // 3. SI HAY ERROR DE INTERNET (Plan B: Iniciales)
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Text(
-                                    profile.initials,
-                                    style: const TextStyle(
-                                      color: AppColors.primaryBlue,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                );
-                              },
-                            )
-                          // 4. SI NO HAY URL DEFINIDA (Plan B: Iniciales)
-                          : Center(
-                              child: Text(
-                                profile.initials,
-                                style: const TextStyle(
-                                  color: AppColors.primaryBlue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                    ),
+                    fallbackInitials: profile.initials,
+                    fallbackColor: Colors.white.withValues(alpha: 0.9),
+                    textColor: AppColors.primaryBlue,
                   ),
                   if (profile.isCertified)
                     Positioned(

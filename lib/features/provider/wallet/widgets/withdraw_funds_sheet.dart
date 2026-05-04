@@ -208,7 +208,8 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                       const Spacer(),
                       TextButton(
                         onPressed: () {
-                          // TODO: Abrir selector de cuentas (MVP: Por ahora abre el de agregar)
+                          // TODO: (EPIC: Perfil) Refactorizar para navegar a la pantalla 'ManageBankAccountsScreen'
+                          // Por ahora (MVP), atajo directo para agregar nueva cuenta.
                           showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,

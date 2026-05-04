@@ -117,6 +117,8 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         currentQuote.status == QuoteStatus.completed ||
         currentQuote.status == QuoteStatus.rejected;
 
+    final isPending = currentQuote.status == QuoteStatus.pending;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: ChatAppBar(
@@ -125,6 +127,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
             currentQuote.status == QuoteStatus.completed,
         isCompleted: isCompletedByProvider,
         isReadOnly: isReadOnly,
+        isPending: isPending,
         realName: currentQuote.clientName,
         serviceTitle: currentQuote.title,
         clientAvatarUrl: currentQuote.clientAvatarUrl,
@@ -134,6 +137,12 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
           ref: ref,
           chatId: widget.chatId,
           isCurrentlyCompleted: isCompletedByProvider,
+        ),
+        onSetPrice: () => QuoteDialogs.showSetPriceDialog(
+          context: context,
+          ref: ref,
+          chatId: widget.chatId,
+          currentPrice: currentQuote.finalPrice ?? 0.0,
         ),
       ),
       body: Column(

@@ -184,4 +184,111 @@ class QuoteDialogs {
           .toggleServiceCompletion(chatId, !isCurrentlyCompleted);
     }
   }
+
+  static void showSetPriceDialog({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String chatId,
+    required double currentPrice,
+  }) {
+    final TextEditingController priceController = TextEditingController(
+      text: currentPrice > 0 ? currentPrice.toStringAsFixed(2) : '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(AppStrings.chatSetNewPrice),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(AppStrings.chatSetNewPriceHint),
+            const SizedBox(height: 16),
+            TextField(
+              controller: priceController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(
+                labelText: AppStrings.chatPriceLabel,
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.attach_money),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey.shade700,
+                      side: BorderSide(color: Colors.grey.shade300),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text(
+                      AppStrings.chatCancelPriceChange,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final newPrice =
+                          double.tryParse(priceController.text) ?? 0.0;
+
+                      if (newPrice > 0) {
+                        if (newPrice == currentPrice) {
+                          Navigator.of(ctx).pop();
+                          return;
+                        }
+                        // 1. Actualizar el precio en la "Base de Datos" (Provider)
+                        ref
+                            .read(quotesProvider.notifier)
+                            .updateQuotePrice(chatId, newPrice);
+
+                        // 2. Inyectar el mensaje de sistema en el chat
+                        ref
+                            .read(chatProvider.notifier)
+                            .addSystemMessage(
+                              chatId,
+                              AppStrings.chatPriceChangedAlertTitle
+                                  .replaceFirst(
+                                    '{newPrice}',
+                                    newPrice.toStringAsFixed(2),
+                                  ),
+                            );
+
+                        Navigator.pop(ctx);
+                      } else {
+                        // Pequeña validación visual si el precio es inválido
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(
+                            content: Text(AppStrings.chatSetNewPriceInvalid),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text(AppStrings.chatUpdatePriceBtn),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

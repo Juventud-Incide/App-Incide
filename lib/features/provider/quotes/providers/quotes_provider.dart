@@ -234,6 +234,16 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
     return quote.copyWith(status: QuoteStatus.accepted);
   }
 
+  void updateQuotePrice(String quoteId, double newPrice) {
+    // Recorremos el estado y solo modificamos la cotización que coincida con el ID
+    state = state.map((quote) {
+      if (quote.id == quoteId) {
+        return quote.copyWith(finalPrice: newPrice);
+      }
+      return quote;
+    }).toList();
+  }
+
   /// Transforma una [OpportunityModel] del mercado en una [QuoteModel] activa.
   ///
   /// **Flujo de Negocio:**

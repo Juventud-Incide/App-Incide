@@ -333,6 +333,16 @@ class AppStrings {
   static const String chatPhotoGallery = 'Galería de fotos';
   static const String chatDocuments = 'Documentos';
   static const String chatHintText = 'Escribe un mensaje...';
+  static const String chatSetNewPrice = 'Establecer Precio';
+  static const String chatSetNewPriceHint =
+      'Ingresa el nuevo precio propuesto para esta cotización:';
+  static const String chatPriceLabel = 'Precio (\$)';
+  static const String chatCancelPriceChange = 'Cancelar';
+  static const String chatPriceChangedAlertTitle =
+      'El proveedor ha actualizado la propuesta a \${newPrice} MXN.';
+  static const String chatSetNewPriceInvalid =
+      'Por favor, ingresa un precio válido.';
+  static const String chatUpdatePriceBtn = 'Actualizar';
 
   /// --- Pantalla de Vista Previa de Adjuntos ---
   static const String attachmentPreviewTitle = 'Vista Previa';

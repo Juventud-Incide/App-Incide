@@ -1,5 +1,6 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/shared/widgets/cached_avatar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +14,8 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? clientAvatarUrl;
   final String clientPhoneNumber;
   final VoidCallback onMarkAsCompleted;
+  final bool isPending;
+  final VoidCallback? onSetPrice;
 
   const ChatAppBar({
     super.key,
@@ -24,6 +27,8 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.clientAvatarUrl,
     required this.clientPhoneNumber,
     required this.onMarkAsCompleted,
+    required this.isPending,
+    this.onSetPrice,
   });
 
   @override
@@ -72,8 +77,13 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           if (shouldShowImage)
             CachedNetworkImage(
               imageUrl: clientAvatarUrl!,
-              imageBuilder: (context, imageProvider) =>
-                  CircleAvatar(radius: 18, backgroundImage: imageProvider),
+              imageBuilder: (context, imageProvider) => CachedAvatar(
+                imageUrl: clientAvatarUrl!,
+                radius: 18,
+                fallbackInitials: displayInitials,
+                fallbackColor: Colors.white.withValues(alpha: 0.9),
+                textColor: AppColors.primaryBlue,
+              ),
               // Mientras carga, o si la URL está rota, mostramos tus iniciales
               placeholder: (context, url) => initialsAvatar(),
               errorWidget: (context, url, error) => initialsAvatar(),
@@ -133,28 +143,38 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         // Menú de opciones (para marcar como completado en el futuro)
         if (!isReadOnly)
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onSelected: (value) {
-              if (value == 'complete') onMarkAsCompleted();
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  value: 'complete',
-                  child: Text(
-                    isCompleted
-                        ? AppStrings.chatCancelCompletionBtn
-                        : AppStrings.chatConfirmCompletionBtn,
+          if (isPending)
+            IconButton(
+              icon: const Icon(
+                Icons.request_quote_outlined,
+                color: Colors.white,
+              ), // Ícono de cotización/dinero
+              tooltip: 'Establecer Precio',
+              onPressed: onSetPrice,
+            )
+          else if (isAccepted || isCompleted)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.white),
+              onSelected: (value) {
+                if (value == 'complete') onMarkAsCompleted();
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem(
+                    value: 'complete',
+                    child: Text(
+                      isCompleted
+                          ? AppStrings.chatCancelCompletionBtn
+                          : AppStrings.chatConfirmCompletionBtn,
+                    ),
                   ),
-                ),
-                const PopupMenuItem(
-                  value: 'report',
-                  child: Text(AppStrings.chatReportIssueBtn),
-                ),
-              ];
-            },
-          ),
+                  const PopupMenuItem(
+                    value: 'report',
+                    child: Text(AppStrings.chatReportIssueBtn),
+                  ),
+                ];
+              },
+            ),
       ],
     );
   }

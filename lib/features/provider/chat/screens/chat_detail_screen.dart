@@ -128,6 +128,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         realName: currentQuote.clientName,
         serviceTitle: currentQuote.title,
         clientAvatarUrl: currentQuote.clientAvatarUrl,
+        clientPhoneNumber: currentQuote.clientPhoneNumber,
         onMarkAsCompleted: () => QuoteDialogs.showCompletionDialog(
           context: context,
           ref: ref,

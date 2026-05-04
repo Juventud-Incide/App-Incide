@@ -2,6 +2,7 @@ import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isAccepted;
@@ -10,6 +11,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String realName;
   final String serviceTitle;
   final String? clientAvatarUrl;
+  final String clientPhoneNumber;
   final VoidCallback onMarkAsCompleted;
 
   const ChatAppBar({
@@ -20,6 +22,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.realName,
     required this.serviceTitle,
     this.clientAvatarUrl,
+    required this.clientPhoneNumber,
     required this.onMarkAsCompleted,
   });
 
@@ -110,8 +113,22 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (isAccepted && !isReadOnly)
           IconButton(
             icon: const Icon(Icons.phone, color: Colors.white),
-            onPressed: () {
-              // TODO: Integrar url_launcher para llamadas
+            onPressed: () async {
+              // Armamos la orden para el sistema operativo
+              final Uri callUri = Uri(scheme: 'tel', path: clientPhoneNumber);
+
+              // Verificamos si el dispositivo puede hacer llamadas (un iPad a veces no puede)
+              if (await canLaunchUrl(callUri)) {
+                await launchUrl(callUri);
+              } else {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('No se pudo abrir el marcador telefónico'),
+                  ),
+                );
+              }
             },
           ),
         // Menú de opciones (para marcar como completado en el futuro)

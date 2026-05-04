@@ -56,6 +56,12 @@ class AppFormatters {
 
   // 7. FORMATO DE MONEDA CON COMAS (Al vuelo)
   static final currencyFormatter = [CurrencyInputFormatter()];
+
+  // 8. CLABE INTERBANCARIA (Exactamente 18 dígitos)
+  static final clabeFormatter = [
+    FilteringTextInputFormatter.digitsOnly,
+    LengthLimitingTextInputFormatter(18),
+  ];
 }
 
 /// Formateador personalizado que agrega comas a los miles

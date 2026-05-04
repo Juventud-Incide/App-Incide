@@ -26,13 +26,13 @@ class BankAccountsNotifier extends Notifier<List<BankAccountModel>> {
   @override
   List<BankAccountModel> build() {
     return [
-      /*BankAccountModel(
+      BankAccountModel(
         id: 'ACC-123',
         bankName: 'BBVA',
         holderName: 'Ángel Apáez',
         clabe: '012345678901234589',
         isDefault: true,
-      ),*/
+      ),
     ];
   }
 

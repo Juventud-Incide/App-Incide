@@ -23,7 +23,13 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
     super.dispose();
   }
 
-  void _validateAndSubmit(double availableBalance) {
+  void _validateAndSubmit(
+    double availableBalance,
+    BankAccountModel? selectedAccount,
+  ) {
+    // Protección extra: si no hay cuenta, no hace nada
+    if (selectedAccount == null) return;
+
     final inputText = _amountController.text.replaceAll(',', '');
     final amount = double.tryParse(inputText) ?? 0.0;
 
@@ -35,7 +41,9 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
       setState(() => _errorMessage = 'Monto supera tu saldo disponible');
       return;
     }
-    ref.read(walletProvider.notifier).requestWithdrawal(amount);
+    ref
+        .read(walletProvider.notifier)
+        .requestWithdrawal(amount, selectedAccount);
     Navigator.pop(context);
 
     // Mostramos un mensaje de éxito
@@ -259,7 +267,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
             height: 55,
             child: ElevatedButton(
               onPressed: defaultAccount != null
-                  ? () => _validateAndSubmit(availableBalance)
+                  ? () => _validateAndSubmit(availableBalance, defaultAccount)
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(

@@ -1,3 +1,4 @@
+import 'package:app_incide/features/provider/wallet/providers/bank_accounts_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // ==========================================
@@ -80,17 +81,18 @@ class WalletNotifier extends Notifier<WalletState> {
   }
 
   // Simulación de un retiro
-  void requestWithdrawal(double amount) {
+  void requestWithdrawal(double amount, BankAccountModel destinationAccount) {
     if (amount > state.availableBalance || amount <= 0) return;
 
     final newWithdrawal = TransactionModel(
       id: 'W-${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Retiro a Cuenta ***4589',
+      title:
+          'Retiro a ${destinationAccount.bankName} ***${destinationAccount.lastFourDigits}',
       subtitle: 'En proceso',
       amount: amount,
       type: TransactionType.withdrawal,
       status: TransactionStatus.processing,
-      clientName: 'Ángel Apáez (Tú)',
+      clientName: destinationAccount.holderName,
       date: DateTime.now(),
     );
 
@@ -101,7 +103,11 @@ class WalletNotifier extends Notifier<WalletState> {
   }
 
   // Cuando el consenso del chat finaliza un servicio, se llama esta función
-  void releaseRetainedFunds(double amount, String serviceName) {
+  void releaseRetainedFunds(
+    double amount,
+    String serviceName,
+    String clientName,
+  ) {
     final newIncome = TransactionModel(
       id: 'I-${DateTime.now().millisecondsSinceEpoch}',
       title: 'Pago Liberado',
@@ -109,7 +115,7 @@ class WalletNotifier extends Notifier<WalletState> {
       amount: amount,
       type: TransactionType.income,
       status: TransactionStatus.released,
-      clientName: 'Juan Pérez',
+      clientName: clientName,
       date: DateTime.now(),
     );
 

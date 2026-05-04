@@ -1,4 +1,6 @@
 import 'package:app_incide/core/utils/app_formatters.dart';
+import 'package:app_incide/features/provider/wallet/providers/bank_accounts_provider.dart';
+import 'package:app_incide/features/provider/wallet/widgets/add_bank_account_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -53,6 +55,11 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
       symbol: '\$',
       decimalDigits: 2,
     );
+
+    final bankAccounts = ref.watch(bankAccountsProvider);
+    final defaultAccount = bankAccounts
+        .where((acc) => acc.isDefault)
+        .firstOrNull;
 
     return Padding(
       // Este padding asegura que el teclado no tape el modal
@@ -171,36 +178,78 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
           ),
           const SizedBox(height: 24),
 
-          // Cuenta de destino (Placeholder visual)
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.account_balance, color: Colors.grey),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Cuenta bancaria',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    Text(
-                      'BBVA •••• 4589',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade800,
+          defaultAccount != null
+              ? Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.account_balance, color: Colors.grey),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Cuenta bancaria',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          Text(
+                            '${defaultAccount.bankName} •••• ${defaultAccount.lastFourDigits}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          // TODO: Abrir selector de cuentas (MVP: Por ahora abre el de agregar)
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (ctx) => const AddBankAccountSheet(),
+                          );
+                        },
+                        child: const Text('Cambiar'),
+                      ),
+                    ],
+                  ),
+                )
+              : Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF08A).withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFEF08A)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Color(0xFFCA8A04),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text('Necesitas una cuenta para retirar'),
+                      TextButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            useRootNavigator: true,
+                            builder: (ctx) => const AddBankAccountSheet(),
+                          );
+                        },
+                        child: const Text('Agregar Cuenta'),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
 
           // Botón de Confirmación
@@ -208,7 +257,9 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
             width: double.infinity,
             height: 55,
             child: ElevatedButton(
-              onPressed: () => _validateAndSubmit(availableBalance),
+              onPressed: defaultAccount != null
+                  ? () => _validateAndSubmit(availableBalance)
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(
                   0xFF22C55E,

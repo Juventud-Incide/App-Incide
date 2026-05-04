@@ -79,6 +79,7 @@ class WalletBalanceCard extends ConsumerWidget {
                 context: context,
                 isScrollControlled:
                     true, // Importante para que el teclado lo empuje hacia arriba
+                useRootNavigator: true,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),

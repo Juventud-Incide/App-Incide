@@ -113,7 +113,7 @@ class WalletNotifier extends Notifier<WalletState> {
   // Datos de prueba basados en tu diseño
   List<TransactionModel> _getMockTransactions() {
     return [
-      TransactionModel(
+      /*TransactionModel(
         id: 'T1',
         title: 'Pago Liberado',
         subtitle: 'Reparación Tubería',
@@ -137,7 +137,7 @@ class WalletNotifier extends Notifier<WalletState> {
         amount: 1500.00,
         type: TransactionType.income,
         date: DateTime(2026, 2, 10),
-      ),
+      ),*/
     ];
   }
 }

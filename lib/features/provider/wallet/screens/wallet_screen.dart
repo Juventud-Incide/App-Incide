@@ -1,3 +1,4 @@
+import 'package:app_incide/features/provider/wallet/widgets/empty_transactions_state.dart';
 import 'package:app_incide/features/shared/widgets/custom_provider_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,17 +36,18 @@ class WalletScreen extends ConsumerWidget {
 
             const SizedBox(height: 16),
 
-            // 2. Lista de transacciones inyectada
-            ListView.builder(
-              shrinkWrap: true, // Importante al estar dentro de un ScrollView
-              physics:
-                  const NeverScrollableScrollPhysics(), // Evita conflicto de scroll
-              itemCount: walletState.transactions.length,
-              itemBuilder: (context, index) {
-                final tx = walletState.transactions[index];
-                return TransactionListItem(transaction: tx);
-              },
-            ),
+            walletState.transactions.isEmpty
+                ? const EmptyTransactionsState() // Mostramos la tarjeta bonita si no hay datos
+                : ListView.builder(
+                    // Mostramos la lista si hay datos
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: walletState.transactions.length,
+                    itemBuilder: (context, index) {
+                      final tx = walletState.transactions[index];
+                      return TransactionListItem(transaction: tx);
+                    },
+                  ),
           ],
         ),
       ),

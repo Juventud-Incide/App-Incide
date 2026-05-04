@@ -404,7 +404,7 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('¡Propuesta enviada con éxito!'),
+        content: Text(AppStrings.proposalSentTitle),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: 3),
@@ -434,11 +434,11 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
     messenger.clearSnackBars();
     messenger.showSnackBar(
       SnackBar(
-        content: const Text('Oportunidad descartada'),
+        content: const Text(AppStrings.opportunityDiscarded),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
-          label: 'Deshacer',
+          label: AppStrings.undoDiscard,
           textColor: Colors.amber,
           onPressed: () {
             _snackBarTimer?.cancel();

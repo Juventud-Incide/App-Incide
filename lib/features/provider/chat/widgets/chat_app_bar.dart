@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -25,10 +26,12 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     // Lógica de privacidad
-    final displayName = isAccepted ? realName : 'Cliente (Pendiente)';
+    final displayName = isAccepted
+        ? realName
+        : AppStrings.chatClientNameProtected;
     final displayInitials = isAccepted
         ? realName.substring(0, 2).toUpperCase()
-        : 'CL';
+        : AppStrings.chatClientInitialsProtected;
     final avatarColor = isAccepted ? const Color(0xFFC4B5FD) : Colors.grey[400];
 
     final bool shouldShowImage =
@@ -124,13 +127,13 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   value: 'complete',
                   child: Text(
                     isCompleted
-                        ? 'Cancelar Completado'
-                        : 'Marcar como Completado',
+                        ? AppStrings.chatCancelCompletionBtn
+                        : AppStrings.chatConfirmCompletionBtn,
                   ),
                 ),
                 const PopupMenuItem(
                   value: 'report',
-                  child: Text('Reportar problema'),
+                  child: Text(AppStrings.chatReportIssueBtn),
                 ),
               ];
             },

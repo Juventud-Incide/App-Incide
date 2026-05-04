@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 
@@ -37,7 +38,7 @@ class _AttachmentPreviewScreenState extends State<AttachmentPreviewScreen> {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          'Vista Previa',
+          AppStrings.attachmentPreviewTitle,
           style: TextStyle(color: Colors.white),
         ),
       ),
@@ -90,7 +91,7 @@ class _AttachmentPreviewScreenState extends State<AttachmentPreviewScreen> {
                       maxLines: 3,
                       minLines: 1,
                       decoration: InputDecoration(
-                        hintText: 'Añade un comentario...',
+                        hintText: AppStrings.attachmentCaptionHint,
                         hintStyle: const TextStyle(color: Colors.white54),
                         filled: true,
                         fillColor: Colors.white.withValues(alpha: 0.1),

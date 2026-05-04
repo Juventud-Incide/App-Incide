@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/provider/chat/widgets/typing_bubble.dart';
 import 'package:app_incide/features/provider/quotes/models/quote_model.dart';
 import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
@@ -83,9 +84,9 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
     final messageDate = DateTime(date.year, date.month, date.day);
 
     if (messageDate == today) {
-      return 'Hoy';
+      return AppStrings.chatToday;
     } else if (messageDate == yesterday) {
-      return 'Ayer';
+      return AppStrings.chatYesterday;
     } else {
       // Si es más viejo, mostramos ej: "15/05/2026"
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -99,7 +100,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
         [
           ChatMessage(
             id: 'sys',
-            content: 'INICIO DEL CHAT - COTIZACIÓN #${widget.chatId}',
+            content: AppStrings.chatStartTitle,
             isMine: false,
             type: MessageType.system,
             timestamp: DateTime.now(),
@@ -249,7 +250,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Servicio Finalizado',
+                      AppStrings.chatFinishedTitle,
                       style: TextStyle(
                         color: Colors.grey.shade800,
                         fontWeight: FontWeight.bold,
@@ -258,7 +259,7 @@ class _ChatDetailScreenState extends ConsumerState<ChatDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Este chat ha sido archivado y es de solo lectura.',
+                      AppStrings.chatReadOnlyTitle,
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 13,

@@ -189,7 +189,10 @@ class _ProposalBottomSheetState extends ConsumerState<ProposalBottomSheet> {
                   final customMessage = _messageController.text.trim();
 
                   final mensajeAEnviar = customMessage.isEmpty
-                      ? '¡Hola! Vi tu solicitud para "${widget.opportunity.title}" y estoy interesado en el proyecto.'
+                      ? AppStrings.chatDefaultMessage.replaceFirst(
+                          '{opportunityTitle}',
+                          widget.opportunity.title,
+                        )
                       : customMessage;
 
                   // 3. Creamos el Chat y mandamos los mensajes automáticamente

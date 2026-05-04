@@ -260,6 +260,9 @@ class AppStrings {
   static const String opportunityDiscarded = 'Oportunidad descartada';
   static const String undoDiscard = 'Deshacer';
   static const String invalidPriceError = 'Por favor, ingresa un precio válido';
+  static const String proposalSentTitle = '¡Propuesta enviada con éxito!';
+  static const String chatDefaultMessage =
+      '¡Hola! Vi tu solicitud para {opportunityTitle} y estoy interesado en el proyecto.';
 
   // --- Pantalla de Detalle de Oportunidad ---
   static const String detailTitle = 'Detalle de la Solicitud';
@@ -304,6 +307,36 @@ class AppStrings {
   static const String quoteDetailClientTitle = 'Información del Cliente';
   static const String quoteDetailClientNameProtected = 'Nombre protegido';
   static const String quoteDetailClientProtected = 'Número protegido';
+
+  // --- Pantalla de Chat de Proveedor ---
+  static const String chatStartTitle = 'INICIO DEL CHAT';
+  static const String chatProviderCompleted =
+      'Has marcado este servicio como completado. A la espera de confirmación del cliente.';
+  static const String chatClientCompleted =
+      'El cliente ha marcado como completado el servicio. A la espera de tu confirmación.';
+  static const String chatCompletionConfirmed =
+      'Ambas partes han aceptado. El servicio ha sido cerrado. Gracias por tu trabajo.';
+  static const String chatCancelCompletion =
+      'Has cancelado la finalización. El servicio vuelve a estar en curso.';
+  static const String chatToday = 'Hoy';
+  static const String chatYesterday = 'Ayer';
+  static const String chatFinishedTitle = 'Servicio Completado';
+  static const String chatReadOnlyTitle =
+      'Este chat ha sido archivado y es de solo lectura.';
+  static const String chatClientNameProtected = 'Nombre protegido';
+  static const String chatClientInitialsProtected = 'CL';
+  static const String chatCancelCompletionBtn = 'Cancelar Completado';
+  static const String chatConfirmCompletionBtn = 'Marcar como Completado';
+  static const String chatReportIssueBtn = 'Reportar un problema';
+  static const String chatImageError = 'Error al seleccionar imagen: ';
+  static const String chatDocumentError = 'Error al seleccionar documento: ';
+  static const String chatPhotoGallery = 'Galería de fotos';
+  static const String chatDocuments = 'Documentos';
+  static const String chatHintText = 'Escribe un mensaje...';
+
+  /// --- Pantalla de Vista Previa de Adjuntos ---
+  static const String attachmentPreviewTitle = 'Vista Previa';
+  static const String attachmentCaptionHint = 'Añade un comentario...';
 
   // --- Pantalla de Envío de Enlace de Recuperación ---
   static const String linkSentTitle = '¡Enlace enviado!';

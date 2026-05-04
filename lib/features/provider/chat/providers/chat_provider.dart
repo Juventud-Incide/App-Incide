@@ -1,6 +1,7 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/chat_message.dart';
-import 'dart:async'; // Necesario para usar la clase Timer
+import 'dart:async';
 import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -18,7 +19,7 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
         [
           ChatMessage(
             id: 'sys_init',
-            content: 'INICIO DEL CHAT - COTIZACIÓN #$chatId',
+            content: AppStrings.chatStartTitle,
             isMine: false,
             type: MessageType.system,
             timestamp: DateTime.now(),
@@ -164,10 +165,7 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
 
   void toggleServiceCompletion(String chatId, bool isCompleting) {
     if (isCompleting) {
-      addSystemMessage(
-        chatId,
-        'Has marcado este servicio como completado. A la espera de confirmación del cliente.',
-      );
+      addSystemMessage(chatId, AppStrings.chatProviderCompleted);
       ref.read(quotesProvider.notifier).toggleProviderCompletion(chatId, true);
 
       _completionTimer?.cancel();
@@ -176,30 +174,21 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
         final currentQuote = quotes.firstWhere((q) => q.id == chatId);
 
         if (currentQuote.providerMarkedCompleted) {
-          addSystemMessage(
-            chatId,
-            'El cliente ha marcado como completado el servicio.',
-          );
+          addSystemMessage(chatId, AppStrings.chatClientCompleted);
 
           ref
               .read(quotesProvider.notifier)
               .toggleClientCompletion(chatId, true);
 
           Future.delayed(const Duration(milliseconds: 500), () {
-            addSystemMessage(
-              chatId,
-              'Ambas partes han aceptado. El servicio ha sido cerrado con éxito.',
-            );
+            addSystemMessage(chatId, AppStrings.chatCompletionConfirmed);
           });
         }
       });
     } else {
       _completionTimer?.cancel();
 
-      addSystemMessage(
-        chatId,
-        'Has cancelado la finalización. El servicio vuelve a estar en curso.',
-      );
+      addSystemMessage(chatId, AppStrings.chatCancelCompletion);
       ref.read(quotesProvider.notifier).toggleProviderCompletion(chatId, false);
     }
   }

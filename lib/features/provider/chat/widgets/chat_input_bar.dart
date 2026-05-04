@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
 import 'package:app_incide/features/provider/chat/screens/attachment_preview_screen.dart';
@@ -71,7 +72,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar> {
         await _processAttachment(image.path, true);
       }
     } catch (e) {
-      debugPrint('Error al seleccionar imagen: $e');
+      debugPrint(AppStrings.chatImageError + e.toString());
     }
   }
 
@@ -86,7 +87,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar> {
         await _processAttachment(result.files.single.path!, false);
       }
     } catch (e) {
-      debugPrint('Error al seleccionar documento: $e');
+      debugPrint(AppStrings.chatDocumentError + e.toString());
     }
   }
 
@@ -113,7 +114,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar> {
                     ),
                   ),
                   title: const Text(
-                    'Galería de fotos',
+                    AppStrings.chatPhotoGallery,
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   onTap: () {
@@ -131,7 +132,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar> {
                     ),
                   ),
                   title: const Text(
-                    'Documentos',
+                    AppStrings.chatDocuments,
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   onTap: () {
@@ -182,7 +183,7 @@ class _ChatInputBarState extends ConsumerState<ChatInputBar> {
                   minLines: 1,
                   maxLines: 4, // Crece un poco si el texto es largo
                   decoration: const InputDecoration(
-                    hintText: 'Escribe un mensaje...',
+                    hintText: AppStrings.chatHintText,
                     hintStyle: TextStyle(color: Colors.grey),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(

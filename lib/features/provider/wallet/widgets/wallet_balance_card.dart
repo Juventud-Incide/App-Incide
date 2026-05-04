@@ -1,3 +1,4 @@
+import 'package:app_incide/features/provider/wallet/widgets/withdraw_funds_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -74,11 +75,14 @@ class WalletBalanceCard extends ConsumerWidget {
           // Botón de Retiro
           ElevatedButton(
             onPressed: () {
-              // TODO: Abrir BottomSheet o Pantalla de Retiro
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Flujo de retiro en construcción'),
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled:
+                    true, // Importante para que el teclado lo empuje hacia arriba
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 ),
+                builder: (context) => const WithdrawFundsSheet(),
               );
             },
             style: ElevatedButton.styleFrom(

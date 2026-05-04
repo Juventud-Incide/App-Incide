@@ -164,31 +164,36 @@ class ChatNotifier extends Notifier<Map<String, List<ChatMessage>>> {
 
   void toggleServiceCompletion(String chatId, bool isCompleting) {
     if (isCompleting) {
-      // 1. Mensaje de sistema inicial
       addSystemMessage(
         chatId,
         'Has marcado este servicio como completado. A la espera de confirmación del cliente.',
       );
       ref.read(quotesProvider.notifier).toggleProviderCompletion(chatId, true);
 
-      // 2. Simulamos al cliente desde su app confirmando después de 5 segundos
       _completionTimer?.cancel();
       _completionTimer = Timer(const Duration(seconds: 5), () {
         final quotes = ref.read(quotesProvider);
         final currentQuote = quotes.firstWhere((q) => q.id == chatId);
 
         if (currentQuote.providerMarkedCompleted) {
+          addSystemMessage(
+            chatId,
+            'El cliente ha marcado como completado el servicio.',
+          );
+
           ref
               .read(quotesProvider.notifier)
               .toggleClientCompletion(chatId, true);
-          addSystemMessage(
-            chatId,
-            'El cliente ha confirmado la finalización. El servicio ha sido cerrado con éxito.',
-          );
+
+          Future.delayed(const Duration(milliseconds: 500), () {
+            addSystemMessage(
+              chatId,
+              'Ambas partes han aceptado. El servicio ha sido cerrado con éxito.',
+            );
+          });
         }
       });
     } else {
-      // 4. El usuario canceló la finalización ANTES o DESPUÉS de que el cliente aceptara
       _completionTimer?.cancel();
 
       addSystemMessage(

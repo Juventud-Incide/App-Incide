@@ -240,9 +240,11 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
   /// Este método es el que se dispara cuando el proveedor completa el modal de
   /// cotización. "Clona" la información estática de la oportunidad (título, descripción)
   /// y le añade los datos vivos de la negociación (precio propuesto).
-  void addQuoteFromOpportunity(OpportunityModel opp, double price) {
+  String addQuoteFromOpportunity(OpportunityModel opp, double price) {
+    final generatedId = 'Q-${DateTime.now().millisecondsSinceEpoch}';
+
     final newQuote = QuoteModel(
-      id: 'Q-${DateTime.now().millisecondsSinceEpoch}', // Generación de ID temporal basado en timestamp.
+      id: generatedId,
       opportunityId: opp.id,
 
       // Datos iniciales de cliente (serán sustituidos por datos reales tras el handshake del backend).
@@ -268,5 +270,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
 
     // Actualización de estado agregando el nuevo elemento al inicio (LIFO).
     state = [newQuote, ...state];
+
+    return generatedId;
   }
 }

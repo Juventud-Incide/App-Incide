@@ -254,7 +254,7 @@ class AppStrings {
       'El cliente recibirá tu mensaje y podrá decidir si contactarte para afinar detalles.';
   static const String messageLabel = 'Mensaje para el cliente';
   static const String messageHint =
-      'Hola, me interesa tu proyecto. Tengo disponibilidad para...';
+      '¡Hola! Vi tu solicitud y estoy interesado en el proyecto.';
   static const String priceLabel = 'Precio estimado (Opcional)';
   static const String sendProposalBtn = 'Enviar Propuesta';
   static const String opportunityDiscarded = 'Oportunidad descartada';

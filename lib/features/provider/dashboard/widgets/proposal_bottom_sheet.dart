@@ -1,6 +1,7 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/core/utils/app_formatters.dart';
+import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
@@ -181,23 +182,21 @@ class _ProposalBottomSheetState extends ConsumerState<ProposalBottomSheet> {
               child: ElevatedButton(
                 onPressed: () {
                   final price = double.tryParse(_priceController.text) ?? 0;
-                  if (price > 0) {
-                    // Aquí iría la lógica para enviar la propuesta al backend
-                    // usando los valores de _messageController.text y price.
-                    ref
-                        .read(quotesProvider.notifier)
-                        .addQuoteFromOpportunity(widget.opportunity, price);
-                  } else {
-                    // Mostrar error si el precio no es válido
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(AppStrings.invalidPriceError),
-                        backgroundColor: Colors.redAccent,
-                      ),
-                    );
-                    return; // No cerramos el modal si el precio es inválido
-                  }
-                  // TODO: (BACKEND) - Preparar _messageController.text y _priceController.text y enviarlos al API.
+                  final String nuevoChatId = ref
+                      .read(quotesProvider.notifier)
+                      .addQuoteFromOpportunity(widget.opportunity, price);
+
+                  final customMessage = _messageController.text.trim();
+
+                  final mensajeAEnviar = customMessage.isEmpty
+                      ? '¡Hola! Vi tu solicitud para "${widget.opportunity.title}" y estoy interesado en el proyecto.'
+                      : customMessage;
+
+                  // 3. Creamos el Chat y mandamos los mensajes automáticamente
+                  final chatNotifier = ref.read(chatProvider.notifier);
+
+                  // Mensaje automático del Proveedor
+                  chatNotifier.sendTextMessage(nuevoChatId, mensajeAEnviar);
 
                   // Retornamos 'true' para avisarle a la vista padre que fue exitoso
                   Navigator.pop(context, true);

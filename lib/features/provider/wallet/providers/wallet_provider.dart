@@ -6,12 +6,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum TransactionType { income, withdrawal, fee }
 
+enum TransactionStatus { pendingRelease, released, processing, completed }
+
 class TransactionModel {
   final String id;
   final String title;
   final String subtitle;
   final double amount;
   final TransactionType type;
+  final TransactionStatus status;
+  final String clientName;
   final DateTime date;
 
   TransactionModel({
@@ -20,6 +24,8 @@ class TransactionModel {
     required this.subtitle,
     required this.amount,
     required this.type,
+    required this.status,
+    required this.clientName,
     required this.date,
   });
 }
@@ -83,6 +89,8 @@ class WalletNotifier extends Notifier<WalletState> {
       subtitle: 'En proceso',
       amount: amount,
       type: TransactionType.withdrawal,
+      status: TransactionStatus.processing,
+      clientName: 'Ángel Apáez (Tú)',
       date: DateTime.now(),
     );
 
@@ -100,6 +108,8 @@ class WalletNotifier extends Notifier<WalletState> {
       subtitle: serviceName,
       amount: amount,
       type: TransactionType.income,
+      status: TransactionStatus.released,
+      clientName: 'Juan Pérez',
       date: DateTime.now(),
     );
 
@@ -113,30 +123,38 @@ class WalletNotifier extends Notifier<WalletState> {
   // Datos de prueba basados en tu diseño
   List<TransactionModel> _getMockTransactions() {
     return [
+      // 1. Un ingreso ya liberado
       TransactionModel(
-        id: 'T1',
+        id: 'TXN-982734',
         title: 'Pago Liberado',
         subtitle: 'Reparación Tubería',
         amount: 800.00,
         type: TransactionType.income,
-        date: DateTime.now().subtract(const Duration(days: 1)), // Ayer
+        status: TransactionStatus.released,
+        clientName: 'Juan Pérez',
+        date: DateTime.now().subtract(const Duration(hours: 5)),
       ),
+      // 2. Un ingreso pendiente (En Garantía)
       TransactionModel(
-        id: 'T2',
+        id: 'TXN-982735',
+        title: 'Pago en Garantía',
+        subtitle: 'Mantenimiento Mini Split',
+        amount: 3200.00,
+        type: TransactionType.income,
+        status: TransactionStatus.pendingRelease,
+        clientName: 'María García',
+        date: DateTime.now(),
+      ),
+      // 3. Un retiro
+      TransactionModel(
+        id: 'WTH-10293',
         title: 'Retiro a Cuenta ***4589',
-        subtitle: '12 de Febrero',
+        subtitle: 'Retiro de fondos',
         amount: 2000.00,
         type: TransactionType.withdrawal,
-        date: DateTime(2026, 2, 12),
-      ),
-      // Añadí una extra para que tengas scroll
-      TransactionModel(
-        id: 'T3',
-        title: 'Pago Liberado',
-        subtitle: 'Mantenimiento Mini Split',
-        amount: 1500.00,
-        type: TransactionType.income,
-        date: DateTime(2026, 2, 10),
+        status: TransactionStatus.completed,
+        clientName: 'Ángel Apáez (Tú)',
+        date: DateTime.now().subtract(const Duration(days: 2)),
       ),
     ];
   }

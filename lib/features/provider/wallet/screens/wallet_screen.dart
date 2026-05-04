@@ -6,6 +6,7 @@ import 'package:app_incide/features/provider/wallet/widgets/wallet_balance_card.
 import 'package:app_incide/features/provider/wallet/widgets/retained_balance_card.dart';
 import 'package:app_incide/features/provider/wallet/widgets/transaction_list_item.dart';
 import 'package:app_incide/features/provider/wallet/providers/wallet_provider.dart';
+import 'package:intl/intl.dart';
 
 class WalletScreen extends ConsumerWidget {
   const WalletScreen({super.key});
@@ -13,6 +14,26 @@ class WalletScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final walletState = ref.watch(walletProvider);
+
+    final currencyFormatter = NumberFormat.currency(
+      symbol: '\$',
+      decimalDigits: 2,
+    );
+
+    final now = DateTime.now();
+    final currentMonthStr = DateFormat('MMMM', 'es').format(now);
+    final formattedMonth =
+        currentMonthStr[0].toUpperCase() +
+        currentMonthStr.substring(1); // Capitalizar
+
+    final monthlyIncome = walletState.transactions
+        .where(
+          (tx) =>
+              tx.type == TransactionType.income &&
+              tx.date.month == now.month &&
+              tx.date.year == now.year,
+        )
+        .fold(0.0, (sum, tx) => sum + tx.amount);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -29,9 +50,25 @@ class WalletScreen extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // 3. Título para la lista de movimientos
-            const Text(
-              'Movimientos Recientes',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Text(
+                  'Movimientos Recientes',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                // Textito con el acumulado del mes
+                Text(
+                  'Acumulado en $formattedMonth:\n${currencyFormatter.format(monthlyIncome)}',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 16),

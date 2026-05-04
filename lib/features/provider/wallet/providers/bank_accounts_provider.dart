@@ -19,6 +19,23 @@ class BankAccountModel {
   // Método útil para mostrar solo los últimos 4 dígitos en la UI
   String get lastFourDigits =>
       clabe.length >= 4 ? clabe.substring(clabe.length - 4) : '****';
+
+  // Añadimos copyWith para facilitar la actualización de estados
+  BankAccountModel copyWith({
+    String? id,
+    String? bankName,
+    String? holderName,
+    String? clabe,
+    bool? isDefault,
+  }) {
+    return BankAccountModel(
+      id: id ?? this.id,
+      bankName: bankName ?? this.bankName,
+      holderName: holderName ?? this.holderName,
+      clabe: clabe ?? this.clabe,
+      isDefault: isDefault ?? this.isDefault,
+    );
+  }
 }
 
 // 2. El Notifier (Lógica de negocio)
@@ -41,19 +58,21 @@ class BankAccountsNotifier extends Notifier<List<BankAccountModel>> {
     required String holderName,
     required String clabe,
   }) {
-    // Si es la primera cuenta que agrega, la hacemos predeterminada automáticamente
-    final isFirstAccount = state.isEmpty;
+    // 1. Le quitamos el estatus de 'predeterminada' a todas las cuentas existentes
+    final updatedExistingAccounts = state.map((account) {
+      return account.copyWith(isDefault: false);
+    }).toList();
 
     final newAccount = BankAccountModel(
       id: 'ACC-${DateTime.now().millisecondsSinceEpoch}',
       bankName: bankName,
       holderName: holderName,
       clabe: clabe,
-      isDefault: isFirstAccount,
+      isDefault: true,
     );
 
     // Si ya había cuentas, por ahora simplemente la agregamos al final
-    state = [...state, newAccount];
+    state = [newAccount, ...updatedExistingAccounts];
   }
 }
 

@@ -89,14 +89,14 @@ class QuoteDialogs {
     required bool isCurrentlyCompleted,
   }) async {
     final title = !isCurrentlyCompleted
-        ? '¿Marcar como completado?'
-        : '¿Cancelar finalización?';
+        ? AppStrings.dialogCurrentlyCompletedTitle
+        : AppStrings.dialogCancelCompletionTitle;
     final content = !isCurrentlyCompleted
-        ? 'Se enviará una notificación al cliente para que confirme que el trabajo ha finalizado.'
-        : 'El servicio volverá a estar en curso y el cliente ya no podrá confirmarlo.';
+        ? AppStrings.dialogCurrentlyCompletedContent
+        : AppStrings.dialogCancelCompletionContent;
     final confirmText = !isCurrentlyCompleted
-        ? 'Sí, completar'
-        : 'Sí, cancelar';
+        ? AppStrings.dialogCurrentlyCompletedConfirm
+        : AppStrings.dialogCancelCompletionConfirm;
     final confirmColor = !isCurrentlyCompleted
         ? Colors.green
         : Colors.redAccent;
@@ -143,7 +143,7 @@ class QuoteDialogs {
                     ),
                     onPressed: () => Navigator.of(ctx).pop(false),
                     child: const Text(
-                      'Volver',
+                      AppStrings.dialogGoBackLbl,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

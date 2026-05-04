@@ -344,6 +344,18 @@ class AppStrings {
       'Por favor, ingresa un precio válido.';
   static const String chatUpdatePriceBtn = 'Actualizar';
 
+  // --- Pantallas de Dialogo ---
+  static const String dialogCurrentlyCompletedTitle =
+      '¿Marcar como completado?';
+  static const String dialogCurrentlyCompletedContent =
+      'Se enviará una notificación al cliente para que confirme que el trabajo ha finalizado.';
+  static const String dialogCancelCompletionTitle = '¿Cancelar completado?';
+  static const String dialogCancelCompletionContent =
+      'El servicio volverá a estar en curso y el cliente ya no podrá confirmarlo.';
+  static const String dialogCurrentlyCompletedConfirm = 'Sí, completar';
+  static const String dialogCancelCompletionConfirm = 'Sí, cancelar';
+  static const String dialogGoBackLbl = 'Volver';
+
   /// --- Pantalla de Vista Previa de Adjuntos ---
   static const String attachmentPreviewTitle = 'Vista Previa';
   static const String attachmentCaptionHint = 'Añade un comentario...';

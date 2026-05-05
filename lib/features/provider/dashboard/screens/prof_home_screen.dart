@@ -373,7 +373,7 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
           ),
           GestureDetector(
             onTap: () {
-              // TODO: (MAPAS) Integrar vista de Google Maps / Mapbox
+              context.pushNamed('opportunities-map');
             },
             child: const Text(
               AppStrings.viewMapBtn,

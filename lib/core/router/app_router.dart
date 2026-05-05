@@ -30,6 +30,7 @@ import '../../features/location/screens/client_location_permission_screen.dart';
 import '../../features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import '../../features/provider/dashboard/screens/prof_home_screen.dart';
 import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart';
+import 'package:app_incide/features/provider/dashboard/screens/opportunities_map_screen.dart';
 import '../../features/provider/dashboard/models/opportunity_model.dart';
 import '../../features/provider/quotes/models/quote_model.dart';
 import '../../features/provider/quotes/screens/quote_detail_screen.dart';
@@ -396,6 +397,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                       final opportunity = state.extra as OpportunityModel;
                       return OpportunityDetailScreen(opportunity: opportunity);
                     },
+                  ),
+                  GoRoute(
+                    path: 'map', // La URL será /prof-home/map
+                    name: 'opportunities-map',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const OpportunitiesMapScreen(),
                   ),
                 ],
               ),

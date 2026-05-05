@@ -22,6 +22,7 @@ namespace backend.Data.DataDB
         public DbSet<QuestionOption>   QuestionOptions    => Set<QuestionOption>();
         public DbSet<ChatRoom>         ChatRooms          => Set<ChatRoom>();
         public DbSet<ChatMessage>      ChatMessages       => Set<ChatMessage>();
+        public DbSet<Payment>          Payments           => Set<Payment>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -214,6 +215,42 @@ namespace backend.Data.DataDB
                  .HasForeignKey(o => o.QuestionId)
                  .OnDelete(DeleteBehavior.Cascade);
                 e.HasIndex(o => new { o.QuestionId, o.Order });
+            });
+
+            // Payment → Cotizacion + Client + Provider
+            modelBuilder.Entity<Payment>(e =>
+            {
+                e.HasKey(p => p.Id);
+
+                e.HasOne(p => p.Cotizacion)
+                 .WithMany()
+                 .HasForeignKey(p => p.CotizacionId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(p => p.Client)
+                 .WithMany()
+                 .HasForeignKey(p => p.ClientId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(p => p.Provider)
+                 .WithMany()
+                 .HasForeignKey(p => p.ProviderId)
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+                e.Property(p => p.Currency).HasMaxLength(3);
+                e.Property(p => p.StripePaymentIntentId).HasMaxLength(255);
+                e.Property(p => p.StripeChargeId).HasMaxLength(255);
+                e.Property(p => p.StripeLastEventId).HasMaxLength(255);
+                e.Property(p => p.FailureReason).HasMaxLength(500);
+
+                // One active payment per cotizacion (ignoring soft-deleted)
+                e.HasIndex(p => p.CotizacionId)
+                 .IsUnique()
+                 .HasFilter("\"IsDeleted\" = false");
+
+                e.HasIndex(p => p.StripePaymentIntentId);
+                e.HasIndex(p => new { p.ClientId, p.Status, p.CreationDate });
             });
         }
     }

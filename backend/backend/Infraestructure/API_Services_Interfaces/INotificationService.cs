@@ -18,5 +18,8 @@ namespace backend.Infraestructure.API_Services_Interfaces
 
         // TODO: reemplazar por FCM push notification real
         Task NotifyNewChatMessageAsync(User recipient, ChatRoom room, ChatMessage message, CancellationToken ct);
+
+        // TODO: reemplazar por envío real de correo (SendGrid / SMTP)
+        Task NotifyPaymentSucceededAsync(Payment payment, Client client, Provider provider, ServiceRequest serviceRequest, CancellationToken ct);
     }
 }

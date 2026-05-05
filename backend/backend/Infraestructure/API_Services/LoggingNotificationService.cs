@@ -102,5 +102,16 @@ namespace backend.Infraestructure.API_Services
             // TODO: reemplazar por FCM push notification real
             return Task.CompletedTask;
         }
+
+        public Task NotifyPaymentSucceededAsync(
+            Payment payment, Client client, Provider provider, ServiceRequest serviceRequest, CancellationToken ct)
+        {
+            // TODO: reemplazar por envío real de correo (SendGrid / SMTP)
+            _logger.LogInformation(
+                "[PAYMENT-NOTIF] Pago confirmado. Folio={Folio}. Pendiente de implementar cuerpo completo en paso 6.",
+                $"PAY-{payment.Id:D6}");
+
+            return Task.CompletedTask;
+        }
     }
 }

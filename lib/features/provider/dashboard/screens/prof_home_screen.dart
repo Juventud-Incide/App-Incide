@@ -43,14 +43,20 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
       description:
           'Construcción de una habitación de 30m2 en Hermosillo Centro, se tienen los planos.',
       distance: 2.5,
-      isExclusive: true,
+      // --- NUEVOS CAMPOS (Mapa) ---
+      latitude: 29.0815, // Coordenada en Hermosillo Centro
+      longitude: -110.9624,
+      type: OpportunityType.special, // Reemplaza a isExclusive: true
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      // ----------------------------
       category: 'Albañilería',
-      urgency: 'Próxima semana',
       estimatedPriceMin: 15000,
       estimatedPriceMax: 20000,
       clientAnswers: {
         '¿Tienes material comprado?': 'Solo el cemento, falta la varilla.',
         '¿El terreno está nivelado?': 'Sí, listo para cimentar.',
+        '¿Cuándo requieres el servicio?':
+            'Próxima semana', // Absorbe el antiguo campo 'urgency'
       },
       photoUrls: const ['mock1', 'mock2', 'mock3'],
     ),
@@ -60,15 +66,22 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
       description:
           'Busco instalador certificado para colocar 4 equipos nuevos en oficinas. Solo mano de obra.',
       distance: 5.8,
-      isExclusive: false,
+      // --- NUEVOS CAMPOS (Mapa) ---
+      latitude: 29.1150, // Coordenada hacia Blvd. Morelos (Norte)
+      longitude: -110.9560,
+      type: OpportunityType
+          .urgent, // Reemplaza isExclusive: false y da color rojo al mapa
+      createdAt: DateTime.now().subtract(const Duration(hours: 3)),
+      // ----------------------------
       category: 'Refrigeración',
-      urgency: 'Lo antes posible',
       estimatedPriceMin: 3200,
       estimatedPriceMax: 4000,
       clientAnswers: {
         '¿Los equipos son nuevos o usados?': 'Nuevos en caja cerrada.',
         '¿Hay preparación eléctrica previa?':
             'Sí, ya cuenta con pastillas a 220v.',
+        '¿Cuándo requieres el servicio?':
+            'Lo antes posible', // Absorbe el antiguo campo 'urgency'
       },
       photoUrls: const ['mock1', 'mock2', 'mock3'],
     ),

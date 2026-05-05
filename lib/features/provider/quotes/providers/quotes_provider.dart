@@ -208,7 +208,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
       category: opp.category,
       description: opp.description,
       distance: opp.formattedDistance,
-      urgency: opp.urgency,
+      urgency: opp.urgencyLabel,
       isExclusive: opp.isExclusive,
       clientAnswers: opp.clientAnswers,
       photoUrls: opp.photoUrls,

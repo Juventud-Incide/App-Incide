@@ -1,3 +1,11 @@
+/// Define el tipo de oportunidad para codificar visualmente los pines en el mapa
+/// y el nivel de prioridad en el feed.
+enum OpportunityType {
+  normal, // Pin Azul: Solicitud pública estándar
+  urgent, // Pin Rojo: El cliente requiere atención inmediata
+  special, // Pin Amarillo/Dorado: Cotización directa al perfil del proveedor
+}
+
 /// Modelo de datos que representa una solicitud de trabajo (Oportunidad).
 ///
 /// Esta clase es la entidad central del flujo del Proveedor en el Dashboard.
@@ -14,18 +22,30 @@ class OpportunityModel {
   /// Explicación detallada provista por el cliente en formato de texto libre.
   final String description;
 
+  // ==========================================
+  // DATOS GEOGRÁFICOS (Para Google Maps)
+  // ==========================================
+
+  /// Latitud exacta del domicilio o ubicación del problema.
+  final double latitude;
+
+  /// Longitud exacta del domicilio o ubicación del problema.
+  final double longitude;
+
   /// Distancia calculada en kilómetros desde la ubicación actual del proveedor.
+  /// NOTA: Este valor puede calcularse localmente usando la fórmula de Haversine
+  /// o venir pre-calculado desde el backend.
   final double distance;
 
-  /// Indica si el cliente pagó/solicitó que la oportunidad sea Premium.
-  /// Afecta visualmente la UI (dispara los bordes y etiquetas color ámbar).
-  final bool isExclusive;
+  // ==========================================
+  // CLASIFICACIÓN Y NEGOCIO
+  // ==========================================
+
+  /// Define el nivel de urgencia y exclusividad para la lógica del Mapa.
+  final OpportunityType type;
 
   /// Categoría general del servicio para filtrado (ej. "Plomería", "Electricidad").
   final String category;
-
-  /// Nivel de urgencia seleccionado por el cliente (ej. "Urgente", "Flexible").
-  final String urgency;
 
   /// Límite inferior del presupuesto estimado por el sistema o por el cliente.
   final double estimatedPriceMin;
@@ -42,17 +62,22 @@ class OpportunityModel {
   /// Lista de URLs apuntando al Storage (AWS S3/Firebase) con las imágenes del reporte.
   final List<String> photoUrls;
 
+  /// Fecha exacta en la que el cliente publicó la solicitud.
+  final DateTime createdAt;
+
   OpportunityModel({
     required this.id,
     required this.title,
     required this.description,
+    required this.latitude,
+    required this.longitude,
     required this.distance,
-    required this.isExclusive,
+    required this.type,
     required this.category,
-    required this.urgency,
     required this.estimatedPriceMin,
     required this.estimatedPriceMax,
     required this.clientAnswers,
+    required this.createdAt,
     this.photoUrls = const [],
   });
 
@@ -68,6 +93,21 @@ class OpportunityModel {
   /// Ej: "$1500 - $3000"
   String get formattedPriceRange =>
       '\$${estimatedPriceMin.toInt()} - \$${estimatedPriceMax.toInt()}';
+
+  /// Getter de compatibilidad por si la UI antigua dependía de este booleano.
+  bool get isExclusive => type == OpportunityType.special;
+
+  /// Devuelve un texto amigable dependiendo del tipo de oportunidad.
+  String get urgencyLabel {
+    switch (type) {
+      case OpportunityType.urgent:
+        return 'Urgente';
+      case OpportunityType.special:
+        return 'Cotización Directa';
+      case OpportunityType.normal:
+        return 'Flexible';
+    }
+  }
 
   // ==========================================
   // TODOs Y DEUDA TÉCNICA (Integración Backend)

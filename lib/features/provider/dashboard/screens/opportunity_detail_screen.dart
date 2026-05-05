@@ -82,7 +82,7 @@ class OpportunityDetailScreen extends StatelessWidget {
                 title: opportunity.title,
                 category: opportunity.category,
                 distance: opportunity.formattedDistance,
-                urgency: opportunity.urgency,
+                urgency: opportunity.urgencyLabel,
                 priceRange: opportunity.formattedPriceRange,
                 description: opportunity.description,
                 isExclusive: opportunity.isExclusive,

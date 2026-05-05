@@ -17,6 +17,9 @@ Pods/
 .symlinks/
 *.xcworkspace/xcuserdata/
 
+# Secretos de iOS
+ios/Flutter/Env.xcconfig
+
 # Configuraciones de IDE (Opcional pero recomendado ignorarlos)
 *.iml
 *.ipr

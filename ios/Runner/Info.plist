@@ -7,6 +7,8 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>INCIDE necesita tu ubicación para calcular las distancias a los servicios.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<key>MapsApiKey</key>
+	<string>$(MAPS_API_KEY)</string>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>

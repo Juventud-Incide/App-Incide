@@ -58,7 +58,9 @@ class _OpportunitiesMapScreenState
 
       // Si todo está bien, obtenemos la posición actual
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
       setState(() {
@@ -136,9 +138,9 @@ class _OpportunitiesMapScreenState
               return OpportunitySummarySheet(
                 opportunity: updatedOpp,
                 onSeeDetailsPressed: () {
-                  Navigator.pop(context); // Cierra el Bottom Sheet
+                  Navigator.pop(context);
 
-                  context.pushNamed('opportunity-details', extra: updatedOpp);
+                  context.pushNamed('opportunity_detail', extra: updatedOpp);
                 },
               );
             },

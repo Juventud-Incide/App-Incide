@@ -4,6 +4,8 @@
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>INCIDE necesita tu ubicación para enviarte cotizaciones y trabajos disponibles exactamente en tu zona.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>INCIDE necesita tu ubicación para calcular las distancias a los servicios.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

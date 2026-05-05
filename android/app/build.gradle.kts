@@ -6,6 +6,18 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+import java.util.Properties
+import java.io.FileInputStream
+
+// Cargar las variables de local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
+}
+// Obtener la llave, o un string vacío si no existe
+val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
+
 android {
     namespace = "org.incide.app_incide"
     compileSdk = flutter.compileSdkVersion
@@ -29,6 +41,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
 
     buildTypes {

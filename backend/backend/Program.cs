@@ -2,6 +2,7 @@ using backend.Data.DataDB;
 using Microsoft.EntityFrameworkCore;
 using backend.Infraestructure.API_Services;
 using backend.Infraestructure.API_Services_Interfaces;
+using backend.Infraestructure.Configuration;
 using backend.Data.Entities;
 using backend.Hubs;
 using Microsoft.AspNetCore.Identity;
@@ -35,6 +36,8 @@ builder.Services.AddScoped<ICotizacionService, CotizacionService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddSignalR();
+
+builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtConfig["Key"];

@@ -38,6 +38,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddSignalR();
 
 builder.Services.Configure<StripeOptions>(builder.Configuration.GetSection(StripeOptions.SectionName));
+builder.Services.AddScoped<IStripeService, StripeService>();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtConfig["Key"];

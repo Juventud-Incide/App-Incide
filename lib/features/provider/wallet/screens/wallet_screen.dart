@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/provider/wallet/widgets/empty_transactions_state.dart';
 import 'package:app_incide/features/shared/widgets/custom_provider_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class WalletScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      appBar: const CustomProviderAppBar(title: 'Mi Billetera'),
+      appBar: const CustomProviderAppBar(title: AppStrings.walletMyWalletTitle),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -55,12 +56,17 @@ class WalletScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Text(
-                  'Movimientos Recientes',
+                  AppStrings.walletRecentTransactionsTitle,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 // Textito con el acumulado del mes
                 Text(
-                  'Acumulado en $formattedMonth:\n${currencyFormatter.format(monthlyIncome)}',
+                  AppStrings.walletAccumulatedThisMonth
+                      .replaceFirst('{month}', formattedMonth)
+                      .replaceFirst(
+                        '{amount}',
+                        currencyFormatter.format(monthlyIncome),
+                      ),
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     fontSize: 12,

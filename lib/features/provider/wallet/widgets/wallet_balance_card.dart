@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/provider/wallet/widgets/withdraw_funds_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,8 +20,11 @@ class WalletBalanceCard extends ConsumerWidget {
 
     // Lógica para el modo privacidad
     final displayBalance = walletState.isBalanceHidden
-        ? '**** MXN'
-        : '${currencyFormatter.format(walletState.availableBalance)} MXN';
+        ? AppStrings.walletPrivacyOnBalance
+        : AppStrings.walletPrivacyOffBalance.replaceAll(
+            '{amount}',
+            currencyFormatter.format(walletState.availableBalance),
+          );
 
     return Container(
       width: double.infinity,
@@ -38,7 +42,7 @@ class WalletBalanceCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Saldo Disponible',
+            AppStrings.walletAvailableBalanceTitle,
             style: TextStyle(
               color: Colors.white,
               fontSize: 14,
@@ -96,7 +100,7 @@ class WalletBalanceCard extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: const Text(
-              'Retirar a Banco',
+              AppStrings.walletWithdrawBtn,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
           ),

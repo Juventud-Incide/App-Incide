@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app_incide/features/provider/wallet/providers/wallet_provider.dart';
@@ -25,15 +26,15 @@ class TransactionDetailSheet extends StatelessWidget {
 
     if (isPending) {
       statusColor = const Color(0xFFCA8A04);
-      statusText = 'Pendiente liberación';
+      statusText = AppStrings.walletPendingReleaseTitle;
       statusIcon = Icons.watch_later_outlined;
     } else if (transaction.type == TransactionType.withdrawal) {
       statusColor = Colors.black87;
-      statusText = 'Retiro completado';
+      statusText = AppStrings.walletWithdrawalReleaseTitle;
       statusIcon = Icons.check_circle_outline;
     } else {
       statusColor = const Color(0xFF16A34A);
-      statusText = 'Liberado';
+      statusText = AppStrings.walletReleased;
       statusIcon = Icons.check_circle_outline;
     }
 
@@ -94,16 +95,19 @@ class TransactionDetailSheet extends StatelessWidget {
           const SizedBox(height: 32),
 
           // Lista de Detalles
-          _buildDetailRow('Cliente / Destino', transaction.clientName),
+          _buildDetailRow(
+            AppStrings.walletDestinationTitle,
+            transaction.clientName,
+          ),
           const Divider(height: 24),
-          _buildDetailRow('Concepto', transaction.subtitle),
+          _buildDetailRow(AppStrings.walletSubtitleTitle, transaction.subtitle),
           const Divider(height: 24),
           _buildDetailRow(
-            'Fecha y Hora',
+            AppStrings.walletDateTitle,
             dateFormatter.format(transaction.date),
           ),
           const Divider(height: 24),
-          _buildDetailRow('ID de Transacción', transaction.id),
+          _buildDetailRow(AppStrings.walletTransactionIdTitle, transaction.id),
 
           const SizedBox(height: 32),
 
@@ -122,7 +126,7 @@ class TransactionDetailSheet extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'Cerrar detalles',
+                AppStrings.walletCloseDetailBtn,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),

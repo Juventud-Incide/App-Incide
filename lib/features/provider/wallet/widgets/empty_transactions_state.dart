@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 
 class EmptyTransactionsState extends StatelessWidget {
@@ -33,7 +34,7 @@ class EmptyTransactionsState extends StatelessWidget {
 
           // Título
           const Text(
-            'Sin movimientos recientes',
+            AppStrings.walletNoTransactionsTitle,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -44,7 +45,7 @@ class EmptyTransactionsState extends StatelessWidget {
 
           // Subtítulo explicativo
           Text(
-            'Aquí aparecerán tus ingresos por servicios completados y el historial de tus retiros.',
+            AppStrings.walletNoTransactionsSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,

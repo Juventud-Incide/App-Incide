@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/utils/app_formatters.dart';
 import 'package:app_incide/features/provider/wallet/providers/bank_accounts_provider.dart';
 import 'package:app_incide/features/provider/wallet/widgets/add_bank_account_sheet.dart';
@@ -34,11 +35,11 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
     final amount = double.tryParse(inputText) ?? 0.0;
 
     if (amount <= 0) {
-      setState(() => _errorMessage = 'Ingresa un monto válido');
+      setState(() => _errorMessage = AppStrings.walletInvalidAmountError);
       return;
     }
     if (amount > availableBalance) {
-      setState(() => _errorMessage = 'Monto supera tu saldo disponible');
+      setState(() => _errorMessage = AppStrings.walletInsufficientFundsError);
       return;
     }
     ref
@@ -49,7 +50,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
     // Mostramos un mensaje de éxito
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Retiro en proceso. Lo verás reflejado pronto.'),
+        content: Text(AppStrings.walletWithdrawalSuccess),
         backgroundColor: Color(0xFF22C55E),
       ),
     );
@@ -86,7 +87,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Retirar Fondos',
+                AppStrings.walletWithdrawFundsTitle,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               IconButton(
@@ -97,7 +98,10 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Saldo disponible: ${currencyFormatter.format(availableBalance)} MXN',
+            AppStrings.walletAvailableBalance.replaceFirst(
+              '{amount}',
+              currencyFormatter.format(availableBalance),
+            ),
             style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
           const SizedBox(height: 24),
@@ -114,9 +118,9 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
-              suffixText: ' MXN',
+              suffixText: AppStrings.walletSuffix,
               suffixStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-              labelText: 'Monto a retirar',
+              labelText: AppStrings.walletWithdrawLabel,
               errorText: _errorMessage,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -143,7 +147,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                   });
                 },
                 child: const Text(
-                  'MAX',
+                  AppStrings.walletMaxLbl,
                   style: TextStyle(
                     color: Color(0xFF1E3A8A),
                     fontWeight: FontWeight.bold,
@@ -177,7 +181,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
 
                 // Mostramos aviso sutil
                 setState(
-                  () => _errorMessage = 'Monto ajustado al máximo disponible',
+                  () => _errorMessage = AppStrings.walletAdjustedAmountTitle,
                 );
               } else {
                 if (_errorMessage != null) setState(() => _errorMessage = null);
@@ -201,11 +205,19 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Cuenta bancaria',
+                            AppStrings.walletBankAccount,
                             style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                           Text(
-                            '${defaultAccount.bankName} •••• ${defaultAccount.lastFourDigits}',
+                            AppStrings.walletBankAccountHolderAndLastDigits
+                                .replaceFirst(
+                                  '{bankName}',
+                                  defaultAccount.bankName,
+                                )
+                                .replaceFirst(
+                                  '{lastFourDigits}',
+                                  defaultAccount.lastFourDigits,
+                                ),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.grey.shade800,
@@ -224,7 +236,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                             builder: (ctx) => const AddBankAccountSheet(),
                           );
                         },
-                        child: const Text('Cambiar'),
+                        child: const Text(AppStrings.walletChangeAccountBtn),
                       ),
                     ],
                   ),
@@ -244,7 +256,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                         color: Color(0xFFCA8A04),
                       ),
                       const SizedBox(height: 8),
-                      const Text('Necesitas una cuenta para retirar'),
+                      const Text(AppStrings.walletNoBankAccount),
                       TextButton(
                         onPressed: () {
                           showModalBottomSheet(
@@ -254,7 +266,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                             builder: (ctx) => const AddBankAccountSheet(),
                           );
                         },
-                        child: const Text('Agregar Cuenta'),
+                        child: const Text(AppStrings.walletAddBankAccountBtn),
                       ),
                     ],
                   ),
@@ -280,7 +292,7 @@ class _WithdrawFundsSheetState extends ConsumerState<WithdrawFundsSheet> {
                 elevation: 0,
               ),
               child: const Text(
-                'Confirmar Retiro',
+                AppStrings.walletConfirmWithdrawalTitle,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),

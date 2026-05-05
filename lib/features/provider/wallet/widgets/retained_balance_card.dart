@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -27,14 +28,10 @@ class RetainedBalanceCard extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF08A), // Amarillo claro suave
+              color: const Color(0xFFFEF08A),
               borderRadius: BorderRadius.circular(12.0),
             ),
-            child: const Icon(
-              Icons.lock,
-              color: Color(0xFFCA8A04), // Amarillo/Dorado oscuro
-              size: 24,
-            ),
+            child: const Icon(Icons.lock, color: Color(0xFFCA8A04), size: 24),
           ),
           const SizedBox(width: 16),
 
@@ -44,7 +41,7 @@ class RetainedBalanceCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'En Garantía (Trabajos Activos)',
+                  AppStrings.walletRetainedBalanceTitle,
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 12,
@@ -53,7 +50,10 @@ class RetainedBalanceCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${currencyFormatter.format(walletState.retainedBalance)} MXN',
+                  AppStrings.walletRetainedBalanceValue.replaceAll(
+                    '{amount}',
+                    currencyFormatter.format(walletState.retainedBalance),
+                  ),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

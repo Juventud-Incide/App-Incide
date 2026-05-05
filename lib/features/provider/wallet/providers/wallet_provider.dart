@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/provider/wallet/providers/bank_accounts_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -86,9 +87,10 @@ class WalletNotifier extends Notifier<WalletState> {
 
     final newWithdrawal = TransactionModel(
       id: 'W-${DateTime.now().millisecondsSinceEpoch}',
-      title:
-          'Retiro a ${destinationAccount.bankName} ***${destinationAccount.lastFourDigits}',
-      subtitle: 'En proceso',
+      title: AppStrings.walletWithdrawalTitle
+          .replaceFirst('{bankName}', destinationAccount.bankName)
+          .replaceFirst('{lastFourDigits}', destinationAccount.lastFourDigits),
+      subtitle: AppStrings.walletInProcessTitle,
       amount: amount,
       type: TransactionType.withdrawal,
       status: TransactionStatus.processing,
@@ -110,7 +112,7 @@ class WalletNotifier extends Notifier<WalletState> {
   ) {
     final newIncome = TransactionModel(
       id: 'I-${DateTime.now().millisecondsSinceEpoch}',
-      title: 'Pago Liberado',
+      title: AppStrings.walletReleasedTitle,
       subtitle: serviceName,
       amount: amount,
       type: TransactionType.income,

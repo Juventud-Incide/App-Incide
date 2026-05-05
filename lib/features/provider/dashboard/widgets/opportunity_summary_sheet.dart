@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 
@@ -121,7 +122,7 @@ class OpportunitySummarySheet extends StatelessWidget {
                 ),
               ),
               child: const Text(
-                'Ver Detalles Completos',
+                AppStrings.mapSeeFullDetailsBtn,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),

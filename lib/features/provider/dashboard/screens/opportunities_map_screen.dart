@@ -1,3 +1,4 @@
+import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,21 +40,19 @@ class _OpportunitiesMapScreenState
     try {
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        throw Exception('Los servicios de ubicación están desactivados.');
+        throw Exception(AppStrings.mapLocationDisabled);
       }
 
       permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          throw Exception('Permisos de ubicación denegados.');
+          throw Exception(AppStrings.mapLocationDenied);
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        throw Exception(
-          'Permisos denegados permanentemente. Actívalos en ajustes.',
-        );
+        throw Exception(AppStrings.mapLocationDeniedForever);
       }
 
       // Si todo está bien, obtenemos la posición actual
@@ -158,7 +157,7 @@ class _OpportunitiesMapScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mapa de Oportunidades'),
+        title: const Text(AppStrings.mapOpportunitiesTitle),
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -208,7 +207,7 @@ class _OpportunitiesMapScreenState
                   border: Border.all(color: Colors.red.shade300),
                 ),
                 child: Text(
-                  'No se pudo obtener tu ubicación: $_locationError',
+                  AppStrings.mapUnableToGetLocation + _locationError,
                   style: const TextStyle(color: Colors.red),
                 ),
               ),

@@ -261,6 +261,16 @@ class AppStrings {
   static const String undoDiscard = 'Deshacer';
   static const String invalidPriceError = 'Por favor, ingresa un precio válido';
 
+  static const String mapLocationDisabled =
+      'Los servicios de ubicación están desactivados.';
+  static const String mapLocationDenied = 'Permisos de ubicación denegados.';
+  static const String mapLocationDeniedForever =
+      'Permisos de ubicación denegados permanentemente. Por favor, habilítalos manualmente desde la configuración de tu dispositivo.';
+  static const String mapOpportunitiesTitle = 'Mapa de Oportunidades';
+  static const String mapUnableToGetLocation =
+      'No se pudo obtener tu ubicación: ';
+  static const String mapSeeFullDetailsBtn = 'Ver Detalles Completos';
+
   // --- Pantalla de Detalle de Oportunidad ---
   static const String detailTitle = 'Detalle de la Solicitud';
   static const String clientAnswers = 'Especificaciones del Cliente';

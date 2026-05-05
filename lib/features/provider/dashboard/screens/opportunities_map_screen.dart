@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:app_incide/features/provider/dashboard/models/map_opportunities_provider.dart';
-
-// Asegúrate de importar tus archivos correctamente
-// import 'map_opportunities_provider.dart';
-// import 'opportunity_model.dart';
+import 'package:app_incide/features/provider/dashboard/widgets/opportunity_summary_sheet.dart';
 
 class OpportunitiesMapScreen extends ConsumerStatefulWidget {
   const OpportunitiesMapScreen({super.key});
@@ -111,8 +109,40 @@ class _OpportunitiesMapScreenState
           snippet: opp.formattedPriceRange,
         ),
         onTap: () {
-          // Aquí más adelante llamaremos al BottomSheet de detalles
-          print('Tocado el pin: ${opp.title}');
+          // 1. Calculamos la distancia real si tenemos la ubicación del GPS
+          double realDistanceKm =
+              opp.distance; // Usamos la del mock por defecto
+
+          // Si tenemos la ubicación del usuario, calculamos la distancia real
+          if (_currentPosition != null) {
+            // Retorna la distancia en metros
+            double distanceInMeters = Geolocator.distanceBetween(
+              _currentPosition!.latitude,
+              _currentPosition!.longitude,
+              opp.latitude,
+              opp.longitude,
+            );
+            // Convertimos a Kilómetros
+            realDistanceKm = distanceInMeters / 1000;
+          }
+
+          final updatedOpp = opp.copyWith(distance: realDistanceKm);
+
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) {
+              return OpportunitySummarySheet(
+                opportunity: updatedOpp,
+                onSeeDetailsPressed: () {
+                  Navigator.pop(context); // Cierra el Bottom Sheet
+
+                  context.pushNamed('opportunity-details', extra: updatedOpp);
+                },
+              );
+            },
+          );
         },
       );
     }).toSet();
@@ -158,7 +188,7 @@ class _OpportunitiesMapScreenState
           // 2. Estado de Carga Inicial
           if (_isLoadingLocation)
             Container(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               child: const Center(child: CircularProgressIndicator()),
             ),
 

@@ -81,6 +81,38 @@ class OpportunityModel {
     this.photoUrls = const [],
   });
 
+  OpportunityModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    double? latitude,
+    double? longitude,
+    double? distance,
+    OpportunityType? type,
+    String? category,
+    double? estimatedPriceMin,
+    double? estimatedPriceMax,
+    Map<String, String>? clientAnswers,
+    List<String>? photoUrls,
+    DateTime? createdAt,
+  }) {
+    return OpportunityModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      distance: distance ?? this.distance,
+      type: type ?? this.type,
+      category: category ?? this.category,
+      estimatedPriceMin: estimatedPriceMin ?? this.estimatedPriceMin,
+      estimatedPriceMax: estimatedPriceMax ?? this.estimatedPriceMax,
+      clientAnswers: clientAnswers ?? this.clientAnswers,
+      photoUrls: photoUrls ?? this.photoUrls,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
   // ==========================================
   // GETTERS DE UI (Capa de Presentación)
   // ==========================================

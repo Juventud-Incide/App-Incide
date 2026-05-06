@@ -11,16 +11,21 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // 1. Buscamos el token guardado en el dispositivo
+    // 1. Definimos las rutas que NUNCA deben llevar token
+    final List<String> publicRoutes = ['/auth/login', '/auth/register'];
+
+    // 2. Buscamos el token guardado en el dispositivo
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString(AppKeys.token);
 
-    // 2. Si existe, lo inyectamos en la cabecera de la petición
-    if (token != null && token.isNotEmpty) {
+    // 3. Inyectamos el token SOLO si existe y la ruta NO es pública
+    if (token != null &&
+        token.isNotEmpty &&
+        !publicRoutes.contains(options.path)) {
       options.headers['Authorization'] = 'Bearer $token';
     }
 
-    // 3. Dejamos que la petición continúe su viaje hacia el servidor
+    // 4. Dejamos que la petición continúe su viaje hacia el servidor
     super.onRequest(options, handler);
   }
 

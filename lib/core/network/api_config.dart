@@ -6,14 +6,14 @@ enum Environment { development, production }
 class ApiConfig {
   // Por defecto, lo iniciamos en desarrollo.
   // Antes de compilar para producción, cambiaríamos esto a Environment.production
-  static Environment currentEnvironment = Environment.development;
+  static Environment currentEnvironment = Environment.production;
 
   /// Retorna la URL base dependiendo de la estrategia (entorno) actual.
   static String get baseUrl {
     switch (currentEnvironment) {
       case Environment.production:
         // TODO: Reemplazar con la URL real de tu servidor en la nube
-        return 'https://api.incide.org/api/v1';
+        return 'https://incide-dev.ddns.net/api';
 
       case Environment.development:
         // IMPORTANTE PARA PRUEBAS:

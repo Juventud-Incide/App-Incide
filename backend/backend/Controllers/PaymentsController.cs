@@ -67,5 +67,69 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
             }
         }
+        /// <summary>GET /api/payments/mios — Client lists their own payments.</summary>
+        [Authorize(Roles = "Client")]
+        [HttpGet("mios")]
+        public async Task<IActionResult> GetMyPayments(CancellationToken ct)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+                var result = await _paymentService.GetMyPaymentsAsync(userId, ct);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        /// <summary>GET /api/payments/{id} — Get payment detail (client, provider or admin).</summary>
+        [Authorize(Roles = "Client,Provider,Admin")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id, CancellationToken ct)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+                var result = await _paymentService.GetByIdAsync(id, userId, ct);
+                if (result == null)
+                    return NotFound(new { message = "Payment not found." });
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
+
+        /// <summary>POST /api/payments/{id}/release — Client confirms work is done and releases funds.</summary>
+        [Authorize(Roles = "Client")]
+        [HttpPost("{id}/release")]
+        public async Task<IActionResult> Release(int id, CancellationToken ct)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(JwtRegisteredClaimNames.Sub)!.Value);
+                var result = await _paymentService.ReleaseAsync(id, userId, ct);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error interno del servidor.", details = ex.Message });
+            }
+        }
     }
 }

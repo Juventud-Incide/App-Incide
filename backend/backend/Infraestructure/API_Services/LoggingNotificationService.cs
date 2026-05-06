@@ -107,9 +107,48 @@ namespace backend.Infraestructure.API_Services
             Payment payment, Client client, Provider provider, ServiceRequest serviceRequest, CancellationToken ct)
         {
             // TODO: reemplazar por envío real de correo (SendGrid / SMTP)
+            var folio        = $"PAY-{payment.Id:D6}";
+            var clientName   = $"{client.User.FirstName} {client.User.LastName}";
+            var providerName = $"{provider.User.FirstName} {provider.User.LastName}";
+            var monto        = $"{payment.Amount:N2} {payment.Currency}";
+            var fecha        = (payment.PaidAt ?? DateTime.UtcNow).ToString("dd/MM/yyyy HH:mm") + " UTC";
+            var servicio     = serviceRequest.ServiceItem?.Name ?? $"Solicitud #{serviceRequest.Id}";
+
+            // ── Correo al CLIENTE ────────────────────────────────────────────
             _logger.LogInformation(
-                "[PAYMENT-NOTIF] Pago confirmado. Folio={Folio}. Pendiente de implementar cuerpo completo en paso 6.",
-                $"PAY-{payment.Id:D6}");
+                "[PAYMENT-EMAIL → CLIENTE] Para: {ClientEmail}\n" +
+                "Asunto: Pago confirmado - {Folio}\n" +
+                "Cuerpo:\n" +
+                "  Hola {ClientName},\n" +
+                "  Tu pago ha sido procesado exitosamente.\n" +
+                "  -----------------------------------\n" +
+                "  Folio:    {Folio}\n" +
+                "  Servicio: {Servicio}\n" +
+                "  Monto:    {Monto}\n" +
+                "  Fecha:    {Fecha}\n" +
+                "  Proveedor: {ProviderName}\n" +
+                "  -----------------------------------\n" +
+                "  Gracias por usar INCIDE.",
+                client.User.Email, folio, clientName,
+                folio, servicio, monto, fecha, providerName);
+
+            // ── Correo al PROVEEDOR ──────────────────────────────────────────
+            _logger.LogInformation(
+                "[PAYMENT-EMAIL → PROVEEDOR] Para: {ProviderEmail}\n" +
+                "Asunto: Nuevo pago recibido - {Folio}\n" +
+                "Cuerpo:\n" +
+                "  Hola {ProviderName},\n" +
+                "  Se ha confirmado un pago por tu servicio.\n" +
+                "  -----------------------------------\n" +
+                "  Folio:    {Folio}\n" +
+                "  Servicio: {Servicio}\n" +
+                "  Monto:    {Monto}\n" +
+                "  Fecha:    {Fecha}\n" +
+                "  Cliente:  {ClientName}\n" +
+                "  -----------------------------------\n" +
+                "  Los fondos serán liberados cuando el cliente confirme el trabajo.",
+                provider.User.Email, folio, providerName,
+                folio, servicio, monto, fecha, clientName);
 
             return Task.CompletedTask;
         }

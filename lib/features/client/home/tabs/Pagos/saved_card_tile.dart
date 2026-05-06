@@ -88,14 +88,17 @@ class _SavedCardTileState extends State<SavedCardTile> {
   );
 
   // ── Campo de CVV ──────────────────────────────────────────
-  Widget _buildCvvField() => TextFormField(
+  Widget _buildCvvField(StateSetter setDialogState) => TextFormField(
     keyboardType: TextInputType.number,
     obscureText: true,
     inputFormatters: [
       FilteringTextInputFormatter.digitsOnly,
       LengthLimitingTextInputFormatter(3),
     ],
-    onChanged: (v) => setState(() => _cvv = v),
+    onChanged: (v) {
+      _cvv = v;
+      setDialogState(() {}); // Actualiza el diálogo en tiempo real
+    },
     decoration: InputDecoration(
       hintText: 'CVV (3 dígitos)',
       hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13),
@@ -175,7 +178,7 @@ class _SavedCardTileState extends State<SavedCardTile> {
 
   // ── Diálogo: Confirmar CVV ────────────────────────────────
   void _confirmAndPay(BuildContext context) {
-    setState(() => _cvv = '');
+    _cvv = ''; // Resetear estado local sin llamar setState del widget padre
     showDialog(
       context: context,
       builder: (dialogCtx) => Dialog(
@@ -183,7 +186,7 @@ class _SavedCardTileState extends State<SavedCardTile> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: StatefulBuilder(
-            builder: (_, __) => Column(
+            builder: (_, setDialogState) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildMiniCard(),
@@ -207,7 +210,7 @@ class _SavedCardTileState extends State<SavedCardTile> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildCvvField(),
+                _buildCvvField(setDialogState),
                 const SizedBox(height: 20),
                 _buildActionButtons(dialogCtx, context),
               ],

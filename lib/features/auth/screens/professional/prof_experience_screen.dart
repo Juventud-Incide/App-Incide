@@ -1,8 +1,11 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/utils/app_formatters.dart';
+import 'package:app_incide/features/auth/providers/categories_provider.dart';
+import 'package:app_incide/features/auth/providers/registration_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../widgets/custom_dropdown_field.dart';
@@ -18,14 +21,15 @@ import 'dart:developer' as developer;
 /// Al validar exitosamente, la pantalla combina el `formData` original con
 /// los nuevos datos (Experiencia y Especialidad) para crear el `finalPayload`
 /// que se envía al servidor para registrar la cuenta definitivamente.
-class ProfExperienceScreen extends StatefulWidget {
+class ProfExperienceScreen extends ConsumerStatefulWidget {
   const ProfExperienceScreen({super.key});
 
   @override
-  State<ProfExperienceScreen> createState() => _ProfExperienceScreenState();
+  ConsumerState<ProfExperienceScreen> createState() =>
+      _ProfExperienceScreenState();
 }
 
-class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
+class _ProfExperienceScreenState extends ConsumerState<ProfExperienceScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores de UI
@@ -34,20 +38,13 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
   final _cedulaController = TextEditingController();
   final _descriptionController = TextEditingController();
 
+  int? _selectedCategoryId;
+  List<int> _selectedServiceIds = [];
+  bool _isLoading = false;
+
   /// Controla cuándo se muestran los mensajes de error en rojo. Inicialmente
   /// apagado, se enciende si el usuario presiona "Enviar" con campos inválidos.
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
-
-  // TODO: (BACKEND) - Reemplazar este arreglo estático con una petición GET al endpoint `/api/specialties` para cargar las categorías dinámicamente.
-  final List<String> _specialties = [
-    'Carpintería',
-    'Plomería',
-    'Electricidad',
-    'Albañilería',
-    'Arquitectura',
-    'Ingeniería Civil',
-    'Pintura e Impermeabilización',
-  ];
 
   @override
   void dispose() {
@@ -59,28 +56,55 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
   }
 
   /// Ejecuta la validación del formulario y empaqueta el Payload final.
-  void _submitForm() {
+  void _submitForm() async {
+    FocusScope.of(context).unfocus();
+
     if (_formKey.currentState!.validate()) {
-      // 1. Unificamos los datos heredados con los nuevos
-      final Map<String, dynamic> finalPayload = {
-        ...widget.formData, // Spread operator para volcar el diccionario previo
-        'specialty': _selectedSpecialty,
-        'yearsOfExperience': int.tryParse(_yearsController.text) ?? 0,
-        'cedula': _cedulaController.text,
-        'description': _descriptionController.text,
-      };
+      // 1. Validamos que haya elegido al menos un servicio
+      if (_selectedCategoryId == null || _selectedServiceIds.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Por favor, selecciona una categoría y al menos un servicio.',
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
 
-      // TODO: (BACKEND) - Reemplazar el logger con la llamada real asíncrona:
-      // await ref.read(authControllerProvider.notifier).registerProfessional(finalPayload);
-      developer.log(
-        'Payload del registro completado exitosamente',
-        name: 'AuthModule',
-        error: finalPayload
-            .toString(), // Envía el JSON a la consola de forma estructurada
-      );
+      // 2. Encendemos el loader local
+      setState(() => _isLoading = true);
 
-      // 2. Transición al éxito
-      context.goNamed('prof_success');
+      try {
+        // 3. Guardamos los catálogos en el estado global
+        ref
+            .read(registrationProvider.notifier)
+            .updateServices(_selectedCategoryId!, _selectedServiceIds);
+
+        // 4. Disparamos la petición final de registro
+        final success = await ref
+            .read(registrationProvider.notifier)
+            .submitRegistration(
+              yearsOfExperience: int.tryParse(_yearsController.text) ?? 0,
+              professionalLicense: _cedulaController.text,
+              description: _descriptionController.text,
+            );
+
+        if (success && mounted) {
+          developer.log('Registro completado exitosamente', name: 'AuthModule');
+          // 5. Transición al éxito (idealmente limpiando historial)
+          context.goNamed('prof_success');
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     } else {
       // Si la validación falla, activamos la revisión en tiempo real (rojos vivos)
       setState(() => _autoValidateMode = AutovalidateMode.onUserInteraction);
@@ -89,6 +113,10 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchamos los providers de catálogos
+    final asyncCategories = ref.watch(categoriesCatalogProvider);
+    final asyncServices = ref.watch(servicesCatalogProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -168,28 +196,94 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                 // --- 3. FORMULARIO PROFESIONAL ---
 
                 // DROPDOWN ESPECIALIDAD
-                CustomDropdownField<String>(
-                  label: AppStrings.specialtyLabel,
-                  hintText: AppStrings.specialtyHint,
-                  value: _selectedSpecialty,
-                  items: _specialties
-                      .map(
-                        (e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(
-                            e,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (newValue) =>
-                      setState(() => _selectedSpecialty = newValue),
-                  validator: (value) =>
-                      value == null ? AppStrings.selectSpecialtyError : null,
+                asyncCategories.when(
+                  loading: () => const LinearProgressIndicator(),
+                  error: (err, stack) => Text(
+                    'Error al cargar rubros: $err',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  data: (categoriesList) {
+                    return CustomDropdownField<int>(
+                      label: AppStrings.specialtyLabel,
+                      hintText: AppStrings.specialtyHint,
+                      value: _selectedCategoryId,
+                      items: categoriesList.map((cat) {
+                        return DropdownMenuItem<int>(
+                          value: cat['id'] as int,
+                          child: Text(cat['name'] as String),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedCategoryId = newValue;
+                          // Limpiamos los servicios si el usuario cambia de categoría
+                          _selectedServiceIds.clear();
+                        });
+                      },
+                      validator: (value) => value == null
+                          ? AppStrings.selectSpecialtyError
+                          : null,
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
+
+                if (_selectedCategoryId != null) ...[
+                  const Text(
+                    'Servicios que ofreces:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Manejamos el estado asíncrono de los servicios
+                  asyncServices.when(
+                    loading: () => const CircularProgressIndicator(),
+                    error: (err, stack) =>
+                        Text('Error al cargar servicios: $err'),
+                    data: (allServices) {
+                      // Filtramos solo los servicios que pertenecen a la categoría seleccionada
+                      final filteredServices = allServices
+                          .where((s) => s['categoryId'] == _selectedCategoryId)
+                          .toList();
+
+                      if (filteredServices.isEmpty) {
+                        return const Text(
+                          'No hay servicios disponibles para esta categoría.',
+                        );
+                      }
+
+                      return Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: filteredServices.map((service) {
+                          final serviceId = service['id'] as int;
+                          final isSelected = _selectedServiceIds.contains(
+                            serviceId,
+                          );
+
+                          return FilterChip(
+                            label: Text(service['name'] as String),
+                            selected: isSelected,
+                            onSelected: (bool selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedServiceIds.add(serviceId);
+                                } else {
+                                  _selectedServiceIds.remove(serviceId);
+                                }
+                              });
+                            },
+                            selectedColor: AppColors.primaryBlue.withValues(
+                              alpha: 0.2,
+                            ),
+                            checkmarkColor: AppColors.primaryBlue,
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                ],
 
                 // ROW: AÑOS DE EXPERIENCIA + CÉDULA
                 Row(
@@ -254,7 +348,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: _isLoading ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,
                       foregroundColor: Colors.white,
@@ -263,14 +357,23 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      AppStrings.sendBtn,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            AppStrings.sendBtn,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),

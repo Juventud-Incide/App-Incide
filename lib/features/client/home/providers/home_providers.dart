@@ -228,6 +228,16 @@ class AllCotizacionesNotifier extends Notifier<List<CotizacionModel>> {
       return c;
     }).toList();
   }
+
+  // TODO(Backend): Reemplazar con actualización al backend
+  void markAsCompleted(String id) {
+    state = state.map((c) {
+      if (c.id == id) {
+        return c.copyWith(estado: EstadoCotizacion.terminada);
+      }
+      return c;
+    }).toList();
+  }
 }
 
 // ── Notificación de Nuevas Propuestas ─────────────────────────────────────
@@ -315,6 +325,19 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           sender: SenderType.provider,
           timestamp: DateTime.now().subtract(const Duration(hours: 22)),
         ),
+        ChatMessage(
+          id: '3_sys1',
+          text:
+              'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(const Duration(hours: 21)),
+        ),
+        ChatMessage(
+          id: '3_sys2',
+          text: 'Confirmaste la finalización. El servicio ha sido completado.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(const Duration(hours: 20)),
+        ),
       ],
       'q4': [
         ChatMessage(
@@ -339,6 +362,13 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
           isRead: true,
         ),
+        ChatMessage(
+          id: '2_system',
+          text:
+              'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+        ),
       ],
       'q6': [
         ChatMessage(
@@ -348,11 +378,33 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           sender: SenderType.provider,
           timestamp: DateTime.now().subtract(const Duration(days: 2)),
         ),
+        ChatMessage(
+          id: '1_sys1',
+          text:
+              'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(
+            const Duration(days: 1, hours: 20),
+          ),
+        ),
+        ChatMessage(
+          id: '1_sys2',
+          text: 'Confirmaste la finalización. El servicio ha sido completado.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(
+            const Duration(days: 1, hours: 19),
+          ),
+        ),
       ],
     };
   }
 
-  void sendMessage(String cotizacionId, String text, SenderType sender, [Attachment? attachment]) {
+  void sendMessage(
+    String cotizacionId,
+    String text,
+    SenderType sender, [
+    Attachment? attachment,
+  ]) {
     final currentChat = state[cotizacionId] ?? [];
 
     final newMessage = ChatMessage(

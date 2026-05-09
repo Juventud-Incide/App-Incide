@@ -8,6 +8,7 @@ import '../../models/cotizacion_model.dart';
 import '../../models/chat_message_model.dart';
 import '../../providers/home_providers.dart';
 import 'chat_input_bar.dart';
+import 'chat_service_completion.dart';
 
 // --- Pantalla Principal ---
 
@@ -24,6 +25,7 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _showScrollToBottomButton = false;
   bool _isTyping = false;
+  bool _isCompletingService = false;
 
   @override
   void initState() {
@@ -69,6 +71,10 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   }
 
   void _sendMessage(String text, Attachment? attachment) {
+    // 1. Validar que el chat no esté bloqueado (solo lectura)
+    final messages = ref.read(chatMessagesProvider)[widget.cotizacion.id] ?? [];
+    if (ChatServiceCompletion.hasClientConfirmed(messages)) return;
+
     if (text.isNotEmpty || attachment != null) {
       final cotId = widget.cotizacion.id;
 
@@ -114,14 +120,55 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
     }
   }
 
+  // ── Acción: confirmar la finalización (con estado de carga) ─────
+  Future<void> _onConfirmCompletion() async {
+    setState(() {
+      _isCompletingService = true;
+    });
+
+    // Simular tiempo de petición al servidor (2 segundos)
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    ChatServiceCompletion.markAsCompleted(
+      ref: ref,
+      cotId: widget.cotizacion.id,
+      onScrollToBottom: _scrollToBottom,
+      isMounted: () => mounted,
+    );
+
+    if (mounted) {
+      setState(() {
+        _isCompletingService = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final allChats = ref.watch(chatMessagesProvider);
     final messages = allChats[widget.cotizacion.id] ?? [];
+    final bool isAccepted =
+        widget.cotizacion.estado == EstadoCotizacion.aceptada;
+
+    // ── Derivar estado a partir del historial de mensajes ──
+    final providerRequested = ChatServiceCompletion.hasProviderRequested(
+      messages,
+    );
+    final clientConfirmed = ChatServiceCompletion.hasClientConfirmed(messages);
+
+    // Si el cliente ya confirmó, el chat es de solo lectura.
+    final chatReadOnly = clientConfirmed;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundWhite,
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(
+        context,
+        isAccepted,
+        providerRequested,
+        clientConfirmed,
+      ),
       body: Column(
         children: [
           // Área de Mensajes
@@ -161,6 +208,12 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
                       );
                     }
                     final message = messages[index - 1];
+
+                    // Burbuja de sistema
+                    if (message.sender == SenderType.system) {
+                      return SystemBubble(message: message);
+                    }
+
                     return _ChatBubble(message: message);
                   },
                 ),
@@ -198,7 +251,11 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
               ),
             ),
 
-          ChatInputBar(onSendMessage: _sendMessage),
+          // ── Barra de solo lectura o Input normal ──
+          if (chatReadOnly)
+            const ReadOnlyBar()
+          else
+            ChatInputBar(onSendMessage: _sendMessage),
         ],
       ),
     );
@@ -232,7 +289,12 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   }
 
   // Encabezado (AppBar)
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    bool isAccepted,
+    bool providerRequested,
+    bool clientConfirmed,
+  ) {
     final providerName = _getProviderName(widget.cotizacion.id);
     final providerInitials = _getProviderInitials(providerName);
 
@@ -290,6 +352,41 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
         ],
       ),
       actions: [
+        // Mostrar el botón de confirmar solo si el proveedor lo solicitó
+        // y el cliente aún no lo ha confirmado.
+        if (isAccepted && providerRequested && !clientConfirmed)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: _isCompletingService
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF10B981),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : IconButton(
+                    icon: const Icon(
+                      Icons.check_circle_outline,
+                      color: Color(0xFF10B981),
+                    ),
+                    tooltip: 'Confirmar finalización',
+                    onPressed: _onConfirmCompletion,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(8),
+                    ),
+                  ),
+          ),
         IconButton(icon: const Icon(Icons.phone), onPressed: () {}),
         IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
       ],

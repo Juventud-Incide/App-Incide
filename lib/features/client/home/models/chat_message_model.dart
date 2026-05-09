@@ -1,4 +1,4 @@
-enum SenderType { client, provider }
+enum SenderType { client, provider, system }
 enum AttachmentType { image, document }
 
 class Attachment {

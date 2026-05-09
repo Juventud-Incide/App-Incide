@@ -34,6 +34,10 @@ abstract class AuthRepository {
 
   Future<bool> verifyOtp(String phoneNumber, String code);
 
+  Future<List<Map<String, dynamic>>> getServicesCatalog();
+
+  Future<List<Map<String, dynamic>>> getCategoriesCatalog();
+
   // Aquí puedes agregar más métodos en el futuro:
   // Future<void> logout();
 }

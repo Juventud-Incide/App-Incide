@@ -132,4 +132,27 @@ class MockAuthRepository implements AuthRepository {
       throw 'El código ingresado es incorrecto o ha expirado.';
     }
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getServicesCatalog() async {
+    await Future.delayed(const Duration(seconds: 1)); // Simulamos red
+    return [
+      {"id": 2, "name": "Instalación de llaves", "categoryId": 1},
+      {"id": 1, "name": "Reparación de tuberías", "categoryId": 1},
+      {"id": 3, "name": "Instalación eléctrica", "categoryId": 2},
+      {"id": 4, "name": "Reparación de apagadores", "categoryId": 2},
+      {"id": 5, "name": "Instalación de muebles", "categoryId": 3},
+      {"id": 6, "name": "Limpieza de hogar", "categoryId": 4},
+    ];
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getCategoriesCatalog() async {
+    return [
+      {"id": 1, "name": "Plomería"},
+      {"id": 2, "name": "Electricidad"},
+      {"id": 3, "name": "Carpintería"},
+      {"id": 4, "name": "Limpieza"},
+    ];
+  }
 }

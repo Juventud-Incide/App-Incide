@@ -209,4 +209,30 @@ class NetworkAuthRepository implements AuthRepository {
       throw 'Error de conexión con el servidor.';
     }
   }
+
+  @override
+  Future<List<Map<String, dynamic>>> getServicesCatalog() async {
+    try {
+      final response = await _dio.get('/api/servicios');
+      return List<Map<String, dynamic>>.from(response.data);
+    } on DioException catch (e) {
+      // Manejo de errores de Dio
+      throw 'Error de conexión al cargar catálogo: ${e.message}';
+    } catch (e) {
+      throw 'Error inesperado al leer los servicios.';
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getCategoriesCatalog() async {
+    try {
+      final response = await _dio.get('/api/categorias');
+      return List<Map<String, dynamic>>.from(response.data);
+    } on DioException catch (e) {
+      // Manejo de errores de Dio
+      throw 'Error de conexión al cargar categorías: ${e.message}';
+    } catch (e) {
+      throw 'Error inesperado al leer las categorías.';
+    }
+  }
 }

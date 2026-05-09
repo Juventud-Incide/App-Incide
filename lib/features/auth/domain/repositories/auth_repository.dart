@@ -7,7 +7,33 @@ abstract class AuthRepository {
     String role,
   );
 
+  Future<void> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String phoneNumber,
+    required String role,
+  });
+
+  Future<void> registerProvider({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String curp,
+    required String rfc,
+    required int categoryId,
+    required List<int> serviceIds,
+    required int yearsOfExperience,
+    required String professionalLicense,
+    required String description,
+  });
+
+  Future<bool> verifyOtp(String phoneNumber, String code);
+
   // Aquí puedes agregar más métodos en el futuro:
   // Future<void> logout();
-  // Future<void> register(User user);
 }

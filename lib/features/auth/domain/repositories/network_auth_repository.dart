@@ -105,6 +105,7 @@ class NetworkAuthRepository implements AuthRepository {
     }
   }
 
+  @override
   Future<void> register({
     required String firstName,
     required String lastName,
@@ -130,6 +131,51 @@ class NetworkAuthRepository implements AuthRepository {
           'confirmPassword': confirmPassword,
           'phoneNumber': phoneNumber,
           'userRole': roleValue,
+        },
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final errorData = e.response!.data;
+        if (errorData is String) throw errorData;
+        if (errorData is Map<String, dynamic>) {
+          throw errorData['message'] ?? 'Error al registrar la cuenta.';
+        }
+      }
+      throw 'Error de conexión con el servidor.';
+    }
+  }
+
+  @override
+  Future<void> registerProvider({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String curp,
+    required String rfc,
+    required int categoryId,
+    required List<int> serviceIds,
+    required int yearsOfExperience,
+    required String professionalLicense,
+    required String description,
+  }) async {
+    try {
+      await _dio.post(
+        '/auth/registerProvider',
+        data: {
+          'firstName': firstName,
+          'lastName': lastName,
+          'email': email,
+          'password': password,
+          'phoneNumber': phoneNumber,
+          'curp': curp,
+          'rfc': rfc,
+          'categoryId': categoryId,
+          'serviceIds': serviceIds,
+          'yearsOfExperience': yearsOfExperience,
+          'professionalLicense': professionalLicense,
+          'description': description,
         },
       );
     } on DioException catch (e) {

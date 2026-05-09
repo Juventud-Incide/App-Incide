@@ -87,4 +87,49 @@ class MockAuthRepository implements AuthRepository {
       throw Exception('Correo o contraseña incorrectos');
     }
   }
+
+  @override
+  Future<void> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String phoneNumber,
+    required String role,
+  }) async {
+    // TODO: Implement registration logic
+  }
+
+  @override
+  Future<void> registerProvider({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String curp,
+    required String rfc,
+    required int categoryId,
+    required List<int> serviceIds,
+    required int yearsOfExperience,
+    required String professionalLicense,
+    required String description,
+  }) async {
+    // TODO: Implement registration logic
+  }
+
+  @override
+  Future<bool> verifyOtp(String phoneNumber, String code) async {
+    // 1. Simulamos el tiempo de espera de una petición a internet real (1 segundo)
+    await Future.delayed(const Duration(seconds: 1));
+
+    // 2. Simulamos la validación del servidor
+    if (code == '1234') {
+      return true;
+    } else {
+      // Simulamos que el servidor de C# nos devuelve un error 400
+      throw 'El código ingresado es incorrecto o ha expirado.';
+    }
+  }
 }

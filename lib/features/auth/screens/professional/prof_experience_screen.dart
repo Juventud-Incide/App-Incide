@@ -19,10 +19,7 @@ import 'dart:developer' as developer;
 /// los nuevos datos (Experiencia y Especialidad) para crear el `finalPayload`
 /// que se envía al servidor para registrar la cuenta definitivamente.
 class ProfExperienceScreen extends StatefulWidget {
-  /// Diccionario acumulativo con los datos de registro de las vistas anteriores.
-  final Map<String, dynamic> formData;
-
-  const ProfExperienceScreen({super.key, required this.formData});
+  const ProfExperienceScreen({super.key});
 
   @override
   State<ProfExperienceScreen> createState() => _ProfExperienceScreenState();

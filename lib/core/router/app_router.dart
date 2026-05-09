@@ -114,6 +114,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/roles',
         '/prof-login',
         '/prof-register',
+        '/prof-otp',
+        '/prof-experience',
+        '/prof-success',
         '/prof-forgot-password',
         '/prof-forgot-password-sent',
         '/login-cliente',
@@ -285,23 +288,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/prof-otp',
         name: 'prof_otp',
-        builder: (context, state) {
-          // Extraemos los datos pasados desde la pantalla 1
-          final Map<String, dynamic> formData =
-              state.extra as Map<String, dynamic>? ?? {};
-          // Le pasamos todo el paquete al OTP
-
-          return ProfOtpScreen(formData: formData);
-        },
+        builder: (context, state) => const ProfOtpScreen(),
       ),
       GoRoute(
         path: '/prof-experience',
         name: 'prof_experience',
-        builder: (context, state) {
-          final Map<String, dynamic> formData =
-              state.extra as Map<String, dynamic>? ?? {};
-          return ProfExperienceScreen(formData: formData);
-        },
+        builder: (context, state) => const ProfExperienceScreen(),
       ),
       GoRoute(
         path: '/prof-review-status',

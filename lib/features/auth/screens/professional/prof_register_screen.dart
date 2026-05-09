@@ -1,6 +1,8 @@
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/core/utils/app_formatters.dart';
+import 'package:app_incide/features/auth/providers/registration_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/custom_input_field.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
@@ -13,14 +15,14 @@ import 'package:app_incide/core/constants/app_strings.dart';
 /// y Legal, empaquetándola en un [Map] (`formData`). Este mapa es inyectado y
 /// transportado a las siguientes pantallas (OTP, Experiencia) a través del
 /// enrutador, permitiendo un registro atómico (todo o nada) al final del flujo.
-class ProfRegisterScreen extends StatefulWidget {
+class ProfRegisterScreen extends ConsumerStatefulWidget {
   const ProfRegisterScreen({super.key});
 
   @override
-  State<ProfRegisterScreen> createState() => _ProfRegisterScreenState();
+  ConsumerState<ProfRegisterScreen> createState() => _ProfRegisterScreenState();
 }
 
-class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
+class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
   /// Llave maestra para disparar la validación de todos los campos a la vez.
   final _formKey = GlobalKey<FormState>();
 
@@ -56,6 +58,8 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
 
   /// Evalúa el formulario, verifica políticas y orquesta la transición de datos.
   void _submitForm() {
+    FocusScope.of(context).unfocus();
+
     final isValidForm = _formKey.currentState!.validate();
 
     if (!isValidForm) {
@@ -72,21 +76,31 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
         ),
       );
     } else {
-      // SOLUCIÓN P0 COMPLETA: Empaquetamos todo el estado del formulario.
-      // Al ser un mapa dinámico, nos aseguramos de que no se pierda nada al
-      // navegar con GoRouter hacia el validador OTP.
-      final formData = {
-        'name': _nameController.text,
-        'lastName': _lastNameController.text,
-        'email': _emailController.text,
-        'phone': _phoneController.text,
-        'password': _passwordController.text,
-        'curp': _curpController.text,
-        'rfc': _rfcController.text,
-      };
+      try {
+        // Guardamos en la memoria global de Riverpod
+        ref
+            .read(registrationProvider.notifier)
+            .saveStepOne(
+              firstName: _nameController.text.trim(),
+              lastName: _lastNameController.text.trim(),
+              email: _emailController.text.trim(),
+              password: _passwordController.text,
+              phoneNumber: _phoneController.text.trim(),
+              curp: _curpController.text.trim().toUpperCase(),
+              rfc: _rfcController.text.trim().toUpperCase(),
+            );
 
-      // Inyectamos todo el mapa de datos en la ruta hacia el Paso 2 (OTP)
-      context.pushNamed('prof_otp', extra: formData);
+        // 4. Navegamos a la pantalla OTP con las manos vacías
+        context.pushNamed('prof_otp');
+      } catch (e) {
+        // Manejo de errores visuales si algo falla en la lectura
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar datos: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

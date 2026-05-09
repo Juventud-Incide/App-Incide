@@ -1,6 +1,9 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart';
+import 'package:app_incide/features/auth/providers/registration_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -16,17 +19,14 @@ import 'dart:async';
 /// Utiliza una lista de `FocusNode` para implementar el "Auto-Avance". Cuando el
 /// usuario escribe un dígito, el foco salta automáticamente a la siguiente caja,
 /// mejorando radicalmente la experiencia de usuario.
-class ProfOtpScreen extends StatefulWidget {
-  /// Diccionario acumulativo con los datos parciales del registro.
-  final Map<String, dynamic> formData;
-
-  const ProfOtpScreen({super.key, required this.formData});
+class ProfOtpScreen extends ConsumerStatefulWidget {
+  const ProfOtpScreen({super.key});
 
   @override
-  State<ProfOtpScreen> createState() => _ProfOtpScreenState();
+  ConsumerState<ProfOtpScreen> createState() => _ProfOtpScreenState();
 }
 
-class _ProfOtpScreenState extends State<ProfOtpScreen> {
+class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
   // Controladores y Nodos de Enfoque para las 4 cajas de texto individuales
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
@@ -101,15 +101,18 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
   /// Función de ofuscación para no mostrar el número completo en pantalla.
   /// Ej: Si el número es 6621234567, retorna "**4567".
   String _getMaskedPhone() {
-    final String phone = widget.formData['phone'] as String? ?? '';
-    if (phone.length >= 4) {
-      return '**${phone.substring(phone.length - 4)}';
+    final userPhone = ref.read(registrationProvider).phoneNumber;
+
+    if (userPhone.length >= 4) {
+      return '**${userPhone.substring(userPhone.length - 4)}';
     }
     return '**00';
   }
 
   /// Concatena los 4 dígitos, valida y verifica contra el servidor.
   Future<void> _verifyCode() async {
+    FocusScope.of(context).unfocus();
+
     // Une el texto de todos los controladores en un solo String
     String otpCode = _controllers.map((c) => c.text).join();
 
@@ -126,33 +129,34 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: (BACKEND) - Llamada real: await authService.verifyOTP(otpCode)
-      await Future.delayed(const Duration(seconds: 1));
-      bool isValid = otpCode == '1234'; // Mock de prueba (quitar en prod)
+      // 1. Extraemos el celular del estado global
+      final phoneNumber = ref.read(registrationProvider).phoneNumber;
 
+      // 2. Disparamos la petición al repositorio (que usará el Mock por ahora)
+      final isValid = await ref
+          .read(authRepositoryProvider)
+          .verifyOtp(phoneNumber, otpCode);
+
+      // 3. Si es exitoso, navegamos al Paso 3 (Experiencia Profesional)
       if (isValid) {
-        // Limpiamos el OTP correcto de la RAM antes de navegar
         for (var controller in _controllers) {
           controller.clear();
         }
+
         if (mounted) {
-          // Éxito: Pasamos al siguiente formulario inyectando la data acumulada
-          context.pushNamed('prof_experience', extra: widget.formData);
+          context.pushNamed('prof_experience');
         }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(AppStrings.otpError),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        // Si falla, borramos lo que escribió para obligarlo a teclear de nuevo
+      }
+    } catch (e) {
+      // ERROR: Si el Mock (o el futuro backend) rechaza el código o falla la red
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
         for (var controller in _controllers) {
           controller.clear();
         }
-        _focusNodes[0].requestFocus(); // Regresamos el foco al inicio
+        _focusNodes[0].requestFocus();
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -150,7 +150,6 @@ class RegistrationNotifier extends Notifier<RegistrationState> {
       state = state.copyWith(isLoading: false);
       return true; // Éxito
     } catch (e) {
-      // Si falla (ej. Correo ya existe), atrapamos el error
       state = state.copyWith(isLoading: false, error: e.toString());
       return false; // Falló
     }

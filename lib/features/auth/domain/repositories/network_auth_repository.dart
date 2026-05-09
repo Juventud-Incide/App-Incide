@@ -189,4 +189,24 @@ class NetworkAuthRepository implements AuthRepository {
       throw 'Error de conexión con el servidor.';
     }
   }
+
+  @override
+  Future<bool> verifyOtp(String phoneNumber, String otpCode) async {
+    try {
+      final response = await _dio.post(
+        '/auth/verify-otp',
+        data: {'phoneNumber': phoneNumber, 'otpCode': otpCode},
+      );
+      return response.data['success'];
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response!.data;
+        if (data is String) throw data;
+        if (data is Map<String, dynamic>) {
+          throw data['message'] ?? 'Error al verificar el OTP.';
+        }
+      }
+      throw 'Error de conexión con el servidor.';
+    }
+  }
 }

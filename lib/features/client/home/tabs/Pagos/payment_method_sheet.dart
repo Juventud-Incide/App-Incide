@@ -102,13 +102,16 @@ class PaymentMethodSheet extends StatelessWidget {
               ),
               // Monto badge
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0FDF4),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: AppColors.successGreen.withOpacity(0.3)),
+                    color: AppColors.successGreen.withOpacity(0.3),
+                  ),
                 ),
                 child: Text(
                   montoFmt,
@@ -147,12 +150,9 @@ class PaymentMethodSheet extends StatelessWidget {
             subtitle: 'Visa, Mastercard, American Express',
             color: AppColors.primaryBlue,
             onTap: () {
+              final parentCtx = Navigator.of(context).context;
               Navigator.pop(context);
-              SavedCardsSheet.show(
-                context,
-                monto: monto,
-                titulo: titulo,
-              );
+              SavedCardsSheet.show(parentCtx, monto: monto, titulo: titulo);
             },
           ),
 
@@ -165,12 +165,9 @@ class PaymentMethodSheet extends StatelessWidget {
             subtitle: 'Pago por transferencia bancaria',
             color: const Color(0xFF7C3AED),
             onTap: () {
+              final parentCtx = Navigator.of(context).context;
               Navigator.pop(context);
-              SpeiTransferSheet.show(
-                context,
-                monto: monto,
-                titulo: titulo,
-              );
+              SpeiTransferSheet.show(parentCtx, monto: monto, titulo: titulo);
             },
           ),
 
@@ -184,7 +181,8 @@ class PaymentMethodSheet extends StatelessWidget {
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
               child: const Text(
                 'Cancelar',

@@ -199,56 +199,79 @@ void _showProcessing(
   showDialog(
     context: sheetCtx,
     barrierDismissible: false,
-    builder: (processingCtx) {
-      _procesarPago().then((exito) {
-        if (!processingCtx.mounted) return;
-        Navigator.pop(processingCtx);
-        if (exito) {
-          _showSuccess(sheetCtx, card: card, monto: monto);
-        } else {
-          _showError(sheetCtx, card: card, monto: monto);
-        }
-      });
-
-      return Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 56,
-                height: 56,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3.5,
-                  color: AppColors.primaryBlue,
-                  backgroundColor: AppColors.primaryBlue.withValues(
-                    alpha: 0.12,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Procesando pago…',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Por favor no cierres esta ventana.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: AppColors.textGray),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
+    builder: (_) =>
+        _ProcessingDialog(card: card, monto: monto, sheetCtx: sheetCtx),
   );
+}
+
+class _ProcessingDialog extends StatefulWidget {
+  final SavedCardModel card;
+  final double monto;
+  final BuildContext sheetCtx;
+
+  const _ProcessingDialog({
+    required this.card,
+    required this.monto,
+    required this.sheetCtx,
+  });
+
+  @override
+  State<_ProcessingDialog> createState() => _ProcessingDialogState();
+}
+
+class _ProcessingDialogState extends State<_ProcessingDialog> {
+  @override
+  void initState() {
+    super.initState();
+    _procesarPago().then((exito) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      if (exito) {
+        _showSuccess(widget.sheetCtx, card: widget.card, monto: widget.monto);
+      } else {
+        _showError(widget.sheetCtx, card: widget.card, monto: widget.monto);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 56,
+              height: 56,
+              child: CircularProgressIndicator(
+                strokeWidth: 3.5,
+                color: AppColors.primaryBlue,
+                backgroundColor: AppColors.primaryBlue.withValues(alpha: 0.12),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Procesando pago…',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Por favor no cierres esta ventana.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: AppColors.textGray),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────
@@ -296,7 +319,6 @@ void _showError(
     ),
   );
 }
-
 
 // Simula llamada al backend — reemplazar con HTTP real
 Future<bool> _procesarPago() async {

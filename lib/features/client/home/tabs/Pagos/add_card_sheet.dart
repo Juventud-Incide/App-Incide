@@ -51,28 +51,6 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
     return '';
   }
 
-  // ── Formatear número de tarjeta ──────────────────────────────────────────
-  String _formatCardNumber(String value) {
-    final digits = value.replaceAll(RegExp(r'\D'), '');
-    final buffer = StringBuffer();
-    for (int i = 0; i < digits.length && i < 16; i++) {
-      if (i > 0 && i % 4 == 0) buffer.write(' ');
-      buffer.write(digits[i]);
-    }
-    return buffer.toString();
-  }
-
-  // ── Formatear vencimiento ────────────────────────────────────────────────
-  String _formatExpiry(String value) {
-    final digits = value.replaceAll(RegExp(r'\D'), '');
-    if (digits.length >= 3) {
-      return '${digits.substring(0, 2)}/${digits.substring(2, digits.length > 4 ? 4 : digits.length)}';
-    } else if (digits.length == 2) {
-      return '$digits/';
-    }
-    return digits;
-  }
-
   IconData _brandIcon() {
     switch (_cardBrand) {
       case 'visa':
@@ -121,7 +99,9 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
 
     // Guardar la tarjeta en el provider de tarjetas guardadas
     final digits = _numCtrl.text.replaceAll(' ', '');
-    final lastFour = digits.length >= 4 ? digits.substring(digits.length - 4) : digits;
+    final lastFour = digits.length >= 4
+        ? digits.substring(digits.length - 4)
+        : digits;
     CardBrand brand;
     switch (_cardBrand) {
       case 'mastercard':
@@ -142,14 +122,13 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
     );
     ref.read(savedCardsProvider.notifier).addCard(newCard);
 
-    Navigator.pop(context);
     _showSuccessDialog();
   }
 
   void _showSuccessDialog() {
     showDialog(
       context: context,
-      builder: (_) => Dialog(
+      builder: (dialogContext) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Padding(
           padding: const EdgeInsets.all(28),
@@ -163,30 +142,37 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                   color: AppColors.successGreen.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle_rounded,
-                    color: AppColors.successGreen, size: 40),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.successGreen,
+                  size: 40,
+                ),
               ),
               const SizedBox(height: 16),
-              const Text('¡Pago exitoso!',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textDark)),
+              const Text(
+                '¡Pago exitoso!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textDark,
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 'Tu pago por \$${widget.monto.toStringAsFixed(2)} MXN\nfue procesado correctamente.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textGray,
-                    height: 1.5),
+                  fontSize: 13,
+                  color: AppColors.textGray,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Cierra el dialog
+                    Navigator.pop(dialogContext); // Cierra el dialog
                     Navigator.pop(context); // Cierra el bottom sheet
                   },
                   style: ElevatedButton.styleFrom(
@@ -194,11 +180,13 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
-                  child: const Text('Entendido',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 14)),
+                  child: const Text(
+                    'Entendido',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  ),
                 ),
               ),
             ],
@@ -221,7 +209,8 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom),
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -256,24 +245,33 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                         color: AppColors.primaryBlue.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.credit_card_rounded,
-                          color: AppColors.primaryBlue, size: 22),
+                      child: const Icon(
+                        Icons.credit_card_rounded,
+                        color: AppColors.primaryBlue,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Agregar tarjeta',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textDark)),
-                          Text('Ingresa los datos de tu tarjeta',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.textGray,
-                                  fontWeight: FontWeight.w500)),
+                          Text(
+                            'Agregar tarjeta',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          Text(
+                            'Ingresa los datos de tu tarjeta',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textGray,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -282,23 +280,28 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: _brandColor().withOpacity(0.08),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                              color: _brandColor().withOpacity(0.3)),
+                            color: _brandColor().withOpacity(0.3),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            Icon(_brandIcon(),
-                                color: _brandColor(), size: 14),
+                            Icon(_brandIcon(), color: _brandColor(), size: 14),
                             const SizedBox(width: 4),
-                            Text(_brandLabel(),
-                                style: TextStyle(
-                                    color: _brandColor(),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800)),
+                            Text(
+                              _brandLabel(),
+                              style: TextStyle(
+                                color: _brandColor(),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -333,11 +336,13 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                   }),
                   decoration: _inputDec(
                     hint: '0000 0000 0000 0000',
-                    suffixIcon: Icon(_brandIcon(),
-                        color: _cardBrand.isNotEmpty
-                            ? _brandColor()
-                            : AppColors.textHint,
-                        size: 22),
+                    suffixIcon: Icon(
+                      _brandIcon(),
+                      color: _cardBrand.isNotEmpty
+                          ? _brandColor()
+                          : AppColors.textHint,
+                      size: 22,
+                    ),
                   ),
                   validator: (v) {
                     final digits = (v ?? '').replaceAll(' ', '');
@@ -357,8 +362,11 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                   onChanged: (_) => setState(() {}),
                   decoration: _inputDec(
                     hint: 'Como aparece en la tarjeta',
-                    suffixIcon: const Icon(Icons.person_outline_rounded,
-                        color: AppColors.textHint, size: 20),
+                    suffixIcon: const Icon(
+                      Icons.person_outline_rounded,
+                      color: AppColors.textHint,
+                      size: 20,
+                    ),
                   ),
                   validator: (v) {
                     if ((v ?? '').trim().isEmpty) return 'Ingresa el nombre';
@@ -389,15 +397,17 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                             decoration: _inputDec(
                               hint: 'MM/AA',
                               suffixIcon: const Icon(
-                                  Icons.calendar_today_rounded,
-                                  color: AppColors.textHint,
-                                  size: 18),
+                                Icons.calendar_today_rounded,
+                                color: AppColors.textHint,
+                                size: 18,
+                              ),
                             ),
                             validator: (v) {
                               final parts = (v ?? '').split('/');
                               if (parts.length != 2) return 'Inválido';
                               final month = int.tryParse(parts[0]) ?? 0;
-                              if (month < 1 || month > 12) return 'Mes inválido';
+                              if (month < 1 || month > 12)
+                                return 'Mes inválido';
                               if ((parts[1]).length < 2) return 'Año inválido';
                               return null;
                             },
@@ -418,7 +428,7 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                             obscureText: !_showCvv,
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(4),
+                              LengthLimitingTextInputFormatter(3),
                             ],
                             decoration: _inputDec(
                               hint: '•••',
@@ -450,14 +460,20 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                 // Nota seguridad
                 Row(
                   children: const [
-                    Icon(Icons.lock_rounded,
-                        size: 13, color: AppColors.successGreen),
+                    Icon(
+                      Icons.lock_rounded,
+                      size: 13,
+                      color: AppColors.successGreen,
+                    ),
                     SizedBox(width: 5),
-                    Text('Tus datos están encriptados y protegidos',
-                        style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textGray,
-                            fontWeight: FontWeight.w500)),
+                    Text(
+                      'Tus datos están encriptados y protegidos',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textGray,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
 
@@ -473,7 +489,8 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       elevation: 0,
                     ),
                     child: _isProcessing
@@ -481,11 +498,17 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
                         : Text(
                             'Pagar \$${widget.monto.toStringAsFixed(2)} MXN',
                             style: const TextStyle(
-                                fontWeight: FontWeight.w800, fontSize: 15)),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -508,18 +531,14 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
     );
   }
 
-  InputDecoration _inputDec({
-    required String hint,
-    Widget? suffixIcon,
-  }) {
+  InputDecoration _inputDec({required String hint, Widget? suffixIcon}) {
     return InputDecoration(
       hintText: hint,
       hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 14),
       suffixIcon: suffixIcon,
       filled: true,
       fillColor: AppColors.inputFill,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.borderLight),
@@ -530,18 +549,15 @@ class _AddCardSheetState extends ConsumerState<AddCardSheet> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide:
-            const BorderSide(color: AppColors.primaryBlue, width: 1.8),
+        borderSide: const BorderSide(color: AppColors.primaryBlue, width: 1.8),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide:
-            const BorderSide(color: AppColors.errorRed, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.errorRed, width: 1.5),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide:
-            const BorderSide(color: AppColors.errorRed, width: 1.8),
+        borderSide: const BorderSide(color: AppColors.errorRed, width: 1.8),
       ),
     );
   }
@@ -565,7 +581,9 @@ class _CardPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayNum = number.isEmpty ? '•••• •••• •••• ••••' : number.padRight(19, '•');
+    final displayNum = number.isEmpty
+        ? '•••• •••• •••• ••••'
+        : number.padRight(19, '•');
     final displayName = name.isEmpty ? 'NOMBRE TITULAR' : name.toUpperCase();
     final displayExp = expiry.isEmpty ? 'MM/AA' : expiry;
 
@@ -638,8 +656,11 @@ class _CardPreview extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.contactless_rounded,
-                        color: Colors.white54, size: 22),
+                    const Icon(
+                      Icons.contactless_rounded,
+                      color: Colors.white54,
+                      size: 22,
+                    ),
                     if (brand.isNotEmpty)
                       Text(
                         brand.toUpperCase(),
@@ -669,31 +690,43 @@ class _CardPreview extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('TITULAR',
-                            style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
-                                fontSize: 9,
-                                letterSpacing: 1)),
-                        Text(displayName,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700)),
+                        Text(
+                          'TITULAR',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 9,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        Text(
+                          displayName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('VENCE',
-                            style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
-                                fontSize: 9,
-                                letterSpacing: 1)),
-                        Text(displayExp,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700)),
+                        Text(
+                          'VENCE',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 9,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                        Text(
+                          displayExp,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -713,7 +746,9 @@ class _CardPreview extends StatelessWidget {
 class _CardNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
     final buffer = StringBuffer();
     for (int i = 0; i < digits.length && i < 16; i++) {
@@ -731,12 +766,15 @@ class _CardNumberFormatter extends TextInputFormatter {
 class _ExpiryFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
     String result = digits;
     if (digits.length >= 3) {
       result = '${digits.substring(0, 2)}/${digits.substring(2)}';
-    } else if (digits.length == 2 && oldValue.text.length < newValue.text.length) {
+    } else if (digits.length == 2 &&
+        oldValue.text.length < newValue.text.length) {
       result = '$digits/';
     }
     return newValue.copyWith(

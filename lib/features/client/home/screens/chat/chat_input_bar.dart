@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
 import '../../../../../core/theme/app_colors.dart';
 import '../../models/chat_message_model.dart';
 
@@ -16,6 +17,7 @@ class ChatInputBar extends StatefulWidget {
 class _ChatInputBarState extends State<ChatInputBar> {
   final TextEditingController _textController = TextEditingController();
   Attachment? _selectedAttachment;
+  Uint8List? _selectedAttachmentBytes;
 
   @override
   void dispose() {
@@ -30,6 +32,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
       setState(() {
         _selectedAttachment = null;
+        _selectedAttachmentBytes = null;
       });
       _textController.clear();
     }
@@ -43,12 +46,15 @@ class _ChatInputBarState extends State<ChatInputBar> {
         imageQuality: 70,
       );
       if (image != null) {
+        final bytes = await image.readAsBytes();
         setState(() {
           _selectedAttachment = Attachment(
             type: AttachmentType.image,
             path: image.path,
             name: image.name,
+            bytes: bytes,
           );
+          _selectedAttachmentBytes = bytes;
         });
       }
     } catch (e) {
@@ -61,15 +67,19 @@ class _ChatInputBarState extends State<ChatInputBar> {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'doc', 'docx', 'txt'],
+        withData: true,
       );
 
       if (result != null && result.files.isNotEmpty) {
+        final file = result.files.single;
         setState(() {
           _selectedAttachment = Attachment(
             type: AttachmentType.document,
-            path: result.files.single.path ?? 'web_document_path',
-            name: result.files.single.name,
+            path: file.path ?? 'web_document_path',
+            name: file.name,
+            bytes: file.bytes,
           );
+          _selectedAttachmentBytes = null;
         });
       }
     } catch (e) {
@@ -131,14 +141,15 @@ class _ChatInputBarState extends State<ChatInputBar> {
             ),
             clipBehavior: Clip.hardEdge,
             child: _selectedAttachment!.type == AttachmentType.image
-                ? (kIsWeb
-                      ? Image.network(
-                          _selectedAttachment!.path,
+                ? (_selectedAttachmentBytes != null
+                      ? Image.memory(
+                          _selectedAttachmentBytes!,
                           fit: BoxFit.cover,
                         )
-                      : Image.file(
-                          File(_selectedAttachment!.path),
-                          fit: BoxFit.cover,
+                      : const Icon(
+                          Icons.image,
+                          color: AppColors.textGray,
+                          size: 30,
                         ))
                 : const Icon(
                     Icons.insert_drive_file,
@@ -158,7 +169,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
           IconButton(
             icon: const Icon(Icons.close, color: AppColors.textGray),
             onPressed: () {
-              setState(() => _selectedAttachment = null);
+              setState(() {
+                _selectedAttachment = null;
+                _selectedAttachmentBytes = null;
+              });
             },
           ),
         ],

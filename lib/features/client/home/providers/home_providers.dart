@@ -331,12 +331,14 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
               'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
           sender: SenderType.system,
           timestamp: DateTime.now().subtract(const Duration(hours: 21)),
+          systemEvent: SystemEventType.providerRequestedCompletion,
         ),
         ChatMessage(
           id: '3_sys2',
           text: 'Confirmaste la finalización. El servicio ha sido completado.',
           sender: SenderType.system,
           timestamp: DateTime.now().subtract(const Duration(hours: 20)),
+          systemEvent: SystemEventType.clientConfirmedCompletion,
         ),
       ],
       'q4': [
@@ -368,6 +370,7 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
               'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
           sender: SenderType.system,
           timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+          systemEvent: SystemEventType.providerRequestedCompletion,
         ),
       ],
       'q6': [
@@ -386,6 +389,7 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           timestamp: DateTime.now().subtract(
             const Duration(days: 1, hours: 20),
           ),
+          systemEvent: SystemEventType.providerRequestedCompletion,
         ),
         ChatMessage(
           id: '1_sys2',
@@ -394,6 +398,7 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           timestamp: DateTime.now().subtract(
             const Duration(days: 1, hours: 19),
           ),
+          systemEvent: SystemEventType.clientConfirmedCompletion,
         ),
       ],
     };
@@ -402,9 +407,10 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
   void sendMessage(
     String cotizacionId,
     String text,
-    SenderType sender, [
+    SenderType sender, {
     Attachment? attachment,
-  ]) {
+    SystemEventType? systemEvent,
+  }) {
     final currentChat = state[cotizacionId] ?? [];
 
     final newMessage = ChatMessage(
@@ -414,6 +420,7 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
       sender: sender,
       timestamp: DateTime.now(),
       isRead: false,
+      systemEvent: systemEvent,
     );
 
     state = {

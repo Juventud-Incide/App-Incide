@@ -24,6 +24,7 @@ class ChatServiceCompletion {
           cotId,
           'Confirmaste la finalización. El servicio ha sido completado.',
           SenderType.system,
+          systemEvent: SystemEventType.clientConfirmedCompletion,
         );
 
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -46,18 +47,14 @@ class ChatServiceCompletion {
   /// Verifica si el proveedor ya envió la solicitud de completado.
   static bool hasProviderRequested(List<ChatMessage> messages) {
     return messages.any(
-      (m) =>
-          m.text?.contains(
-            'El profesionista ha marcado el servicio como completado',
-          ) ==
-          true,
+      (m) => m.systemEvent == SystemEventType.providerRequestedCompletion,
     );
   }
 
   /// Verifica si el cliente ya confirmó el completado.
   static bool hasClientConfirmed(List<ChatMessage> messages) {
     return messages.any(
-      (m) => m.text?.contains('Confirmaste la finalización') == true,
+      (m) => m.systemEvent == SystemEventType.clientConfirmedCompletion,
     );
   }
 }
@@ -69,8 +66,6 @@ class SystemBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLock = message.text?.contains('solo lectura') ?? false;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Center(
@@ -87,11 +82,7 @@ class SystemBubble extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                isLock ? Icons.lock_outline : Icons.info_outline,
-                size: 16,
-                color: AppColors.textGray,
-              ),
+              Icon(Icons.info_outline, size: 16, color: AppColors.textGray),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(

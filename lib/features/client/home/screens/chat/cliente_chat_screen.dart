@@ -81,7 +81,7 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
       // 1. Cliente envía mensaje
       ref
           .read(chatMessagesProvider.notifier)
-          .sendMessage(cotId, text, SenderType.client, attachment);
+          .sendMessage(cotId, text, SenderType.client, attachment: attachment);
 
       Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) _scrollToBottom();

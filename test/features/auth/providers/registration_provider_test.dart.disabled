@@ -1,0 +1,145 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mockito/mockito.dart';
+import 'package:app_incide/features/auth/providers/registration_provider.dart';
+import 'package:app_incide/features/auth/providers/auth_provider.dart'; // Para el authRepositoryProvider
+
+// Importa tu archivo de mocks
+import '../../../mocks.mocks.dart';
+
+void main() {
+  test(
+    'PU-01: RegistrationNotifier acumula estado multi-step correctamente',
+    () {
+      // 1. PRECONDICIÓN: Estado inicializado por defecto
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final registrationNotifier = container.read(
+        registrationProvider.notifier,
+      );
+
+      // Verificamos estado inicial real (categoryId inicia en 0)
+      var currentState = container.read(registrationProvider);
+      expect(
+        currentState.firstName,
+        isEmpty,
+        reason: 'El nombre debe iniciar vacío',
+      );
+      expect(
+        currentState.categoryId,
+        0,
+        reason: 'La categoría debe iniciar en 0',
+      );
+
+      // 2. EJECUCIÓN PASO 1: Datos Personales
+      registrationNotifier.saveStepOne(
+        firstName: 'Juan',
+        lastName: 'Pérez',
+        email: 'juan@test.com',
+        password: 'Password123!',
+        phoneNumber: '6621234567',
+        curp: 'CURP12345678901234',
+        rfc: 'RFC123456789',
+      );
+
+      // 3. EJECUCIÓN PASO 3: Catálogos y Servicios
+      registrationNotifier.updateServices(2, [3, 4]);
+
+      // 4. RESULTADO ESPERADO
+      final finalState = container.read(registrationProvider);
+
+      expect(finalState.firstName, 'Juan');
+      expect(finalState.email, 'juan@test.com');
+      expect(finalState.curp, 'CURP12345678901234');
+      expect(finalState.categoryId, 2);
+      expect(finalState.serviceIds, [3, 4]);
+      expect(finalState.isLoading, isFalse);
+    },
+  );
+
+  test(
+    'PU-03: RegistrationNotifier.submitRegistration() transición isLoading y manejo de excepción',
+    () async {
+      // 1. PRECONDICIÓN: MockAuthRepository configurado para lanzar excepción
+      final mockRepository = MockAuthRepository();
+
+      // Simulamos que al llamar a registerProvider con cualquier dato, revienta con un error
+      when(
+        mockRepository.registerProvider(
+          firstName: anyNamed('firstName'),
+          lastName: anyNamed('lastName'),
+          email: anyNamed('email'),
+          password: anyNamed('password'),
+          phoneNumber: anyNamed('phoneNumber'),
+          curp: anyNamed('curp'),
+          rfc: anyNamed('rfc'),
+          categoryId: anyNamed('categoryId'),
+          serviceIds: anyNamed('serviceIds'),
+          yearsOfExperience: anyNamed('yearsOfExperience'),
+          professionalLicense: anyNamed('professionalLicense'),
+          description: anyNamed('description'),
+        ),
+      ).thenThrow(Exception('Correo ya registrado'));
+
+      // Inyectamos el mock en el contenedor
+      final container = ProviderContainer(
+        overrides: [authRepositoryProvider.overrideWithValue(mockRepository)],
+      );
+      addTearDown(container.dispose);
+
+      final registrationNotifier = container.read(
+        registrationProvider.notifier,
+      );
+
+      // Llenamos datos mínimos para que tenga algo que enviar
+      registrationNotifier.saveStepOne(
+        firstName: 'Juan',
+        lastName: 'Pérez',
+        email: 'test@test.com',
+        password: '123',
+        phoneNumber: '123',
+        curp: '123',
+        rfc: '123',
+      );
+
+      // 2. EJECUCIÓN: Disparamos el envío.
+      // Usamos el Future completo sin el 'await' inicial para poder capturar el estado intermedio
+      final futureSubmit = registrationNotifier.submitRegistration(
+        yearsOfExperience: 5,
+        professionalLicense: 'CED123',
+        description: 'Plomero experto',
+      );
+
+      // Verificamos el estado DURANTE la ejecución (isLoading debe ser true)
+      final loadingState = container.read(registrationProvider);
+      expect(
+        loadingState.isLoading,
+        isTrue,
+        reason: 'Debe entrar en estado de carga',
+      );
+
+      // Esperamos a que la petición (y la excepción) termine
+      final success = await futureSubmit;
+
+      // 3. RESULTADO ESPERADO
+      final finalState = container.read(registrationProvider);
+
+      expect(
+        success,
+        isFalse,
+        reason: 'El método debe retornar false ante un error',
+      );
+      expect(
+        finalState.isLoading,
+        isFalse,
+        reason: 'El loading debe apagarse al fallar',
+      );
+      expect(
+        finalState.error,
+        contains('Correo ya registrado'),
+        reason: 'El mensaje de error debe capturarse en el estado',
+      );
+    },
+  );
+}

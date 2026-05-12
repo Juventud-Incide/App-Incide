@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dio/dio.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_incide/features/auth/domain/repositories/network_auth_repository.dart';
 
 void main() {

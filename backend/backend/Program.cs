@@ -34,6 +34,8 @@ builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<ICotizacionService, CotizacionService>();
 builder.Services.AddScoped<IQuestionnaireService, QuestionnaireService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<ISmsService, LoggingSmsService>();
+builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddSignalR();
 
 var jwtConfig = builder.Configuration.GetSection("Jwt");

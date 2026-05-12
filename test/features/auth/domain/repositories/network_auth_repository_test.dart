@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dio/dio.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:app_incide/core/constants/app_keys.dart';
 import 'package:app_incide/features/auth/domain/repositories/network_auth_repository.dart';
 
 void main() {
@@ -22,9 +21,6 @@ void main() {
   test(
     'PI-03: NetworkAuthRepository.login() mapea JSON a modelo de dominio',
     () async {
-      // 1. PRECONDICIÓN: MockAdapter configurado con respuesta HTTP 200 y payload JSON válido [cite: 104]
-      SharedPreferences.setMockInitialValues({});
-
       final loginPayload = {
         'email': 'profesionista@incide.com',
         'password': 'Password123!',

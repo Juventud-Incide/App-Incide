@@ -308,6 +308,73 @@ class AppStrings {
   static const String quoteDetailClientNameProtected = 'Nombre protegido';
   static const String quoteDetailClientProtected = 'Número protegido';
 
+  // --- Pantalla de Billetera ---
+  static const String walletWithdrawalTitle =
+      'Retiro a {bankName} ***{lastFourDigits}';
+  static const String walletReleasedTitle = 'Pago Liberado';
+  static const String walletInProcessTitle = 'En proceso';
+
+  static const String walletMyWalletTitle = 'Mi Billetera';
+  static const String walletRecentTransactionsTitle = 'Movimientos Recientes';
+  static const String walletAccumulatedThisMonth =
+      'Acumulado en {month}:\n{amount}';
+  static const String walletNonIdentifiableBank = 'Banco no reconocido';
+  static const String walletAnotherBank = 'Otro Banco';
+  static const String walletPleaseFillBankInfo =
+      'Por favor, llena todos los campos.';
+  static const String walletClabeLengthError =
+      'La CLABE debe tener exactamente 18 dígitos.';
+  static const String walletAddedBankSuccess =
+      'Cuenta bancaria agregada exitosamente.';
+  static const String walletAddBankTitle = 'Agregar Cuenta Bancaria';
+  static const String walletAccountHolderLbl = 'Titular de la Cuenta:';
+  static const String walletClabeLbl = 'CLABE Interbancaria (18 dígitos)';
+  static const String walletSaveBankBtn = 'Guardar Cuenta';
+
+  static const String walletNoTransactionsTitle = 'Sin movimientos recientes';
+  static const String walletNoTransactionsSubtitle =
+      'Aquí aparecerán tus ingresos por servicios completados y el historial de tus retiros.';
+
+  static const String walletRetainedBalanceTitle =
+      'En Garantía (Trabajos Activos)';
+  static const String walletRetainedBalanceValue = '{amount} MXN';
+
+  static const String walletPendingReleaseTitle = 'Pendiente de Liberación';
+  static const String walletWithdrawalReleaseTitle = 'Retiro completado';
+  static const String walletReleased = 'Liberado';
+
+  static const String walletDestinationTitle = 'Cliente / Destino';
+  static const String walletSubtitleTitle = 'Concepto';
+  static const String walletDateTitle = 'Fecha y Hora';
+  static const String walletTransactionIdTitle = 'ID de Transacción';
+  static const String walletCloseDetailBtn = 'Cerrar Detalles';
+
+  static const String walletPrivacyOnBalance = '**** MXN';
+  static const String walletPrivacyOffBalance = '{amount} MXN';
+  static const String walletAvailableBalanceTitle = 'Saldo Disponible';
+  static const String walletWithdrawBtn = 'Retirar a Banco';
+
+  static const String walletInvalidAmountError =
+      'Por favor, ingresa un monto válido.';
+  static const String walletInsufficientFundsError =
+      'Monto supera tu saldo disponible';
+  static const String walletWithdrawalSuccess =
+      'Retiro en proceso. Lo verás reflejado pronto.';
+  static const String walletWithdrawFundsTitle = 'Retirar Fondos';
+  static const String walletAvailableBalance = 'Saldo Disponible: {amount} MXN';
+  static const String walletSuffix = ' MXN';
+  static const String walletWithdrawLabel = 'Monto a retirar';
+  static const String walletMaxLbl = 'MAX';
+  static const String walletAdjustedAmountTitle =
+      'Monto ajustado al máximo disponible';
+  static const String walletBankAccount = 'Cuenta Bancaria';
+  static const String walletBankAccountHolderAndLastDigits =
+      '{bankName} •••• {lastFourDigits}';
+  static const String walletChangeAccountBtn = 'Cambiar';
+  static const String walletNoBankAccount =
+      'Necesitas una cuenta bancaria para retirar';
+  static const String walletAddBankAccountBtn = 'Agregar Cuenta';
+  static const String walletConfirmWithdrawalTitle = 'Confirmar Retiro';
   // --- Pantalla de Chat de Proveedor ---
   static const String chatStartTitle = 'INICIO DEL CHAT';
   static const String chatProviderCompleted =

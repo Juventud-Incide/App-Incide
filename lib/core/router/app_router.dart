@@ -34,6 +34,7 @@ import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart
 import '../../features/provider/dashboard/models/opportunity_model.dart';
 import '../../features/provider/quotes/models/quote_model.dart';
 import '../../features/provider/quotes/screens/quote_detail_screen.dart';
+import '../../features/provider/wallet/screens/wallet_screen.dart';
 
 import '../../features/client/home/screens/client_login_screen.dart';
 import '../../features/client/home/screens/cliente_register_screen.dart';
@@ -447,11 +448,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/prof-wallet',
                 name: 'prof_wallet',
-                builder: (context, state) => const Scaffold(
-                  body: Center(
-                    child: Text('Pantalla de Billetera en construcción'),
-                  ),
-                ),
+                builder: (context, state) => const WalletScreen(),
               ),
             ],
           ),

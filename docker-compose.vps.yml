@@ -1,0 +1,59 @@
+
+services:
+  db:
+    image: kartoza/postgis:17-3.5
+    container_name: mobile-db
+    platform: linux/arm64 # Forza a Docker a descargar y usar la capa ARM64 explícitamente
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASS: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+    networks:
+      - internal_api_net
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # Dockerfile usa imágenes mcr.microsoft.com/dotnet/* que soportan ARM64 nativamente.
+    # Al compilarse dentro del VPS ARM, generará el binario óptimo para tu procesador.
+    container_name: mobile-api
+    platform: linux/arm64
+    env_file: .env
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    restart: always
+    networks:
+      - internal_api_net
+      - portal_net
+
+volumes:
+  pgdata:
+  uploads:
+
+networks:
+  internal_api_net:
+    driver: bridge
+  portal_net:
+    external: true
+    name: incide_dev
+

@@ -4,7 +4,7 @@ import '../../../../../core/theme/app_colors.dart';
 import 'cliente_home_tab.dart';
 import '../Cotizaciones/cliente_my_quotes_tab.dart';
 import '../Pagos/cliente_payments_tab.dart';
-import '../cliente_profile_tab.dart';
+import '../Perfil/cliente_profile_tab.dart';
 import '../../widgets/client_banner_app_bar.dart';
 import '../../widgets/client_bottom_nav_bar.dart';
 

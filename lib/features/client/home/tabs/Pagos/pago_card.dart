@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../models/pago_model.dart';
+import 'payment_method_sheet.dart';
 
 // ─────────────────────────────────────────────────────────
 // Tarjeta de Pago
@@ -31,6 +32,7 @@ class PagoCard extends StatelessWidget {
     };
 
     final fechaFmt = DateFormat('dd/MM/yyyy').format(pago.fecha);
+    final isPendiente = pago.estado == EstadoPago.pendiente;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -39,10 +41,10 @@ class PagoCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: pago.estado == EstadoPago.pendiente
+            color: isPendiente
                 ? const Color(0xFFF59E0B).withValues(alpha: 0.4)
                 : AppColors.borderLight,
-            width: pago.estado != EstadoPago.pagado ? 1.5 : 1.0,
+            width: isPendiente ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
@@ -217,6 +219,38 @@ class PagoCard extends StatelessWidget {
                 ),
               ],
             ),
+
+            // ── Botón Pagar (solo en pendientes) ────────────────────────────
+            if (isPendiente) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => PaymentMethodSheet.show(
+                    context,
+                    monto: pago.monto,
+                    titulo: pago.titulo,
+                  ),
+                  icon: const Icon(Icons.payment_rounded, size: 16),
+                  label: const Text(
+                    'Pagar ahora',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF59E0B),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

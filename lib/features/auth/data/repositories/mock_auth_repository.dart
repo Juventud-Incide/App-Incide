@@ -6,6 +6,48 @@ import 'package:app_incide/features/auth/domain/repositories/auth_repository.dar
 /// Actualmente utiliza datos en duro para simular respuestas del servidor
 /// y permitir el desarrollo Frontend sin bloqueos.
 class MockAuthRepository implements AuthRepository {
+  static const Map<String, Map<String, dynamic>> _mockProveedorUsers = {
+    'revision@incide.com': {
+      'token': 'tk_123',
+      'role': 'proveedor',
+      'status': 'pendiente',
+      'pending_step': 'pendingReview',
+    },
+    'entrevista@incide.com': {
+      'token': 'tk_124',
+      'role': 'proveedor',
+      'status': 'pendiente',
+      'pending_step': 'interviewScheduled',
+    },
+    'subirdocs@incide.com': {
+      'token': 'tk_125',
+      'role': 'proveedor',
+      'status': 'pendiente',
+      'pending_step': 'uploadingDocs',
+    },
+    'validando@incide.com': {
+      'token': 'tk_126',
+      'role': 'proveedor',
+      'status': 'pendiente',
+      'pending_step': 'validatingDocs',
+    },
+    'activado@incide.com': {
+      'token': 'tk_127',
+      'role': 'proveedor',
+      'status': 'pendiente',
+      'pending_step': 'activated',
+    },
+    'aceptado@incide.com': {
+      'token': 'tk_128',
+      'role': 'proveedor',
+      'status': 'aceptado',
+    },
+    'rechazado@incide.com': {
+      'token': 'tk_129',
+      'role': 'proveedor',
+      'status': 'rechazado',
+    },
+  };
   // Ahora pedimos el rol intentado para simular la separación de apps
   /// Ejecuta la petición HTTP de inicio de sesión.
   @override
@@ -20,71 +62,29 @@ class MockAuthRepository implements AuthRepository {
     // Casos de prueba:
 
     // --- CREDENCIALES GENERALES / PROFESIONISTAS ---
-    if (requestedRole == 'proveedor') {
-      // 1. Recién registrado
-      if (email == 'revision@incide.com' && password == '12345678') {
-        return {
-          'token': 'tk_123',
-          'role': 'proveedor',
-          'status': 'pendiente',
-          'pending_step': 'pendingReview',
-        };
-      }
-      // 2. Ya le agendaron entrevista
-      if (email == 'entrevista@incide.com' && password == '12345678') {
-        return {
-          'token': 'tk_124',
-          'role': 'proveedor',
-          'status': 'pendiente',
-          'pending_step': 'interviewScheduled',
-        };
-      }
-      // 3. Pasó la entrevista, debe subir documentos
-      if (email == 'subirdocs@incide.com' && password == '12345678') {
-        return {
-          'token': 'tk_125',
-          'role': 'proveedor',
-          'status': 'pendiente',
-          'pending_step': 'uploadingDocs',
-        };
-      }
-      // 4. Subió documentos, esperando a que backoffice los valide
-      if (email == 'validando@incide.com' && password == '12345678') {
-        return {
-          'token': 'tk_126',
-          'role': 'proveedor',
-          'status': 'pendiente',
-          'pending_step': 'validatingDocs',
-        };
-      }
-      // 5. Backoffice lo activó (Transición final)
-      if (email == 'activado@incide.com' && password == '12345678') {
-        return {
-          'token': 'tk_127',
-          'role': 'proveedor',
-          'status': 'pendiente',
-          'pending_step': 'activated',
-        };
-      }
-      // 6. Cuenta 100% libre y aceptada (El usuario normal)
-      if (email == 'aceptado@incide.com' && password == '12345678') {
-        return {'token': 'tk_128', 'role': 'proveedor', 'status': 'aceptado'};
-      }
-      // 7. Cuenta rechazada
-      if (email == 'rechazado@incide.com' && password == '12345678') {
-        return {'token': 'tk_129', 'role': 'proveedor', 'status': 'rechazado'};
+    // Agrupamos la validación del rol y la contraseña genérica en un solo IF
+    if (requestedRole == 'proveedor' && password == '12345678') {
+      // Buscamos directamente en el diccionario.
+      // Si el correo no existe, devolverá null automáticamente sin usar IFs.
+      final userResponse = _mockProveedorUsers[email];
+
+      if (userResponse != null) {
+        return userResponse;
       }
     }
 
     // --- CREDENCIAL EXCLUSIVA PARA CLIENTES ---
-    if (email == 'cliente@correo.com' && password == 'cliente123') {
+    if (requestedRole == 'cliente' &&
+        email == 'cliente@correo.com' &&
+        password == 'cliente123') {
       return {
         'token': 'mock_token_cliente_123',
         'role': 'cliente',
         'status': 'aceptado',
       };
-    } else {
-      throw Exception('Correo o contraseña incorrectos');
     }
+
+    // Si nada de lo anterior coincidió, lanzamos el error
+    throw Exception('Correo o contraseña incorrectos');
   }
 }

@@ -4,6 +4,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../models/quote_model.dart';
 import 'package:app_incide/features/provider/quotes/models/quote_status_ext.dart';
 import '../../../shared/widgets/quote_status_badge.dart';
+import 'package:app_incide/features/provider/quotes/widgets/chat_button_badge.dart';
 
 /// Componente visual que representa una Cotización en un estado "Activo" o "Final".
 ///
@@ -122,37 +123,10 @@ class QuoteActiveCard extends StatelessWidget {
                     // --- FOOTER: Botón de Chat (100% Width) ---
                     SizedBox(
                       width: double.infinity,
-                      child: Badge(
-                        // La burbuja de notificación solo aparece si hay mensajes pendientes
-                        isLabelVisible: quote.unreadMessagesCount > 0,
-                        label: Text(quote.unreadMessagesCount.toString()),
-                        backgroundColor: Colors.red,
-                        offset: const Offset(4, -4),
-                        child: ElevatedButton.icon(
-                          onPressed: onOpenChat,
-                          icon: const Icon(
-                            Icons.chat_bubble_outline_rounded,
-                            size: 18,
-                          ),
-                          label: const Text(
-                            'Abrir Chat',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            backgroundColor: AppColors.primaryBlue.withValues(
-                              alpha: 0.1,
-                            ),
-                            foregroundColor: AppColors.primaryBlue,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
+                      child: ChatButtonBadge(
+                        chatId: quote.id.toString(),
+                        onPressed: onOpenChat,
+                        isPrimaryStyle: false,
                       ),
                     ),
                   ],

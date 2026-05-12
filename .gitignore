@@ -39,6 +39,10 @@ Thumbs.db
 *.key
 *.pem
 
+# Reportes de pruebas autogenerados
+coverage/
+metrics/
+
 # ----------------------------------
 # .NET / Visual Studio
 # ----------------------------------

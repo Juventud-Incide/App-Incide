@@ -7,11 +7,13 @@
 .pub/
 /build/
 devtools_options.yaml
+.scannerwork/
 
 # Artefactos de Android e iOS
 /android/app/debug
 /android/app/profile
 /android/app/release
+android/build/
 **/ios/Flutter/.last_build_id
 Pods/
 .symlinks/

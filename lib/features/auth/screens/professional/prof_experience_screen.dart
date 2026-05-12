@@ -33,7 +33,6 @@ class _ProfExperienceScreenState extends ConsumerState<ProfExperienceScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores de UI
-  String? _selectedSpecialty;
   final _yearsController = TextEditingController();
   final _cedulaController = TextEditingController();
   final _descriptionController = TextEditingController();

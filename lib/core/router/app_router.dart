@@ -1,5 +1,6 @@
 import 'package:app_incide/features/auth/domain/models/application_status.dart';
 import 'package:app_incide/features/auth/screens/professional/prof_activated_screen.dart';
+import 'package:app_incide/features/provider/chat/screens/chat_detail_screen.dart';
 import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
 import 'package:app_incide/features/provider/quotes/screens/prof_quotes_screen.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ import '../../features/provider/dashboard/screens/opportunity_detail_screen.dart
 import '../../features/provider/dashboard/models/opportunity_model.dart';
 import '../../features/provider/quotes/models/quote_model.dart';
 import '../../features/provider/quotes/screens/quote_detail_screen.dart';
+import '../../features/provider/wallet/screens/wallet_screen.dart';
 
 import '../../features/client/home/screens/client_login_screen.dart';
 import '../../features/client/home/screens/cliente_register_screen.dart';
@@ -44,7 +46,7 @@ import '../../features/client/home/screens/forgot_password_sent_screen.dart';
 import '../../features/client/home/screens/reset_password_screen.dart';
 import '../../features/client/home/tabs/Cotizaciones/cliente_quote_detail_screen.dart';
 import '../../features/client/home/models/cotizacion_model.dart';
-import '../../features/client/home/screens/cliente_chat_screen.dart';
+import '../../features/client/home/screens/chat/cliente_chat_screen.dart';
 import '../../features/client/home/providers/home_providers.dart';
 // ==========================================
 // 1. EL PUENTE ENTRE RIVERPOD Y GOROUTER
@@ -411,6 +413,23 @@ final routerProvider = Provider<GoRouter>((ref) {
                       return QuoteDetailScreen(quote: quote);
                     },
                   ),
+                  GoRoute(
+                    path: '/chat-detail/:chatId',
+                    name: 'chat_detail',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      // Extraemos si la cotización ya fue aceptada desde los parámetros
+                      // Ej: context.pushNamed('chat_detail', extra: {'isAccepted': true});
+                      final chatId = state.pathParameters['chatId'] ?? '';
+                      final extra = state.extra as Map<String, dynamic>?;
+                      final isAccepted = extra?['isAccepted'] ?? false;
+
+                      return ChatDetailScreen(
+                        chatId: chatId,
+                        isAccepted: isAccepted,
+                      );
+                    },
+                  ),
                 ],
               ),
             ],
@@ -421,11 +440,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/prof-wallet',
                 name: 'prof_wallet',
-                builder: (context, state) => const Scaffold(
-                  body: Center(
-                    child: Text('Pantalla de Billetera en construcción'),
-                  ),
-                ),
+                builder: (context, state) => const WalletScreen(),
               ),
             ],
           ),

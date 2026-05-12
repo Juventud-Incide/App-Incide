@@ -1,10 +1,14 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../models/cotizacion_model.dart';
-import '../models/chat_message_model.dart';
-import '../providers/home_providers.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../models/cotizacion_model.dart';
+import '../../models/chat_message_model.dart';
+import '../../providers/home_providers.dart';
+import 'chat_input_bar.dart';
+import 'chat_service_completion.dart';
 
 // --- Pantalla Principal ---
 
@@ -19,9 +23,9 @@ class ClienteChatScreen extends ConsumerStatefulWidget {
 
 class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _textController = TextEditingController();
   bool _showScrollToBottomButton = false;
   bool _isTyping = false;
+  bool _isCompletingService = false;
 
   @override
   void initState() {
@@ -53,7 +57,6 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
-    _textController.dispose();
     super.dispose();
   }
 
@@ -67,15 +70,19 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
     }
   }
 
-  void _sendMessage() {
-    final text = _textController.text.trim();
-    if (text.isNotEmpty) {
+  void _sendMessage(String text, Attachment? attachment) {
+    // 1. Validar que el chat no esté bloqueado (solo lectura)
+    final messages = ref.read(chatMessagesProvider)[widget.cotizacion.id] ?? [];
+    if (ChatServiceCompletion.hasClientConfirmed(messages)) return;
+
+    if (text.isNotEmpty || attachment != null) {
       final cotId = widget.cotizacion.id;
+
       // 1. Cliente envía mensaje
       ref
           .read(chatMessagesProvider.notifier)
-          .sendMessage(cotId, text, SenderType.client);
-      _textController.clear();
+          .sendMessage(cotId, text, SenderType.client, attachment: attachment);
+
       Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) _scrollToBottom();
       });
@@ -113,14 +120,55 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
     }
   }
 
+  // ── Acción: confirmar la finalización (con estado de carga) ─────
+  Future<void> _onConfirmCompletion() async {
+    setState(() {
+      _isCompletingService = true;
+    });
+
+    // Simular tiempo de petición al servidor (2 segundos)
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    ChatServiceCompletion.markAsCompleted(
+      ref: ref,
+      cotId: widget.cotizacion.id,
+      onScrollToBottom: _scrollToBottom,
+      isMounted: () => mounted,
+    );
+
+    if (mounted) {
+      setState(() {
+        _isCompletingService = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final allChats = ref.watch(chatMessagesProvider);
     final messages = allChats[widget.cotizacion.id] ?? [];
+    final bool isAccepted =
+        widget.cotizacion.estado == EstadoCotizacion.aceptada;
+
+    // ── Derivar estado a partir del historial de mensajes ──
+    final providerRequested = ChatServiceCompletion.hasProviderRequested(
+      messages,
+    );
+    final clientConfirmed = ChatServiceCompletion.hasClientConfirmed(messages);
+
+    // Si el cliente ya confirmó, el chat es de solo lectura.
+    final chatReadOnly = clientConfirmed;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundWhite,
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(
+        context,
+        isAccepted,
+        providerRequested,
+        clientConfirmed,
+      ),
       body: Column(
         children: [
           // Área de Mensajes
@@ -160,6 +208,12 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
                       );
                     }
                     final message = messages[index - 1];
+
+                    // Burbuja de sistema
+                    if (message.sender == SenderType.system) {
+                      return SystemBubble(message: message);
+                    }
+
                     return _ChatBubble(message: message);
                   },
                 ),
@@ -197,8 +251,11 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
               ),
             ),
 
-          // Barra de entrada de texto
-          _buildInputBar(),
+          // ── Barra de solo lectura o Input normal ──
+          if (chatReadOnly)
+            const ReadOnlyBar()
+          else
+            ChatInputBar(onSendMessage: _sendMessage),
         ],
       ),
     );
@@ -232,7 +289,12 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
   }
 
   // Encabezado (AppBar)
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    bool isAccepted,
+    bool providerRequested,
+    bool clientConfirmed,
+  ) {
     final providerName = _getProviderName(widget.cotizacion.id);
     final providerInitials = _getProviderInitials(providerName);
 
@@ -290,65 +352,44 @@ class _ClienteChatScreenState extends ConsumerState<ClienteChatScreen> {
         ],
       ),
       actions: [
+        // Mostrar el botón de confirmar solo si el proveedor lo solicitó
+        // y el cliente aún no lo ha confirmado.
+        if (isAccepted && providerRequested && !clientConfirmed)
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: _isCompletingService
+                ? const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF10B981),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : IconButton(
+                    icon: const Icon(
+                      Icons.check_circle_outline,
+                      color: Color(0xFF10B981),
+                    ),
+                    tooltip: 'Confirmar finalización',
+                    onPressed: _onConfirmCompletion,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(8),
+                    ),
+                  ),
+          ),
         IconButton(icon: const Icon(Icons.phone), onPressed: () {}),
         IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
       ],
-    );
-  }
-
-  // Barra de Input (Texto e iconos)
-  Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.borderLight, width: 1)),
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            const Icon(Icons.attach_file, color: AppColors.textGray),
-            const SizedBox(width: 12),
-            const Icon(Icons.camera_alt, color: AppColors.textGray),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundWhite,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: TextField(
-                  controller: _textController,
-                  decoration: const InputDecoration(
-                    hintText: 'Escribe un mensaje...',
-                    hintStyle: TextStyle(
-                      color: AppColors.textGray,
-                      fontSize: 14,
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  onSubmitted: (_) => _sendMessage(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: _sendMessage,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryBlue,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.send, color: Colors.white, size: 18),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -432,7 +473,62 @@ class _ChatBubble extends StatelessWidget {
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
-                  // Imagen
+                  // --- Archivo adjunto (si existe) ---
+                  if (message.attachment != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: message.attachment!.type == AttachmentType.image
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: kIsWeb
+                                  ? Image.network(
+                                      message.attachment!.path,
+                                      width: 250,
+                                      fit: BoxFit.contain,
+                                    )
+                                  : Image.file(
+                                      File(message.attachment!.path),
+                                      width: 250,
+                                      fit: BoxFit.contain,
+                                    ),
+                            )
+                          : Container(
+                              width: 200,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: isClient
+                                    ? Colors.white
+                                    : AppColors.backgroundWhite,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.borderLight,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.insert_drive_file,
+                                    color: Colors.orange,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      message.attachment!.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                    ),
+
+                  // Imagen original por compatibilidad con mocks antiguos
                   if (message.imageUrl != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),

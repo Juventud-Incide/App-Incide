@@ -34,8 +34,11 @@ class _ProfQuotesScreenState extends ConsumerState<ProfQuotesScreen> {
   /// Se dispara desde el botón "Abrir Chat" de cualquier tarjeta.
   void _handleOpenChat(QuoteModel quote) {
     // TODO: (ROUTING) Implementar navegación a `InboxScreen` inyectando el ID del chat.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Abriendo chat con ${quote.clientName}...')),
+    final String currentChatId = quote.id.toString();
+    context.pushNamed(
+      'chat_detail',
+      pathParameters: {'chatId': currentChatId},
+      extra: {'isAccepted': quote.status == QuoteStatus.accepted},
     );
   }
 

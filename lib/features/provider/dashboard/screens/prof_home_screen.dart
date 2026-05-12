@@ -4,8 +4,9 @@ import 'package:app_incide/features/provider/dashboard/widgets/stat_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/custom_filter_chip.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/opportunity_card.dart';
 import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
-import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:app_incide/features/provider/profile/providers/provider_profile_provider.dart';
+import 'package:app_incide/features/provider/dashboard/providers/opportunity_provider.dart';
+import 'package:app_incide/features/shared/widgets/cached_avatar.dart';
 import 'package:app_incide/features/shared/widgets/provider_notification_bell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,43 +37,6 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
 
   // TODO: (BACKEND) - Reemplazar esta lista dura con un [FutureBuilder] o Riverpod [AsyncValue] que consuma el repositorio real (ej. `fetchOpportunities()`).
   // Future<void> fetchOpportunities() async { ... }
-  final List<OpportunityModel> _opportunities = [
-    OpportunityModel(
-      id: 'OPP-001',
-      title: 'Construcción de Habitación',
-      description:
-          'Construcción de una habitación de 30m2 en Hermosillo Centro, se tienen los planos.',
-      distance: 2.5,
-      isExclusive: true,
-      category: 'Albañilería',
-      urgency: 'Próxima semana',
-      estimatedPriceMin: 15000,
-      estimatedPriceMax: 20000,
-      clientAnswers: {
-        '¿Tienes material comprado?': 'Solo el cemento, falta la varilla.',
-        '¿El terreno está nivelado?': 'Sí, listo para cimentar.',
-      },
-      photoUrls: const ['mock1', 'mock2', 'mock3'],
-    ),
-    OpportunityModel(
-      id: 'OPP-002',
-      title: 'Instalación de 4 Minisplits (2 Ton)',
-      description:
-          'Busco instalador certificado para colocar 4 equipos nuevos en oficinas. Solo mano de obra.',
-      distance: 5.8,
-      isExclusive: false,
-      category: 'Refrigeración',
-      urgency: 'Lo antes posible',
-      estimatedPriceMin: 3200,
-      estimatedPriceMax: 4000,
-      clientAnswers: {
-        '¿Los equipos son nuevos o usados?': 'Nuevos en caja cerrada.',
-        '¿Hay preparación eléctrica previa?':
-            'Sí, ya cuenta con pastillas a 220v.',
-      },
-      photoUrls: const ['mock1', 'mock2', 'mock3'],
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -135,64 +99,12 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  CircleAvatar(
+                  CachedAvatar(
+                    imageUrl: profile.avatarUrl,
                     radius: 28,
-                    backgroundColor: Colors.white.withValues(alpha: 0.9),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-
-                      // 1. EVALUAMOS SI HAY URL DE FOTO
-                      child:
-                          (profile.avatarUrl != null &&
-                              profile.avatarUrl!.isNotEmpty)
-                          ? Image.network(
-                              profile.avatarUrl!,
-                              fit: BoxFit.cover,
-                              width: 56,
-                              height: 56,
-
-                              // 2. MIENTRAS CARGA (Spinner)
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const Center(
-                                      child: SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: AppColors.primaryBlue,
-                                        ),
-                                      ),
-                                    );
-                                  },
-
-                              // 3. SI HAY ERROR DE INTERNET (Plan B: Iniciales)
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Text(
-                                    profile.initials,
-                                    style: const TextStyle(
-                                      color: AppColors.primaryBlue,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                );
-                              },
-                            )
-                          // 4. SI NO HAY URL DEFINIDA (Plan B: Iniciales)
-                          : Center(
-                              child: Text(
-                                profile.initials,
-                                style: const TextStyle(
-                                  color: AppColors.primaryBlue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                    ),
+                    fallbackInitials: profile.initials,
+                    fallbackColor: Colors.white.withValues(alpha: 0.9),
+                    textColor: AppColors.primaryBlue,
                   ),
                   if (profile.isCertified)
                     Positioned(
@@ -416,8 +328,9 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
   /// el usuario presiona "Descartar" o cuando regresa de enviar una cotización
   /// desde el modal o la vista de detalles.
   Widget _buildOpportunitiesList() {
+    final currentOpportunities = ref.watch(opportunitiesProvider);
     // 1. Filtramos la lista según el chip seleccionado
-    final filteredList = _opportunities.where((opp) {
+    final filteredList = currentOpportunities.where((opp) {
       if (_selectedFilter == AppStrings.filterAll) return true;
       if (_selectedFilter == AppStrings.filterExclusive) return opp.isExclusive;
       if (_selectedFilter == AppStrings.filterOpen) return !opp.isExclusive;
@@ -487,13 +400,11 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
   // Manejador para cuando se acepta una oportunidad
   /// Remueve visualmente una oportunidad tras haber enviado una cotización exitosa.
   void _handleAccept(String opportunityId) {
-    setState(() {
-      _opportunities.removeWhere((opp) => opp.id == opportunityId);
-    });
+    ref.read(opportunitiesProvider.notifier).removeOpportunity(opportunityId);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('¡Propuesta enviada con éxito!'),
+        content: Text(AppStrings.proposalSentTitle),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: 3),
@@ -508,35 +419,34 @@ class _ProfHomeScreenState extends ConsumerState<ProfHomeScreen> {
   /// presiona "Deshacer", restaura el objeto en su posición original.
   void _handleDiscard(String opportunityId) {
     // 1. Encontrar y guardar la tarjeta antes de borrarla
-    final index = _opportunities.indexWhere((opp) => opp.id == opportunityId);
+    final currentList = ref.read(opportunitiesProvider);
+    final index = currentList.indexWhere((opp) => opp.id == opportunityId);
     if (index == -1) return;
 
     // Respaldamos el objeto en caso de que el usuario quiera deshacer la acción
-    final deletedOpportunity = _opportunities[index];
+    final deletedOpportunity = currentList[index];
 
     // 2. Borrarla de la vista principal
-    setState(() {
-      _opportunities.removeAt(index);
-    });
+    ref.read(opportunitiesProvider.notifier).removeOpportunity(opportunityId);
 
     _snackBarTimer?.cancel(); // Cancelamos cualquier SnackBar pendiente
     final messenger = ScaffoldMessenger.of(context);
     messenger.clearSnackBars();
     messenger.showSnackBar(
       SnackBar(
-        content: const Text('Oportunidad descartada'),
+        content: const Text(AppStrings.opportunityDiscarded),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
-          label: 'Deshacer',
+          label: AppStrings.undoDiscard,
           textColor: Colors.amber,
           onPressed: () {
             _snackBarTimer?.cancel();
             messenger.hideCurrentSnackBar();
 
-            setState(() {
-              _opportunities.insert(index, deletedOpportunity);
-            });
+            ref
+                .read(opportunitiesProvider.notifier)
+                .insertOpportunity(index, deletedOpportunity);
           },
         ),
       ),

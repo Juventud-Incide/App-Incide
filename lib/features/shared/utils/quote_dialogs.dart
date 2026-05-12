@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
+import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
 
 /// Clase utilitaria (Utility Class) para centralizar y gestionar diálogos modales.
 ///
@@ -75,6 +76,216 @@ class QuoteDialogs {
               AppStrings.quoteRetireLbl,
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Future<void> showCompletionDialog({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String chatId,
+    required bool isCurrentlyCompleted,
+  }) async {
+    final title = !isCurrentlyCompleted
+        ? AppStrings.dialogCurrentlyCompletedTitle
+        : AppStrings.dialogCancelCompletionTitle;
+    final content = !isCurrentlyCompleted
+        ? AppStrings.dialogCurrentlyCompletedContent
+        : AppStrings.dialogCancelCompletionContent;
+    final confirmText = !isCurrentlyCompleted
+        ? AppStrings.dialogCurrentlyCompletedConfirm
+        : AppStrings.dialogCancelCompletionConfirm;
+    final confirmColor = !isCurrentlyCompleted
+        ? Colors.green
+        : Colors.redAccent;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        // 1. Centramos el título
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        // 2. Centramos el contenido para que haga simetría con el título
+        content: Text(
+          content,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.grey.shade700, height: 1.4),
+        ),
+        // Ajustamos el padding para que los botones tengan buen espacio
+        actionsPadding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: 16,
+          top: 8,
+        ),
+        actions: [
+          // 3. Fila con Expanded para lograr el 50% / 50%
+          Row(
+            children: [
+              // Botón Volver (50%)
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey.shade700,
+                      side: BorderSide(color: Colors.grey.shade300),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text(
+                      AppStrings.dialogGoBackLbl,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12), // Separación entre botones
+              // Botón de Acción (50%)
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: confirmColor,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: Text(
+                      confirmText,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      ref
+          .read(chatProvider.notifier)
+          .toggleServiceCompletion(chatId, !isCurrentlyCompleted);
+    }
+  }
+
+  static void showSetPriceDialog({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String chatId,
+    required double currentPrice,
+  }) {
+    final TextEditingController priceController = TextEditingController(
+      text: currentPrice > 0 ? currentPrice.toStringAsFixed(2) : '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(AppStrings.chatSetNewPrice),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(AppStrings.chatSetNewPriceHint),
+            const SizedBox(height: 16),
+            TextField(
+              controller: priceController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(
+                labelText: AppStrings.chatPriceLabel,
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.attach_money),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey.shade700,
+                      side: BorderSide(color: Colors.grey.shade300),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text(
+                      AppStrings.chatCancelPriceChange,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final newPrice =
+                          double.tryParse(priceController.text) ?? 0.0;
+
+                      if (newPrice > 0) {
+                        if (newPrice == currentPrice) {
+                          Navigator.of(ctx).pop();
+                          return;
+                        }
+                        // 1. Actualizar el precio en la "Base de Datos" (Provider)
+                        ref
+                            .read(quotesProvider.notifier)
+                            .updateQuotePrice(chatId, newPrice);
+
+                        // 2. Inyectar el mensaje de sistema en el chat
+                        ref
+                            .read(chatProvider.notifier)
+                            .addSystemMessage(
+                              chatId,
+                              AppStrings.chatPriceChangedAlertTitle
+                                  .replaceFirst(
+                                    '{newPrice}',
+                                    newPrice.toStringAsFixed(2),
+                                  ),
+                            );
+
+                        Navigator.pop(ctx);
+                      } else {
+                        // Pequeña validación visual si el precio es inválido
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(
+                            content: Text(AppStrings.chatSetNewPriceInvalid),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Text(AppStrings.chatUpdatePriceBtn),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

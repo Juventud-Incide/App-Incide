@@ -187,15 +187,74 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
     ];
   }
 
+  /// Actualiza dinámicamente el estado de cualquier cotización.
+  ///
+  /// Este método general evita la creación de múltiples funciones redundantes
+  /// (ej. markAsCompleted, markAsAccepted, etc.) y centraliza la mutación del estado.
+  void updateStatus(String quoteId, QuoteStatus newStatus) {
+    state = [
+      for (final quote in state)
+        if (quote.id == quoteId) quote.copyWith(status: newStatus) else quote,
+    ];
+  }
+
+  /// 1. El proveedor acciona su interruptor
+  void toggleProviderCompletion(String quoteId, bool isCompleted) {
+    state = [
+      for (final quote in state)
+        if (quote.id == quoteId)
+          _evaluateConsensus(
+            quote.copyWith(providerMarkedCompleted: isCompleted),
+          )
+        else
+          quote,
+    ];
+  }
+
+  /// 2. El cliente acciona su interruptor (Físicamente desde su app, o vía nuestra simulación)
+  void toggleClientCompletion(String quoteId, bool isCompleted) {
+    state = [
+      for (final quote in state)
+        if (quote.id == quoteId)
+          _evaluateConsensus(quote.copyWith(clientMarkedCompleted: isCompleted))
+        else
+          quote,
+    ];
+  }
+
+  /// 3. El Cerebro: Revisa si ambas llaves están giradas para cerrar el trato
+  QuoteModel _evaluateConsensus(QuoteModel quote) {
+    // Si AMBOS están de acuerdo, el estado oficial pasa a ser 'completed' (o finalized)
+    if (quote.providerMarkedCompleted && quote.clientMarkedCompleted) {
+      return quote.copyWith(status: QuoteStatus.completed);
+    }
+
+    // Si alguno de los dos falta, o alguien se arrepiente y cancela,
+    // el estado debe mantenerse (o regresar) a 'accepted' (en curso)
+    return quote.copyWith(status: QuoteStatus.accepted);
+  }
+
+  void updateQuotePrice(String quoteId, double newPrice) {
+    // Recorremos el estado y solo modificamos la cotización que coincida con el ID
+    state = state.map((quote) {
+      if (quote.id == quoteId) {
+        return quote.copyWith(finalPrice: newPrice);
+      }
+      return quote;
+    }).toList();
+  }
+
   /// Transforma una [OpportunityModel] del mercado en una [QuoteModel] activa.
   ///
   /// **Flujo de Negocio:**
   /// Este método es el que se dispara cuando el proveedor completa el modal de
   /// cotización. "Clona" la información estática de la oportunidad (título, descripción)
   /// y le añade los datos vivos de la negociación (precio propuesto).
-  void addQuoteFromOpportunity(OpportunityModel opp, double price) {
+  String addQuoteFromOpportunity(OpportunityModel opp, double price) {
+    final generatedId = 'Q-${DateTime.now().millisecondsSinceEpoch}';
+
     final newQuote = QuoteModel(
-      id: 'Q-${DateTime.now().millisecondsSinceEpoch}', // Generación de ID temporal basado en timestamp.
+      id: generatedId,
       opportunityId: opp.id,
 
       // Datos iniciales de cliente (serán sustituidos por datos reales tras el handshake del backend).
@@ -221,7 +280,7 @@ class QuotesNotifier extends Notifier<List<QuoteModel>> {
 
     // Actualización de estado agregando el nuevo elemento al inicio (LIFO).
     state = [newQuote, ...state];
-  }
 
-  // TODO: Implementar lógica de persistencia para `markAsCompleted()` y `sendMessage()`.
+    return generatedId;
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:app_incide/features/shared/widgets/cached_gallery_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -284,6 +285,9 @@ class OpportunityInfoBody extends StatelessWidget {
         itemBuilder: (context, index) {
           final imageUrl = photoUrls[index];
 
+          // 2. EVALUACIÓN DE RED VS LOCAL
+          final isNetworkImage = imageUrl.startsWith('http');
+
           return Container(
             width: 100,
             margin: const EdgeInsets.only(right: 12),
@@ -291,32 +295,31 @@ class OpportunityInfoBody extends StatelessWidget {
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
             ),
-            // Usamos ClipRRect para que la imagen respete las esquinas redondeadas del contenedor
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover, // Evita que la imagen se deforme
-                // Feedback visual durante la descarga
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+            child: isNetworkImage
+                ? CachedGalleryImage(
+                    imageUrl: imageUrl,
+                    height: 100,
+                    width: 100,
+                    borderRadius: 12,
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      imageUrl,
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 100,
+                        width: 100,
+                        color: Colors.red.shade100,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.red,
+                        ),
+                      ),
                     ),
-                  );
-                },
-
-                // Fallback visual si falla la carga
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Icon(Icons.broken_image, color: Colors.grey),
-                  );
-                },
-              ),
-            ),
+                  ),
           );
         },
       ),

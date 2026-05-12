@@ -228,6 +228,16 @@ class AllCotizacionesNotifier extends Notifier<List<CotizacionModel>> {
       return c;
     }).toList();
   }
+
+  // TODO(Backend): Reemplazar con actualización al backend
+  void markAsCompleted(String id) {
+    state = state.map((c) {
+      if (c.id == id) {
+        return c.copyWith(estado: EstadoCotizacion.terminada);
+      }
+      return c;
+    }).toList();
+  }
 }
 
 // ── Notificación de Nuevas Propuestas ─────────────────────────────────────
@@ -315,6 +325,21 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           sender: SenderType.provider,
           timestamp: DateTime.now().subtract(const Duration(hours: 22)),
         ),
+        ChatMessage(
+          id: '3_sys1',
+          text:
+              'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(const Duration(hours: 21)),
+          systemEvent: SystemEventType.providerRequestedCompletion,
+        ),
+        ChatMessage(
+          id: '3_sys2',
+          text: 'Confirmaste la finalización. El servicio ha sido completado.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(const Duration(hours: 20)),
+          systemEvent: SystemEventType.clientConfirmedCompletion,
+        ),
       ],
       'q4': [
         ChatMessage(
@@ -339,6 +364,14 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
           isRead: true,
         ),
+        ChatMessage(
+          id: '2_system',
+          text:
+              'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+          systemEvent: SystemEventType.providerRequestedCompletion,
+        ),
       ],
       'q6': [
         ChatMessage(
@@ -348,19 +381,46 @@ class ChatMessagesNotifier extends Notifier<Map<String, List<ChatMessage>>> {
           sender: SenderType.provider,
           timestamp: DateTime.now().subtract(const Duration(days: 2)),
         ),
+        ChatMessage(
+          id: '1_sys1',
+          text:
+              'El profesionista ha marcado el servicio como completado. Por favor, confirma la finalización.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(
+            const Duration(days: 1, hours: 20),
+          ),
+          systemEvent: SystemEventType.providerRequestedCompletion,
+        ),
+        ChatMessage(
+          id: '1_sys2',
+          text: 'Confirmaste la finalización. El servicio ha sido completado.',
+          sender: SenderType.system,
+          timestamp: DateTime.now().subtract(
+            const Duration(days: 1, hours: 19),
+          ),
+          systemEvent: SystemEventType.clientConfirmedCompletion,
+        ),
       ],
     };
   }
 
-  void sendMessage(String cotizacionId, String text, SenderType sender) {
+  void sendMessage(
+    String cotizacionId,
+    String text,
+    SenderType sender, {
+    Attachment? attachment,
+    SystemEventType? systemEvent,
+  }) {
     final currentChat = state[cotizacionId] ?? [];
 
     final newMessage = ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      text: text,
+      text: text.isNotEmpty ? text : null,
+      attachment: attachment,
       sender: sender,
       timestamp: DateTime.now(),
       isRead: false,
+      systemEvent: systemEvent,
     );
 
     state = {

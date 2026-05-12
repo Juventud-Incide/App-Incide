@@ -1,3 +1,4 @@
+import 'package:app_incide/features/auth/domain/models/application_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -139,6 +140,113 @@ void main() {
         'super_token_secreto_123',
         reason: 'El token debió guardarse en disco',
       );
+    },
+  );
+
+  test(
+    'PU-04: AuthController.login() apaga el loading y lanza excepción al fallar',
+    () async {
+      // 1. PRECONDICIÓN: Repositorio falso lanza error
+      final mockRepository = MockAuthRepository();
+      when(
+        mockRepository.login(any, any, any),
+      ).thenThrow(Exception('Correo o contraseña incorrectos'));
+
+      final container = ProviderContainer(
+        overrides: [authRepositoryProvider.overrideWithValue(mockRepository)],
+      );
+      addTearDown(container.dispose);
+
+      final authController = container.read(authControllerProvider.notifier);
+
+      // 2. EJECUCIÓN Y VERIFICACIÓN: Comprobamos que el controlador relanza el error limpio
+      // Usamos una función anónima asíncrona dentro del expect
+      await expectLater(
+        () async => await authController.login(
+          'mal@correo.com',
+          'claveMala',
+          'proveedor',
+        ),
+        throwsA(isA<String>()), // Lanza un String por tu .replaceAll()
+      );
+
+      // Verificamos que se apagó la ruedita de carga a pesar del error
+      final finalState = container.read(authControllerProvider);
+      expect(
+        finalState.isLoading,
+        isFalse,
+        reason: 'El loader debe apagarse al fallar',
+      );
+    },
+  );
+
+  test(
+    'PU-05: AuthController.logout() limpia memoria RAM y almacenamiento en disco',
+    () async {
+      // 1. PRECONDICIÓN: Llenamos el disco duro con datos simulados
+      SharedPreferences.setMockInitialValues({
+        AppKeys.token: 'token_valido',
+        AppKeys.role: 'proveedor',
+        AppKeys.profileStatus: 'aceptado',
+      });
+
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final authController = container.read(authControllerProvider.notifier);
+
+      // Forzamos al controlador a leer el disco duro para cargar el estado
+      await authController.initialize();
+      expect(container.read(authControllerProvider).isAuthenticated, isTrue);
+
+      // 2. EJECUCIÓN
+      await authController.logout();
+
+      // 3. VERIFICACIÓN DE RAM (Riverpod vuelve a los valores por defecto)
+      final finalState = container.read(authControllerProvider);
+      expect(finalState.isAuthenticated, isFalse);
+      expect(finalState.role, isNull);
+      expect(finalState.profileStatus, isNull);
+
+      // 4. VERIFICACIÓN DE DISCO (SharedPreferences está vacío)
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey(AppKeys.token), isFalse);
+      expect(prefs.containsKey(AppKeys.role), isFalse);
+    },
+  );
+
+  test(
+    'PU-06: Métodos de transición de estatus actualizan Riverpod y disco',
+    () async {
+      // 1. PRECONDICIÓN: Entorno limpio
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final authController = container.read(authControllerProvider.notifier);
+      final prefs = await SharedPreferences.getInstance();
+
+      // --- PRUEBA A: grantLocation ---
+      authController.grantLocation();
+      expect(
+        container.read(authControllerProvider).hasLocationPermission,
+        isTrue,
+      );
+
+      // --- PRUEBA B: updateApplicationStatus ---
+      final fakeStatus = ApplicationStatus.pendingReview;
+      await authController.updateApplicationStatus(fakeStatus);
+
+      expect(
+        container.read(authControllerProvider).applicationStatus,
+        fakeStatus,
+      );
+      expect(prefs.getString(AppKeys.applicationStatus), fakeStatus.name);
+
+      // --- PRUEBA C: completeActivation ---
+      await authController.completeActivation();
+
+      expect(container.read(authControllerProvider).profileStatus, 'aceptado');
+      expect(prefs.getString(AppKeys.profileStatus), 'aceptado');
     },
   );
 }

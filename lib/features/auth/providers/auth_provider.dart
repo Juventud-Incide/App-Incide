@@ -130,38 +130,107 @@ class AuthController extends Notifier<AuthState> {
   }
 
   /// Procesa el inicio de sesión y actualiza el estado global de la aplicación.
+  ///
+  /// Compatible con el backend real (devuelve {user, token}) y el mock.
+  /// El mock devuelve {token, role, status} directamente — lo manejamos en ambos casos.
   Future<void> login(String email, String password) async {
-    //borre role para que lo decida el backend
-    state = state.copyWith(isLoading: true); // Encendemos la ruedita de carga
+    state = state.copyWith(isLoading: true);
 
     try {
       final repository = ref.read(authRepositoryProvider);
-
-      final responseData = await repository.login(
-        email,
-        password,
-      ); //borre role para que lo decida el backend
+      final responseData = await repository.login(email, password);
 
       final String realToken = responseData['token'];
-      //final String serverRole = responseData['role'];
-      final String userStatus = responseData['status'];
-      final String? pendingStep = responseData['pending_step'];
 
-      // --- INTEGRACIÓN LOCAL SHAREDPREFERENCES ---
+      // El backend real devuelve { user: { userRole: "Client" }, token: "..." }
+      // El mock devuelve { token, role, status, pending_step } directamente
+      String serverRole;
+      String userStatus;
+      String? pendingStep;
+
+      if (responseData.containsKey('user')) {
+        // ── Respuesta del backend real ───────────────────────────────────────
+        final Map<String, dynamic> user = responseData['user'];
+        final String userRoleRaw = (user['userRole'] as String).toLowerCase();
+        serverRole = userRoleRaw == 'client' ? 'cliente' : 'proveedor';
+        userStatus = 'aceptado'; // todos los que hacen login están activos
+        pendingStep = null;
+      } else {
+        // ── Respuesta del mock (formato antiguo) ───────────────────────────
+        serverRole = responseData['role'] as String;
+        userStatus = responseData['status'] as String;
+        pendingStep = responseData['pending_step'] as String?;
+      }
+
+      // Guardamos la sesión en disco (persiste al cerrar la app)
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppKeys.token, realToken);
-      //await prefs.setString(AppKeys.role, serverRole);
+      await prefs.setString(AppKeys.role, serverRole);
       await prefs.setString(AppKeys.profileStatus, userStatus);
       if (pendingStep != null) {
-        await prefs.setString(AppKeys.applicationStatus, pendingStep); // NUEVO
+        await prefs.setString(AppKeys.applicationStatus, pendingStep);
       }
-      // Actualizamos el estado de memoria global (Riverpod)
+
+      // Actualizamos el estado en memoria (Riverpod → GoRouter reacciona)
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
-        //role: serverRole,
+        role: serverRole,
         profileStatus: userStatus,
         applicationStatus: parseAppStatus(pendingStep),
+      );
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      throw e.toString().replaceAll('Exception: ', '');
+    }
+  }
+
+  /// Registra un nuevo usuario y lo deja autenticado automáticamente.
+  ///
+  /// Llamado desde [ClientAuthNotifier] (cliente) o desde la pantalla
+  /// de experiencia del proveedor cuando se integre en el futuro.
+  Future<void> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    String? phoneNumber,
+    required int userRole, // 0 = Client, 1 = Provider
+  }) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final repository = ref.read(authRepositoryProvider);
+      final responseData = await repository.register(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        phoneNumber: phoneNumber,
+        userRole: userRole,
+      );
+
+      final String token = responseData['token'];
+
+      // El backend y el mock devuelven { user: { userRole: "Client" }, token: "..." }
+      final Map<String, dynamic> user = responseData['user'];
+      final String userRoleRaw = (user['userRole'] as String).toLowerCase();
+      final String roleMapped = userRoleRaw == 'client' ? 'cliente' : 'proveedor';
+
+      // Guardamos la sesión en disco
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppKeys.token, token);
+      await prefs.setString(AppKeys.role, roleMapped);
+      await prefs.setString(AppKeys.profileStatus, 'aceptado');
+
+      // Actualizamos el estado en memoria (GoRouter navega al home automáticamente)
+      state = state.copyWith(
+        isLoading: false,
+        isAuthenticated: true,
+        role: roleMapped,
+        profileStatus: 'aceptado',
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);

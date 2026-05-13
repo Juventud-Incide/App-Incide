@@ -172,6 +172,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
                 // DROPDOWN ESPECIALIDAD
                 CustomDropdownField<String>(
+                  key: const Key('register_profession_dropdown'),
                   label: AppStrings.specialtyLabel,
                   hintText: AppStrings.specialtyHint,
                   value: _selectedSpecialty,
@@ -201,6 +202,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                     Expanded(
                       flex: 2,
                       child: CustomInputField(
+                        key: const Key('register_experience_input'),
                         label: AppStrings.yearsExperienceLabel,
                         hintText: AppStrings.yearsExperienceHint,
                         controller: _yearsController,
@@ -218,6 +220,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                     Expanded(
                       flex: 4,
                       child: CustomInputField(
+                        key: const Key('register_cedula_input'),
                         label: AppStrings.cedulaLabel,
                         hintText: AppStrings.cedulaHint,
                         controller: _cedulaController,
@@ -234,6 +237,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
 
                 // DESCRIPCIÓN MULTILÍNEA
                 CustomInputField(
+                  key: const Key('register_description_input'),
                   label: AppStrings.descriptionLabel,
                   hintText: AppStrings.descriptionHint,
                   controller: _descriptionController,
@@ -257,6 +261,7 @@ class _ProfExperienceScreenState extends State<ProfExperienceScreen> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
+                    key: const Key('register_submit_button'),
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,

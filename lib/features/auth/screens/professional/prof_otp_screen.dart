@@ -256,6 +256,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                         aspectRatio:
                             1, // Fuerza a que la caja sea un cuadrado perfecto
                         child: TextField(
+                          key: Key('otp_box_${i + 1}'), // Clave para testing
                           controller: _controllers[i],
                           focusNode: _focusNodes[i],
                           keyboardType: TextInputType.number,
@@ -354,6 +355,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
+                  key: const Key('otp_verify_button'),
                   onPressed: _verifyCode,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryBlue,

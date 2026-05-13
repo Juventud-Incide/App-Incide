@@ -282,6 +282,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                       style: TextStyle(color: Color(0xFF4B5563)),
                     ),
                     GestureDetector(
+                      key: const Key('btn_go_to_register'),
                       onTap: () {
                         // Navegamos empujando (push) para permitir volver atrás
                         context.push('/prof-register');

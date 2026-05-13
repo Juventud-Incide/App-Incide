@@ -194,6 +194,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 // --- 3. FORMULARIO ---
                 _buildSectionTitle(AppStrings.personalData),
                 CustomInputField(
+                  key: const Key('register_name_input'),
                   label: AppStrings.nameLabel,
                   hintText: '',
                   controller: _nameController,
@@ -205,6 +206,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
+                  key: const Key('register_last_name_input'),
                   label: AppStrings.lastNameLabel,
                   hintText: '',
                   controller: _lastNameController,
@@ -217,6 +219,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
 
                 _buildSectionTitle(AppStrings.accountData),
                 CustomInputField(
+                  key: const Key('register_email_input'),
                   label: AppStrings.emailLabel,
                   hintText: AppStrings.emailHint,
                   controller: _emailController,
@@ -235,6 +238,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
+                  key: const Key('register_phone_input'),
                   label: AppStrings.phoneLabel,
                   hintText: AppStrings.phoneHint,
                   controller: _phoneController,
@@ -251,6 +255,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
+                  key: const Key('register_password_input'),
                   label: AppStrings.passwordLabel,
                   hintText: AppStrings.passwordHint,
                   controller: _passwordController,
@@ -272,6 +277,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 // SECCIÓN: DATOS LEGALES (Validación Oficial MX)
                 _buildSectionTitle(AppStrings.legalData),
                 CustomInputField(
+                  key: const Key('register_curp_input'),
                   label: AppStrings.curpLabel,
                   hintText: AppStrings.curpHint,
                   controller: _curpController,
@@ -295,6 +301,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                 ),
                 const SizedBox(height: 12),
                 CustomInputField(
+                  key: const Key('register_rfc_input'),
                   label: AppStrings.rfcLabel,
                   hintText: AppStrings.rfcHint,
                   controller: _rfcController,
@@ -325,6 +332,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                       height: 24,
                       width: 24,
                       child: Checkbox(
+                        key: const Key('register_terms_checkbox'),
                         value: _termsAccepted,
                         activeColor: AppColors.primaryBlue,
                         side: const BorderSide(
@@ -355,6 +363,7 @@ class _ProfRegisterScreenState extends State<ProfRegisterScreen> {
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
+                    key: const Key('register_continue_button'),
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryBlue,

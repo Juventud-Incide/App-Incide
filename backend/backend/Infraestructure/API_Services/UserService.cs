@@ -149,16 +149,7 @@ namespace backend.Infraestructure.API_Services
                 });
             }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new InvalidOperationException(
-                    "No se pudo completar el registro. Verifica que el CURP, RFC o correo no estén duplicados.",
-                    ex);
-            }
+            await _context.SaveChangesAsync();
 
             return user;
         }

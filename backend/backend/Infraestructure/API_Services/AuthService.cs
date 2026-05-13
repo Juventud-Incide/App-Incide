@@ -67,26 +67,37 @@ namespace backend.Infraestructure.API_Services
             if (dto.Password != dto.ConfirmPassword)
                 throw new InvalidOperationException("Las contraseñas no coinciden.");
 
-            var consumed = await _otpService.ConsumeVerifiedOtpAsync(dto.PhoneNumber);
-            if (!consumed)
-                throw new InvalidOperationException(
-                    "No se encontró un OTP verificado para este número. Verifica tu teléfono primero.");
-
-            var user  = await _userService.CreateProviderAsync(dto);
-            var token = _jwtService.GenerateToken(user);
-
-            return new AuthOutPutDTO
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                User = new UserOutPutDTO
+                var consumed = await _otpService.ConsumeVerifiedOtpAsync(dto.PhoneNumber);
+                if (!consumed)
+                    throw new InvalidOperationException(
+                        "No se encontró un OTP verificado para este número. Verifica tu teléfono primero.");
+
+                var user  = await _userService.CreateProviderAsync(dto);
+                var token = _jwtService.GenerateToken(user);
+
+                await transaction.CommitAsync();
+
+                return new AuthOutPutDTO
                 {
-                    Id          = user.Id,
-                    FullName    = $"{user.FirstName} {user.LastName}",
-                    Email       = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    UserRole    = user.UserRole.ToString()
-                },
-                Token = token
-            };
+                    User = new UserOutPutDTO
+                    {
+                        Id          = user.Id,
+                        FullName    = $"{user.FirstName} {user.LastName}",
+                        Email       = user.Email,
+                        PhoneNumber = user.PhoneNumber,
+                        UserRole    = user.UserRole.ToString()
+                    },
+                    Token = token
+                };
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<AuthOutPutDTO?> LoginAsync(LoginDTO dto)

@@ -94,12 +94,14 @@ namespace backend.Infraestructure.API_Services
             if (!await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId && !c.IsDeleted))
                 throw new InvalidOperationException("La categoría especificada no existe.");
 
+            var serviceIds = dto.ServiceIds.Distinct().ToList();
+
             var validServiceCount = await _context.ServiceItems
-                .CountAsync(s => dto.ServiceIds.Contains(s.Id)
+                .CountAsync(s => serviceIds.Contains(s.Id)
                               && s.CategoryId == dto.CategoryId
                               && !s.IsDeleted);
 
-            if (validServiceCount != dto.ServiceIds.Count)
+            if (validServiceCount != serviceIds.Count)
                 throw new InvalidOperationException(
                     "Uno o más servicios no pertenecen a la categoría seleccionada o no existen.");
 
@@ -138,7 +140,7 @@ namespace backend.Infraestructure.API_Services
                 CategoryId = dto.CategoryId
             });
 
-            foreach (var serviceId in dto.ServiceIds)
+            foreach (var serviceId in serviceIds)
             {
                 _context.ProviderServiceItems.Add(new ProviderServiceItem
                 {

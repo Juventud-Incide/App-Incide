@@ -94,20 +94,16 @@ namespace backend.Infraestructure.API_Services
 
         public async Task<bool> ConsumeVerifiedOtpAsync(string phoneNumber, CancellationToken ct = default)
         {
-            var otp = await _context.OtpCodes
+            var affected = await _context.OtpCodes
                 .Where(o => o.PhoneNumber == phoneNumber
                          && o.IsVerified
                          && !o.IsConsumed
                          && o.ExpiresAt > DateTime.UtcNow)
-                .OrderByDescending(o => o.CreationDate)
-                .FirstOrDefaultAsync(ct);
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(o => o.IsConsumed, true)
+                    .SetProperty(o => o.LastUpdate, DateTime.UtcNow), ct);
 
-            if (otp is null) return false;
-
-            otp.IsConsumed = true;
-            otp.LastUpdate = DateTime.UtcNow;
-            await _context.SaveChangesAsync(ct);
-            return true;
+            return affected > 0;
         }
 
         private static string HashCode(string code) =>

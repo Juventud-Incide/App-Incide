@@ -130,23 +130,27 @@ class AuthController extends Notifier<AuthState> {
   }
 
   /// Procesa el inicio de sesión y actualiza el estado global de la aplicación.
-  Future<void> login(String email, String password, String role) async {
+  Future<void> login(String email, String password) async {
+    //borre role para que lo decida el backend
     state = state.copyWith(isLoading: true); // Encendemos la ruedita de carga
 
     try {
       final repository = ref.read(authRepositoryProvider);
 
-      final responseData = await repository.login(email, password, role);
+      final responseData = await repository.login(
+        email,
+        password,
+      ); //borre role para que lo decida el backend
 
       final String realToken = responseData['token'];
-      final String serverRole = responseData['role'];
+      //final String serverRole = responseData['role'];
       final String userStatus = responseData['status'];
       final String? pendingStep = responseData['pending_step'];
 
       // --- INTEGRACIÓN LOCAL SHAREDPREFERENCES ---
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppKeys.token, realToken);
-      await prefs.setString(AppKeys.role, serverRole);
+      //await prefs.setString(AppKeys.role, serverRole);
       await prefs.setString(AppKeys.profileStatus, userStatus);
       if (pendingStep != null) {
         await prefs.setString(AppKeys.applicationStatus, pendingStep); // NUEVO
@@ -155,7 +159,7 @@ class AuthController extends Notifier<AuthState> {
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
-        role: serverRole,
+        //role: serverRole,
         profileStatus: userStatus,
         applicationStatus: parseAppStatus(pendingStep),
       );

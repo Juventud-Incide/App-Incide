@@ -79,6 +79,8 @@ namespace backend.Infraestructure.API_Services
             if (otp.CodeHash != HashCode(code))
             {
                 otp.Attempts++;
+                if (otp.Attempts >= MaxAttempts)
+                    otp.IsConsumed = true;
                 otp.LastUpdate = DateTime.UtcNow;
                 await _context.SaveChangesAsync(ct);
                 return false;

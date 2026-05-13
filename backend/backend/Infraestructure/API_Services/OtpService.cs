@@ -34,7 +34,7 @@ namespace backend.Infraestructure.API_Services
                 old.LastUpdate = DateTime.UtcNow;
             }
 
-            var code = Random.Shared.Next(100_000, 999_999).ToString();
+            var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
 
             var otp = new OtpCode
             {

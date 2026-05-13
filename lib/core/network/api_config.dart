@@ -9,17 +9,20 @@ class ApiConfig {
   static Environment currentEnvironment = Environment.development;
 
   /// Retorna la URL base dependiendo de la estrategia (entorno) actual.
+  ///
+  /// Las rutas del backend son /api/auth/login, /api/auth/register, etc.
+  /// Por eso la baseUrl termina en /api — sin /v1.
   static String get baseUrl {
     switch (currentEnvironment) {
       case Environment.production:
-        // TODO: Reemplazar con la URL real de tu servidor en la nube
-        return 'https://api.incide.org/api/v1';
+        // Backend desplegado en el servidor DDNS de producción
+        return 'https://incide-dev.ddns.net/api';
 
       case Environment.development:
-        // IMPORTANTE PARA PRUEBAS:
-        // Si pruebas en el emulador de Android nativo, tu PC local es 10.0.2.2
-        // Si pruebas en un celular físico o iOS, debes poner la IP de tu computadora (ej. 192.168.1.XX)
-        return 'http://10.0.2.2:3000/api/v1';
+        // Android Emulator: usa 10.0.2.2 para referirse a localhost de tu PC
+        // iOS Simulator / Web: cambia a 'http://localhost:5000/api'
+        // Celular físico en la misma red: usa la IP de tu PC (ej. 192.168.1.X)
+        return 'http://10.0.2.2:5000/api';
     }
   }
 }

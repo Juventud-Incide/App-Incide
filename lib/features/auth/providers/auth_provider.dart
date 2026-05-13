@@ -63,8 +63,9 @@ class AuthState {
 // 2. EL REPOSITORIO (Simulador de Backend)
 // ==========================================
 // 1. Un simple booleano para controlar el modo de desarrollo
-// Cambia esto a 'false' cuando el backend de C# esté listo para probar
-final useMocksProvider = Provider<bool>((ref) => true);
+// false = backend real (https://incide-dev.ddns.net/api)
+// true  = datos mock locales (para desarrollo sin servidor)
+final useMocksProvider = Provider<bool>((ref) => false);
 // 2. El proveedor del repositorio que consumirá el resto de la app
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final useMocks = ref.watch(useMocksProvider);

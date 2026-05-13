@@ -3,6 +3,7 @@ import 'package:app_incide/features/auth/data/repositories/mock_auth_repository.
 import 'package:app_incide/features/auth/domain/repositories/auth_repository.dart';
 import 'package:app_incide/features/auth/domain/repositories/network_auth_repository.dart';
 import 'package:app_incide/features/auth/domain/models/application_status.dart';
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -62,19 +63,17 @@ class AuthState {
 // ==========================================
 // 2. EL REPOSITORIO (Simulador de Backend)
 // ==========================================
-// 1. Un simple booleano para controlar el modo de desarrollo
 // false = backend real (https://incide-dev.ddns.net/api)
 // true  = datos mock locales (para desarrollo sin servidor)
 final useMocksProvider = Provider<bool>((ref) => false);
-// 2. El proveedor del repositorio que consumirá el resto de la app
+
+// El proveedor del repositorio que consumirá el resto de la app
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final useMocks = ref.watch(useMocksProvider);
 
   if (useMocks) {
-    // Aquí devuelves tu MockAuthRepository actual que ya tenías
     return MockAuthRepository();
   } else {
-    // Inyectamos el ApiClient único (Singleton) que configuramos con Dio
     return NetworkAuthRepository(ApiClient().dio);
   }
 });
@@ -98,7 +97,9 @@ class AuthController extends Notifier<AuthState> {
     return AuthState();
   }
 
-  /// Carga inicial del estado desde almacenamiento local
+  // ── INITIALIZE ────────────────────────────────────────────────────────────
+
+  /// Carga inicial del estado desde almacenamiento local.
   Future<void> initialize() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -108,9 +109,16 @@ class AuthController extends Notifier<AuthState> {
       final appStatusStr = prefs.getString(AppKeys.applicationStatus);
 
       if (token != null && token.isNotEmpty) {
-        final PermissionStatus locationStatus =
-            await Permission.locationWhenInUse.status;
-        final bool hasLocation = locationStatus.isGranted;
+        // En web, permission_handler no está implementado para locationWhenInUse.
+        // Usamos kIsWeb para saltarnos la verificación y asumir permiso concedido.
+        final bool hasLocation;
+        if (kIsWeb) {
+          hasLocation = true; // Web usa el permiso del navegador nativo
+        } else {
+          final PermissionStatus locationStatus =
+              await Permission.locationWhenInUse.status;
+          hasLocation = locationStatus.isGranted;
+        }
 
         state = state.copyWith(
           isInitialized: true,
@@ -129,6 +137,8 @@ class AuthController extends Notifier<AuthState> {
       state = state.copyWith(isInitialized: true, isAuthenticated: false);
     }
   }
+
+  // ── LOGIN ─────────────────────────────────────────────────────────────────
 
   /// Procesa el inicio de sesión y actualiza el estado global de la aplicación.
   ///
@@ -152,9 +162,8 @@ class AuthController extends Notifier<AuthState> {
       if (responseData.containsKey('user')) {
         // ── Respuesta del backend real ───────────────────────────────────────
         final Map<String, dynamic> user = responseData['user'];
-        final String userRoleRaw = (user['userRole'] as String).toLowerCase();
-        serverRole = userRoleRaw == 'client' ? 'cliente' : 'proveedor';
-        userStatus = 'aceptado'; // todos los que hacen login están activos
+        serverRole = _parseUserRole(user['userRole']);
+        userStatus = 'aceptado';
         pendingStep = null;
       } else {
         // ── Respuesta del mock (formato antiguo) ───────────────────────────
@@ -185,6 +194,8 @@ class AuthController extends Notifier<AuthState> {
       throw e.toString().replaceAll('Exception: ', '');
     }
   }
+
+  // ── REGISTER ──────────────────────────────────────────────────────────────
 
   /// Registra un nuevo usuario y lo deja autenticado automáticamente.
   ///
@@ -217,10 +228,7 @@ class AuthController extends Notifier<AuthState> {
 
       // El backend y el mock devuelven { user: { userRole: "Client" }, token: "..." }
       final Map<String, dynamic> user = responseData['user'];
-      final String userRoleRaw = (user['userRole'] as String).toLowerCase();
-      final String roleMapped = userRoleRaw == 'client'
-          ? 'cliente'
-          : 'proveedor';
+      final String roleMapped = _parseUserRole(user['userRole']);
 
       // Guardamos la sesión en disco
       final prefs = await SharedPreferences.getInstance();
@@ -241,13 +249,12 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
+  // ── OTROS MÉTODOS ─────────────────────────────────────────────────────────
+
   /// Actualiza la fase de la aplicación del proveedor (Simula el cambio en backend)
   Future<void> updateApplicationStatus(ApplicationStatus newStatus) async {
-    // 1. Guardamos en disco para que persista si cierra la app
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(AppKeys.applicationStatus, newStatus.name);
-
-    // 2. Actualizamos Riverpod (Esto despierta al GoRouter)
     state = state.copyWith(applicationStatus: newStatus);
   }
 
@@ -255,30 +262,37 @@ class AuthController extends Notifier<AuthState> {
   /// Cambia el estatus global del perfil, sacándolo del flujo "pendiente".
   Future<void> completeActivation() async {
     final prefs = await SharedPreferences.getInstance();
-
-    // Guardamos el nuevo estatus en disco
     await prefs.setString(AppKeys.profileStatus, 'aceptado');
-
-    // Actualizamos la memoria RAM (Riverpod).
-    // Al cambiar 'profileStatus' de 'pendiente' a 'aceptado', GoRouter ejecutará sus
-    // reglas nuevamente, y como la Regla 3 ya no aplica, pasará a la validación de GPS.
     state = state.copyWith(profileStatus: 'aceptado');
   }
 
   /// Cierra la sesión activa del usuario limpiando disco y RAM simultáneamente.
   Future<void> logout() async {
-    // 1. Limpiamos disco (SharedPreferences)
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(AppKeys.token);
     await prefs.remove(AppKeys.role);
     await prefs.remove(AppKeys.profileStatus);
     await prefs.remove(AppKeys.applicationStatus);
-    // 2. Limpiamos RAM (Riverpod). Resetea todo a falso y nulo, pateándolo al login
     state = AuthState();
   }
 
   /// Registra que el proveedor ha otorgado los permisos del sistema operativo.
   void grantLocation() {
     state = state.copyWith(hasLocationPermission: true);
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────────
+
+  /// Convierte el userRole del backend a la representación interna de la app.
+  ///
+  /// El backend puede devolver el rol como:
+  /// - String: "Client" / "Provider" (usando enum.ToString() en C#)
+  /// - Integer: 0 (Client) / 1 (Provider) (si el serializador usa números)
+  String _parseUserRole(dynamic rawRole) {
+    if (rawRole is int) {
+      return rawRole == 0 ? 'cliente' : 'proveedor';
+    }
+    final String lower = rawRole.toString().toLowerCase();
+    return lower == 'client' ? 'cliente' : 'proveedor';
   }
 }

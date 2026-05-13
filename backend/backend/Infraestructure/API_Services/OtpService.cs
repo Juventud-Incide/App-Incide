@@ -53,7 +53,17 @@ namespace backend.Infraestructure.API_Services
             _context.OtpCodes.Add(otp);
             await _context.SaveChangesAsync(ct);
 
-            await _sms.SendAsync(phoneNumber, $"Tu código de verificación INCIDE es: {code}", ct);
+            try
+            {
+                await _sms.SendAsync(phoneNumber, $"Tu código de verificación INCIDE es: {code}", ct);
+            }
+            catch
+            {
+                otp.IsConsumed = true;
+                otp.LastUpdate = DateTime.UtcNow;
+                await _context.SaveChangesAsync(ct);
+                throw;
+            }
         }
 
         public async Task<bool> VerifyOtpAsync(string phoneNumber, string code, CancellationToken ct = default)

@@ -217,7 +217,9 @@ class AuthController extends Notifier<AuthState> {
       // El backend y el mock devuelven { user: { userRole: "Client" }, token: "..." }
       final Map<String, dynamic> user = responseData['user'];
       final String userRoleRaw = (user['userRole'] as String).toLowerCase();
-      final String roleMapped = userRoleRaw == 'client' ? 'cliente' : 'proveedor';
+      final String roleMapped = userRoleRaw == 'client'
+          ? 'cliente'
+          : 'proveedor';
 
       // Guardamos la sesión en disco
       final prefs = await SharedPreferences.getInstance();

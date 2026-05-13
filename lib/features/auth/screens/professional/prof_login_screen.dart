@@ -123,6 +123,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
                 // --- FORMULARIO ---
                 CustomInputField(
+                  key: const Key('login_email_input'),
                   label: AppStrings.emailLoginLabel,
                   hintText: AppStrings.emailLoginHint,
                   controller: _emailController,
@@ -145,6 +146,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
                 const SizedBox(height: 24),
 
                 CustomInputField(
+                  key: const Key('login_password_input'),
                   label: AppStrings.passwordLoginLabel,
                   hintText: AppStrings.passwordLoginHint,
                   isPassword: true,
@@ -191,6 +193,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
 
                 // --- BOTÓN PRINCIPAL (REACTIVO A CARGA) ---
                 ElevatedButton(
+                  key: const Key('login_submit_button'),
                   // Si isLoading es true, anulamos el onPressed (se vuelve null)
                   // lo que previene que el usuario dispare múltiples peticiones de red simultáneas.
                   onPressed: isLoading ? null : () => _submitForm(),

@@ -50,6 +50,7 @@ class RoleSelectionScreen extends StatelessWidget {
 
                     // --- TARJETAS DE SELECCIÓN ---
                     RoleCard(
+                      key: const Key('client_role_card'),
                       title: AppStrings.roleClient,
                       description: AppStrings.roleClientDesc,
                       icon: Icons.home_outlined,
@@ -63,6 +64,7 @@ class RoleSelectionScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     RoleCard(
+                      key: const Key('professional_role_card'),
                       title: AppStrings.roleProfessional,
                       description: AppStrings.roleProfessionalDesc,
                       icon: Icons.settings_outlined,

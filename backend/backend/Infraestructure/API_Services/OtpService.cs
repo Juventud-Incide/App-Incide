@@ -11,14 +11,21 @@ namespace backend.Infraestructure.API_Services
     {
         private readonly AppDbContext _context;
         private readonly ISmsService  _sms;
+        private readonly byte[]       _hashKey;
 
         private const int OtpExpiryMinutes = 10;
         private const int MaxAttempts      = 3;
 
-        public OtpService(AppDbContext context, ISmsService sms)
+        public OtpService(AppDbContext context, ISmsService sms, IConfiguration configuration)
         {
             _context = context;
             _sms     = sms;
+
+            var keyValue = configuration["Otp:HashKey"]
+                ?? throw new InvalidOperationException(
+                    "OTP hash key is not configured. Set 'Otp:HashKey' via User Secrets (development) " +
+                    "or the environment variable 'Otp__HashKey' (production).");
+            _hashKey = Encoding.UTF8.GetBytes(keyValue);
         }
 
         public async Task SendOtpAsync(string phoneNumber, CancellationToken ct = default)
@@ -116,7 +123,7 @@ namespace backend.Infraestructure.API_Services
             return affected > 0;
         }
 
-        private static string HashCode(string code) =>
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(code)));
+        private string HashCode(string code) =>
+            Convert.ToHexString(HMACSHA256.HashData(_hashKey, Encoding.UTF8.GetBytes(code)));
     }
 }

@@ -155,6 +155,23 @@ class RegistrationNotifier extends Notifier<RegistrationState> {
     }
   }
 
+  /// Solicita el envío inicial del código SMS
+  Future<bool> requestInitialOtp() async {
+    // Activamos la ruedita de carga por si el internet está lento
+    state = state.copyWith(isLoading: true, error: '');
+
+    try {
+      final repository = ref.read(authRepositoryProvider);
+      await repository.sendOtp(state.phoneNumber);
+
+      state = state.copyWith(isLoading: false);
+      return true; // Éxito: El SMS va en camino
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false; // Error: Falló la red o el backend
+    }
+  }
+
   Future<bool> verifyOtpCode(String code) async {
     state = state.copyWith(isLoading: true, error: '');
 

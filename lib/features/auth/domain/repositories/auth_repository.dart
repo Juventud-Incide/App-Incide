@@ -32,6 +32,8 @@ abstract class AuthRepository {
     required String description,
   });
 
+  Future<void> sendOtp(String phoneNumber);
+
   Future<bool> verifyOtp(String phoneNumber, String code);
 
   Future<void> resendOtp(String phoneNumber);

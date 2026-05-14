@@ -191,6 +191,25 @@ class NetworkAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> sendOtp(String phoneNumber) async {
+    try {
+      await _dio.post(
+        '/auth/send-otp', // Ajusta esta ruta según tu Swagger/Backend
+        data: {'phoneNumber': phoneNumber},
+      );
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response!.data;
+        if (data is String) throw data;
+        if (data is Map<String, dynamic>) {
+          throw data['message'] ?? 'Error al enviar el código SMS.';
+        }
+      }
+      throw 'Error de conexión. No se pudo solicitar el SMS.';
+    }
+  }
+
+  @override
   Future<bool> verifyOtp(String phoneNumber, String otpCode) async {
     try {
       final response = await _dio.post(

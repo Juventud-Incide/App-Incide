@@ -134,6 +134,15 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> resendOtp(String phoneNumber) async {
+    // Simulamos el tiempo de espera de una petición a internet real (1 segundo)
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Simulamos que el servidor envió el OTP exitosamente
+    print('OTP reenviado al número: $phoneNumber');
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> getServicesCatalog() async {
     await Future.delayed(const Duration(seconds: 1)); // Simulamos red
     return [

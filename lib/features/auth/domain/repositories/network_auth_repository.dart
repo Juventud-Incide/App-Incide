@@ -211,6 +211,22 @@ class NetworkAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> resendOtp(String phoneNumber) async {
+    try {
+      await _dio.post('/auth/resend-otp', data: {'phoneNumber': phoneNumber});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response!.data;
+        if (data is String) throw data;
+        if (data is Map<String, dynamic>) {
+          throw data['message'] ?? 'Error al reenviar el código.';
+        }
+      }
+      throw 'Error de conexión. No se pudo reenviar el SMS.';
+    }
+  }
+
+  @override
   Future<List<Map<String, dynamic>>> getServicesCatalog() async {
     try {
       final response = await _dio.get('/api/servicios');

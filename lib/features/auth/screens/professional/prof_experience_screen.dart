@@ -11,16 +11,14 @@ import '../../widgets/custom_input_field.dart';
 import '../../widgets/custom_dropdown_field.dart';
 import 'dart:developer' as developer;
 
-/// Paso Final del Asistente (Wizard) de Registro del Proveedor.
-///
 /// **Manejo de Estado (Multi-Step Form):**
-/// Esta pantalla recibe un [Map<String, dynamic>] llamado `formData` inyectado
-/// por GoRouter a través del atributo `extra`. Este mapa contiene los datos
-/// recopilados en las pantallas anteriores (Nombre, Email, Contraseña, OTP).
+/// Se apoya en la memoria global del `registrationProvider`, la cual contiene
+/// la información personal y de seguridad validada en los pasos previos.
 ///
-/// Al validar exitosamente, la pantalla combina el `formData` original con
-/// los nuevos datos (Experiencia y Especialidad) para crear el `finalPayload`
-/// que se envía al servidor para registrar la cuenta definitivamente.
+/// Al completar el formulario exitosamente, la pantalla recopila estos últimos
+/// datos (Experiencia y Especialidad) y dispara el método `submitRegistration`
+/// del Notifier. Este controlador orquesta la unión de toda la información y
+/// la envía al servidor para registrar la cuenta de forma atómica y segura.
 class ProfExperienceScreen extends ConsumerStatefulWidget {
   const ProfExperienceScreen({super.key});
 

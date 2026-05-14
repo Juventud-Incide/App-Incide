@@ -10,11 +10,11 @@ import 'package:app_incide/core/constants/app_strings.dart';
 /// Primer paso del Asistente (Wizard) de Registro para Proveedores.
 ///
 /// **Arquitectura de Recolección de Datos:**
-/// Esta pantalla actúa como el recolector inicial. En lugar de hacer llamadas
-/// parciales a la base de datos, recopila la Información Personal, de Cuenta
-/// y Legal, empaquetándola en un [Map] (`formData`). Este mapa es inyectado y
-/// transportado a las siguientes pantallas (OTP, Experiencia) a través del
-/// enrutador, permitiendo un registro atómico (todo o nada) al final del flujo.
+/// Esta pantalla actúa como el recolector inicial. Recopila la Información
+/// Personal, de Cuenta y Legal, y la guarda centralizada en la memoria global
+/// mediante `registrationProvider`. Esto permite mantener los datos seguros en
+/// RAM y navegar a las siguientes pantallas sin saturar las rutas del sistema,
+/// logrando un registro atómico (todo o nada) al final del flujo.
 class ProfRegisterScreen extends ConsumerStatefulWidget {
   const ProfRegisterScreen({super.key});
 
@@ -100,7 +100,6 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
             .requestInitialOtp();
 
         if (!mounted) return;
-        setState(() => _isLoading = false);
 
         // 4. Solo avanzamos si el servidor confirmó el envío
         if (smsSent) {
@@ -114,12 +113,17 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
         }
       } catch (e) {
         // Manejo de errores visuales si algo falla en la lectura
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al guardar datos: $e'),
             backgroundColor: Colors.red,
           ),
         );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }

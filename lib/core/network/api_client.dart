@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_incide/core/network/interceptors/auth_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'api_config.dart';
@@ -11,7 +13,7 @@ class ApiClient {
   late final Dio dio;
 
   // Variable para almacenar la función de cierre de sesión
-  void Function()? onTokenExpired;
+  Future<void> Function()? onTokenExpired;
 
   // Siempre que alguien haga `ApiClient()`, se le devolverá la `_instance` ya existente.
   factory ApiClient() {
@@ -41,9 +43,9 @@ class ApiClient {
     // TODO: Aquí añadiremos el Interceptor (Observer)
     dio.interceptors.add(
       AuthInterceptor(
-        onUnauthenticated: () {
+        onUnauthenticated: () async {
           if (onTokenExpired != null) {
-            onTokenExpired!();
+            unawaited(onTokenExpired!());
           }
         },
       ),

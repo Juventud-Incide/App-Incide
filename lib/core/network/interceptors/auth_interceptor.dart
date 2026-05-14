@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_incide/core/constants/app_keys.dart';
 
 /// Interceptor que actúa como un Observer pasivo del tráfico de red.
 class AuthInterceptor extends Interceptor {
-  final void Function() onUnauthenticated;
+  final Future<void> Function() onUnauthenticated;
 
   AuthInterceptor({required this.onUnauthenticated});
 
@@ -19,6 +20,8 @@ class AuthInterceptor extends Interceptor {
       '/auth/register',
       '/auth/registerProvider',
       '/auth/verify-otp',
+      '/auth/send-otp',
+      '/auth/resend-otp',
       '/api/categorias',
       '/api/servicios',
     ];
@@ -42,7 +45,9 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     // 1. Observamos si el servidor nos rechazó por falta de permisos o caducidad
     if (err.response?.statusCode == 401) {
-      print('🔒 ALERTA DE SEGURIDAD: Token expirado o inválido (Error 401).');
+      debugPrint(
+        '🔒 ALERTA DE SEGURIDAD: Token expirado o inválido (Error 401).',
+      );
       onUnauthenticated();
     }
 

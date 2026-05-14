@@ -98,7 +98,7 @@ class MockAuthRepository implements AuthRepository {
     required String phoneNumber,
     required String role,
   }) async {
-    // TODO: Implement registration logic
+    await Future.delayed(const Duration(seconds: 2));
   }
 
   @override
@@ -116,16 +116,13 @@ class MockAuthRepository implements AuthRepository {
     required String professionalLicense,
     required String description,
   }) async {
-    // TODO: Implement registration logic
+    await Future.delayed(const Duration(seconds: 2));
   }
 
   @override
   Future<void> sendOtp(String phoneNumber) async {
     // Simulamos el tiempo de espera de una petición a internet real (1 segundo)
     await Future.delayed(const Duration(seconds: 1));
-
-    // Simulamos que el servidor envió el OTP exitosamente
-    print('OTP enviado al número: $phoneNumber');
   }
 
   @override
@@ -146,9 +143,6 @@ class MockAuthRepository implements AuthRepository {
   Future<void> resendOtp(String phoneNumber) async {
     // Simulamos el tiempo de espera de una petición a internet real (1 segundo)
     await Future.delayed(const Duration(seconds: 1));
-
-    // Simulamos que el servidor envió el OTP exitosamente
-    print('OTP reenviado al número: $phoneNumber');
   }
 
   @override

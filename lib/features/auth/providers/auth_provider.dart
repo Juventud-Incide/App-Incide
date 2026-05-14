@@ -100,7 +100,7 @@ class AuthController extends Notifier<AuthState> {
   /// Carga inicial del estado desde almacenamiento local
   Future<void> initialize() async {
     try {
-      ApiClient().onTokenExpired = logout;
+      ApiClient().onTokenExpired = () => logout();
 
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString(AppKeys.token);

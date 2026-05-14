@@ -146,8 +146,7 @@ class RegistrationNotifier extends Notifier<RegistrationState> {
         professionalLicense: state.professionalLicense,
         description: state.description,
       );
-
-      state = state.copyWith(isLoading: false);
+      clear();
       return true; // Éxito
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

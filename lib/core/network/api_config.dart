@@ -6,7 +6,7 @@ enum Environment { development, production }
 class ApiConfig {
   // Por defecto, lo iniciamos en desarrollo.
   // Antes de compilar para producción, cambiaríamos esto a Environment.production
-  static Environment currentEnvironment = Environment.production;
+  static Environment currentEnvironment = Environment.development;
 
   /// Retorna la URL base dependiendo de la estrategia (entorno) actual.
   static String get baseUrl {

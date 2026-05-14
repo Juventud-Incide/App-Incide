@@ -10,9 +10,10 @@ import 'dart:async';
 /// Pantalla de Verificación SMS (One-Time Password) para el Proveedor.
 ///
 /// **Flujo de Registro (Wizard):**
-/// Recibe el `formData` (Nombre, Email, Password, Teléfono) de la pantalla anterior.
-/// Si el OTP es correcto, hereda este diccionario a la siguiente vista (`prof_experience`)
-/// para continuar construyendo el Payload final.
+/// Esta pantalla lee el número de teléfono previamente guardado en el
+/// `registrationProvider`. Si el usuario ingresa el código correcto, el
+/// Notifier valida contra el servidor y aprueba la navegación hacia el
+/// paso final (`prof_experience`).
 ///
 /// **UX de Campos Divididos:**
 /// Utiliza una lista de `FocusNode` para implementar el "Auto-Avance". Cuando el

@@ -9,23 +9,26 @@ import 'spei_transfer_sheet.dart';
 class PaymentMethodSheet extends StatelessWidget {
   final double monto;
   final String titulo;
+  final void Function(String) onPaymentSuccess;
 
   const PaymentMethodSheet({
     super.key,
     required this.monto,
     required this.titulo,
+    required this.onPaymentSuccess,
   });
 
   static Future<void> show(
     BuildContext context, {
     required double monto,
     required String titulo,
+    required void Function(String) onPaymentSuccess,
   }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => PaymentMethodSheet(monto: monto, titulo: titulo),
+      builder: (_) => PaymentMethodSheet(monto: monto, titulo: titulo, onPaymentSuccess: onPaymentSuccess),
     );
   }
 
@@ -152,7 +155,7 @@ class PaymentMethodSheet extends StatelessWidget {
             onTap: () {
               final parentCtx = Navigator.of(context).context;
               Navigator.pop(context);
-              SavedCardsSheet.show(parentCtx, monto: monto, titulo: titulo);
+              SavedCardsSheet.show(parentCtx, monto: monto, titulo: titulo, onPaymentSuccess: onPaymentSuccess);
             },
           ),
 
@@ -167,7 +170,7 @@ class PaymentMethodSheet extends StatelessWidget {
             onTap: () {
               final parentCtx = Navigator.of(context).context;
               Navigator.pop(context);
-              SpeiTransferSheet.show(parentCtx, monto: monto, titulo: titulo);
+              SpeiTransferSheet.show(parentCtx, monto: monto, titulo: titulo, onPaymentSuccess: () => onPaymentSuccess('Transferencia SPEI'));
             },
           ),
 

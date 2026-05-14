@@ -62,6 +62,24 @@ class AllPagosNotifier extends Notifier<List<PagoModel>> {
       ),
     ];
   }
+
+  void marcarComoPagado(String pagoId, String metodoPago) {
+    state = state.map((p) {
+      if (p.id == pagoId) {
+        return PagoModel(
+          id: p.id,
+          titulo: p.titulo,
+          descripcion: p.descripcion,
+          monto: p.monto,
+          estado: EstadoPago.pagado,
+          fecha: DateTime.now(),
+          metodoPago: metodoPago,
+          referencia: 'TXN-${DateTime.now().millisecondsSinceEpoch}',
+        );
+      }
+      return p;
+    }).toList();
+  }
 }
 
 // ── Filtro activo de la pestaña de pagos ──────────────────────────────────

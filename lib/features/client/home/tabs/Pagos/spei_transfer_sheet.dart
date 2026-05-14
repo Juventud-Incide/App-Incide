@@ -8,23 +8,26 @@ import '../../../../../core/theme/app_colors.dart';
 class SpeiTransferSheet extends StatefulWidget {
   final double monto;
   final String titulo;
+  final VoidCallback onPaymentSuccess;
 
   const SpeiTransferSheet({
     super.key,
     required this.monto,
     required this.titulo,
+    required this.onPaymentSuccess,
   });
 
   static Future<void> show(
     BuildContext context, {
     required double monto,
     required String titulo,
+    required VoidCallback onPaymentSuccess,
   }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => SpeiTransferSheet(monto: monto, titulo: titulo),
+      builder: (_) => SpeiTransferSheet(monto: monto, titulo: titulo, onPaymentSuccess: onPaymentSuccess),
     );
   }
 
@@ -247,11 +250,14 @@ class _SpeiTransferSheetState extends State<SpeiTransferSheet> {
 
             const SizedBox(height: 24),
 
-            // ── Botón Cerrar ─────────────────────────────────────────────────
+            // ── Botón Confirmar ──────────────────────────────────────────────
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.onPaymentSuccess();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7C3AED),
                   foregroundColor: Colors.white,

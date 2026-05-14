@@ -83,16 +83,34 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
   }
 
   /// Solicita al servidor un nuevo código y reinicia el bloqueo temporal.
-  void _resendOTP() {
-    // TODO: (BACKEND) - Invocar authService.resendSms(widget.formData['phone'])
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Nuevo código SMS enviado'),
-        backgroundColor: Colors.green,
-      ),
-    );
-    _startTimer();
-    _focusNodes[0].requestFocus(); // Devuelve el cursor a la primera caja
+  void _resendOTP() async {
+    // Bloqueamos el botón visualmente (opcional, el timer ya lo hace)
+    setState(() => _canResend = false);
+
+    // Disparamos la petición al Notifier
+    final success = await ref
+        .read(registrationProvider.notifier)
+        .resendOtpCode();
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nuevo código SMS enviado'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _startTimer();
+      _focusNodes[0].requestFocus();
+    } else {
+      // Si falló la red, volvemos a habilitar el botón y mostramos el error
+      setState(() => _canResend = true);
+      final errorMsg = ref.read(registrationProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
+      );
+    }
   }
 
   /// Formatea los segundos restantes (ej. "00:09").
@@ -132,31 +150,36 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
       // 1. Extraemos el celular del estado global
       final phoneNumber = ref.read(registrationProvider).phoneNumber;
 
-      // 2. Disparamos la petición al repositorio (que usará el Mock por ahora)
+      // Usamos el método que diseñamos en el Notifier
       final isValid = await ref
-          .read(authRepositoryProvider)
-          .verifyOtp(phoneNumber, otpCode);
+          .read(registrationProvider.notifier)
+          .verifyOtpCode(otpCode);
 
       // 3. Si es exitoso, navegamos al Paso 3 (Experiencia Profesional)
       if (isValid) {
         for (var controller in _controllers) {
           controller.clear();
         }
-
         if (mounted) {
           context.pushNamed('prof_experience');
         }
-      }
-    } catch (e) {
-      // ERROR: Si el Mock (o el futuro backend) rechaza el código o falla la red
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
-        for (var controller in _controllers) {
-          controller.clear();
+      } else {
+        // Si no es válido, el Notifier ya guardó el error en el estado
+        if (mounted) {
+          final errorMsg = ref.read(registrationProvider).error;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                errorMsg.isNotEmpty ? errorMsg : 'Código incorrecto',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+          for (var controller in _controllers) {
+            controller.clear();
+          }
+          _focusNodes[0].requestFocus();
         }
-        _focusNodes[0].requestFocus();
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

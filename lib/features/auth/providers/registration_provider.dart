@@ -155,6 +155,38 @@ class RegistrationNotifier extends Notifier<RegistrationState> {
     }
   }
 
+  Future<bool> verifyOtpCode(String code) async {
+    state = state.copyWith(isLoading: true, error: '');
+
+    try {
+      final repository = ref.read(authRepositoryProvider);
+
+      // Llamamos al repositorio usando el teléfono guardado en el Paso 1
+      final isSuccess = await repository.verifyOtp(state.phoneNumber, code);
+
+      state = state.copyWith(isLoading: false);
+      return isSuccess;
+    } catch (e) {
+      // Atrapamos el error del backend (ej. "Código incorrecto") y lo mandamos a la vista
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  /// Solicita un nuevo código SMS al servidor
+  Future<bool> resendOtpCode() async {
+    try {
+      final repository = ref.read(authRepositoryProvider);
+      // Usamos el teléfono que guardamos en el Paso 1
+      await repository.resendOtp(state.phoneNumber);
+      return true;
+    } catch (e) {
+      // Guardamos el error para que la UI lo muestre
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
   /// Limpia la memoria si el usuario cancela el registro y regresa al Login
   void clear() {
     state = RegistrationState();

@@ -10,6 +10,9 @@ class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
   late final Dio dio;
 
+  // Variable para almacenar la función de cierre de sesión
+  void Function()? onTokenExpired;
+
   // Siempre que alguien haga `ApiClient()`, se le devolverá la `_instance` ya existente.
   factory ApiClient() {
     return _instance;
@@ -36,7 +39,15 @@ class ApiClient {
     );
 
     // TODO: Aquí añadiremos el Interceptor (Observer)
-    dio.interceptors.add(AuthInterceptor());
+    dio.interceptors.add(
+      AuthInterceptor(
+        onUnauthenticated: () {
+          if (onTokenExpired != null) {
+            onTokenExpired!();
+          }
+        },
+      ),
+    );
 
     dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
   }

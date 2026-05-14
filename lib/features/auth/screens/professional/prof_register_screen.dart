@@ -79,6 +79,7 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
       );
     } else {
       try {
+        final cleanPhone = _phoneController.text.replaceAll(RegExp(r'\D'), '');
         // Guardamos en la memoria global de Riverpod
         ref
             .read(registrationProvider.notifier)
@@ -87,7 +88,7 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
               lastName: _lastNameController.text.trim(),
               email: _emailController.text.trim(),
               password: _passwordController.text,
-              phoneNumber: _phoneController.text.trim(),
+              phoneNumber: cleanPhone,
               curp: _curpController.text.trim().toUpperCase(),
               rfc: _rfcController.text.trim().toUpperCase(),
             );

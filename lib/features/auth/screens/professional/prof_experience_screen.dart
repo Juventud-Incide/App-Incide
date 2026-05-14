@@ -311,6 +311,7 @@ class _ProfExperienceScreenState extends ConsumerState<ProfExperienceScreen> {
                         label: AppStrings.cedulaLabel,
                         hintText: AppStrings.cedulaHint,
                         controller: _cedulaController,
+                        keyboardType: TextInputType.number,
                         textCapitalization: TextCapitalization.characters,
                         inputFormatters: [
                           ...AppFormatters.digitsOnly,

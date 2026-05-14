@@ -1,6 +1,5 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/auth/providers/auth_provider.dart';
 import 'package:app_incide/features/auth/providers/registration_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -147,9 +146,6 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Extraemos el celular del estado global
-      final phoneNumber = ref.read(registrationProvider).phoneNumber;
-
       // Usamos el método que diseñamos en el Notifier
       final isValid = await ref
           .read(registrationProvider.notifier)

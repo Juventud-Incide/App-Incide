@@ -21,7 +21,7 @@ abstract class AuthRepository {
 
   /// Registro de un nuevo usuario (cliente o proveedor).
   ///
-  /// [userRole] → 0 = Client, 1 = Provider (enum del backend C#).
+  /// [userRole] → 2 = Client, 3 = Provider (enum del backend C#).
   ///
   /// Respuesta esperada del backend real:
   /// ```json

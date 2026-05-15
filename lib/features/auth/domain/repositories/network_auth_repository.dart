@@ -23,10 +23,7 @@ class NetworkAuthRepository implements AuthRepository {
   /// { "user": { "id":1, "fullName":"Ana", "email":"...", "userRole":"Client" }, "token":"..." }
   /// ```
   @override
-  Future<Map<String, dynamic>> login(
-    String email,
-    String password,
-  ) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await _dio.post(
         '/auth/login',
@@ -38,8 +35,10 @@ class NetworkAuthRepository implements AuthRepository {
       );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['message'] ?? 'Error de conexión con el servidor';
+      final data = e.response?.data;
+      final errorMessage = data is String
+          ? data
+          : (data?['message'] ?? 'Error de conexión con el servidor');
       throw Exception(errorMessage);
     }
   }
@@ -49,7 +48,7 @@ class NetworkAuthRepository implements AuthRepository {
   /// Llama a POST /api/auth/register
   ///
   /// El backend recibe el RegisterDTO de C# con los siguientes campos.
-  /// [userRole]: 0 = Client, 1 = Provider.
+  /// [userRole]: 2 = Client, 3 = Provider.
   ///
   /// Respuesta exitosa (200 OK):
   /// ```json
@@ -77,13 +76,15 @@ class NetworkAuthRepository implements AuthRepository {
           // Solo incluimos phoneNumber si el usuario lo escribió
           if (phoneNumber != null && phoneNumber.trim().isNotEmpty)
             'phoneNumber': phoneNumber.trim(),
-          'userRole': userRole, // 0 = Client, 1 = Provider
+          'userRole': userRole, // 2 = Client, 3 = Provider
         },
       );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      final errorMessage =
-          e.response?.data?['message'] ?? 'Error al registrarse. Intenta de nuevo.';
+      final data = e.response?.data;
+      final errorMessage = data is String
+          ? data
+          : (data?['message'] ?? 'Error al registrarse. Intenta de nuevo.');
       throw Exception(errorMessage);
     }
   }

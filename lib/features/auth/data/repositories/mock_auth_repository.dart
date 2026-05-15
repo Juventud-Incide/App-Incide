@@ -10,10 +10,7 @@ class MockAuthRepository implements AuthRepository {
   // ── LOGIN ─────────────────────────────────────────────────────────────────
 
   @override
-  Future<Map<String, dynamic>> login(
-    String email,
-    String password,
-  ) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     await Future.delayed(const Duration(seconds: 2)); // Simula latencia de red
 
     // Inferimos el rol por el dominio del email:
@@ -111,7 +108,9 @@ class MockAuthRepository implements AuthRepository {
         'fullName': '$firstName $lastName',
         'email': email,
         'phoneNumber': phoneNumber,
-        'userRole': userRole == 0 ? 'Client' : 'Provider',
+        'userRole': userRole == 2 ? 'Client' : 'Provider',
+        // Simulamos el status inicial devuelto por el backend real
+        'status': userRole == 3 ? 'Registered' : null,
       },
       'token': 'mock_register_token_${email.hashCode.abs()}',
     };

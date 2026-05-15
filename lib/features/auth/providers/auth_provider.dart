@@ -208,7 +208,7 @@ class AuthController extends Notifier<AuthState> {
     required String password,
     required String confirmPassword,
     String? phoneNumber,
-    required int userRole, // 0 = Client, 1 = Provider
+    required int userRole, // 2 = Client, 3 = Provider
   }) async {
     state = state.copyWith(isLoading: true);
 
@@ -287,12 +287,35 @@ class AuthController extends Notifier<AuthState> {
   ///
   /// El backend puede devolver el rol como:
   /// - String: "Client" / "Provider" (usando enum.ToString() en C#)
-  /// - Integer: 0 (Client) / 1 (Provider) (si el serializador usa números)
+  /// - Integer: 0 (None) / 1 (Admin) / 2 (Client) / 3 (Provider)
+  ///
+  /// Solo los roles de cliente y proveedor se traducen a la representación
+  /// interna de la app. Valores desconocidos, `None` o `Admin` deben
+  /// omitirse por defecto al flujo de proveedor.
   String _parseUserRole(dynamic rawRole) {
+    if (rawRole == null) return '';
+
     if (rawRole is int) {
-      return rawRole == 0 ? 'cliente' : 'proveedor';
+      switch (rawRole) {
+        case 2:
+          return 'cliente';
+        case 3:
+          return 'proveedor';
+        default:
+          return '';
+      }
     }
-    final String lower = rawRole.toString().toLowerCase();
-    return lower == 'client' ? 'cliente' : 'proveedor';
+
+    final String normalized = rawRole.toString().trim().toLowerCase();
+    switch (normalized) {
+      case '2':
+      case 'client':
+        return 'cliente';
+      case '3':
+      case 'provider':
+        return 'proveedor';
+      default:
+        return '';
+    }
   }
 }

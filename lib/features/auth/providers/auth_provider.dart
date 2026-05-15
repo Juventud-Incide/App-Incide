@@ -163,7 +163,15 @@ class AuthController extends Notifier<AuthState> {
         // ── Respuesta del backend real ───────────────────────────────────────
         final Map<String, dynamic> user = responseData['user'];
         serverRole = _parseUserRole(user['userRole']);
-        userStatus = 'aceptado';
+        // Los proveedores recién creados tienen Status = Registered (pendiente).
+        // Leemos el status del backend si viene, sino inferimos por rol.
+        final rawStatus = user['status'] as String?;
+        if (rawStatus != null) {
+          userStatus = _parseUserStatus(rawStatus);
+        } else {
+          // Fallback: clientes → aceptado, proveedores → pendiente
+          userStatus = serverRole == 'proveedor' ? 'pendiente' : 'aceptado';
+        }
         pendingStep = null;
       } else {
         // ── Respuesta del mock (formato antiguo) ───────────────────────────
@@ -226,22 +234,27 @@ class AuthController extends Notifier<AuthState> {
 
       final String token = responseData['token'];
 
-      // El backend y el mock devuelven { user: { userRole: "Client" }, token: "..." }
+      // El backend devuelve { user: { userRole: "Client", status: "Registered" }, token: "..." }
       final Map<String, dynamic> user = responseData['user'];
       final String roleMapped = _parseUserRole(user['userRole']);
+      // Leemos el status del backend si viene; proveedores inician como 'pendiente'.
+      final rawStatus = user['status'] as String?;
+      final String statusMapped = rawStatus != null
+          ? _parseUserStatus(rawStatus)
+          : (roleMapped == 'proveedor' ? 'pendiente' : 'aceptado');
 
       // Guardamos la sesión en disco
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(AppKeys.token, token);
       await prefs.setString(AppKeys.role, roleMapped);
-      await prefs.setString(AppKeys.profileStatus, 'aceptado');
+      await prefs.setString(AppKeys.profileStatus, statusMapped);
 
       // Actualizamos el estado en memoria (GoRouter navega al home automáticamente)
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
         role: roleMapped,
-        profileStatus: 'aceptado',
+        profileStatus: statusMapped,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -316,6 +329,27 @@ class AuthController extends Notifier<AuthState> {
         return 'proveedor';
       default:
         return '';
+    }
+  }
+
+  /// Convierte el status del proveedor del backend al valor interno de la app.
+  ///
+  /// El backend C# puede devolver:
+  /// - `"Registered"` → recién registrado, en espera de revisión → `'pendiente'`
+  /// - `"Accepted"`   → aprobado por el admin                    → `'aceptado'`
+  /// - `"Rejected"`   → rechazado por el admin                   → `'rechazado'`
+  ///
+  /// Para clientes, el backend no incluye este campo (devuelve null),
+  /// por lo que el caller debe usar `'aceptado'` como fallback.
+  String _parseUserStatus(String rawStatus) {
+    switch (rawStatus.trim().toLowerCase()) {
+      case 'accepted':
+        return 'aceptado';
+      case 'rejected':
+        return 'rechazado';
+      case 'registered':
+      default:
+        return 'pendiente';
     }
   }
 }

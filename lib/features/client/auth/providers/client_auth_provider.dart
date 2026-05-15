@@ -76,7 +76,7 @@ class ClientAuthNotifier extends Notifier<ClientRegisterState> {
             password: password,
             confirmPassword: confirmPassword,
             phoneNumber: phoneNumber,
-            userRole: 0, // 0 = Client — siempre fijo para el flujo del cliente
+            userRole: 2, // 2 = Client — siempre fijo para el flujo del cliente
           );
 
       // Si llega aquí sin lanzar excepción, el registro fue exitoso.

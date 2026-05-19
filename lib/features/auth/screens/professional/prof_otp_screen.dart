@@ -27,7 +27,7 @@ class ProfOtpScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
-  // Controladores y Nodos de Enfoque para las 4 cajas de texto individuales
+  // Controladores y Nodos de Enfoque para las 6 cajas de texto individuales
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
   bool _isLoading = false;
@@ -36,12 +36,13 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
   Timer? _timer;
   int _secondsRemaining = 59;
   bool _canResend = false;
+  int _codeLength = 6; // Número de dígitos del OTP
 
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(4, (_) => TextEditingController());
-    _focusNodes = List.generate(4, (_) => FocusNode());
+    _controllers = List.generate(_codeLength, (_) => TextEditingController());
+    _focusNodes = List.generate(_codeLength, (_) => FocusNode());
     _startTimer();
   }
 
@@ -109,17 +110,19 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
     return '**00';
   }
 
-  /// Concatena los 4 dígitos, valida y verifica contra el servidor.
+  /// Concatena los 6 dígitos, valida y verifica contra el servidor.
   Future<void> _verifyCode() async {
     FocusScope.of(context).unfocus();
 
     // Une el texto de todos los controladores en un solo String
     String otpCode = _controllers.map((c) => c.text).join();
 
-    if (otpCode.length < 4) {
+    if (otpCode.length < _codeLength) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(AppStrings.otpIncomplete),
+        SnackBar(
+          content: Text(
+            AppStrings.otpIncomplete.replaceAll('X', '$_codeLength'),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -238,7 +241,12 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
                     height: 1.4,
                   ),
                   children: [
-                    TextSpan(text: AppStrings.otpSubtitle1),
+                    TextSpan(
+                      text: AppStrings.otpSubtitle1.replaceAll(
+                        'X',
+                        '$_codeLength',
+                      ),
+                    ),
                     TextSpan(
                       text: _getMaskedPhone(),
                       style: TextStyle(
@@ -254,7 +262,7 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
               // --- 3. CAJAS DE OTP ---
               Row(
                 children: [
-                  for (int i = 0; i < 4; i++) ...[
+                  for (int i = 0; i < _codeLength; i++) ...[
                     Expanded(
                       child: AspectRatio(
                         aspectRatio:
@@ -296,7 +304,7 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
                           onChanged: (value) {
                             // Lógica de "Auto-Avance" y "Auto-Retroceso"
                             if (value.isNotEmpty) {
-                              if (i < 3) {
+                              if (i < _codeLength - 1) {
                                 _focusNodes[i + 1]
                                     .requestFocus(); // Salta al siguiente
                               } else {
@@ -313,7 +321,7 @@ class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
                         ),
                       ),
                     ),
-                    if (i < 3) const SizedBox(width: 16),
+                    if (i < _codeLength - 1) const SizedBox(width: 16),
                   ],
                 ],
               ),

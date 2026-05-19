@@ -1,10 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_incide/core/constants/app_keys.dart';
 
 /// Interceptor que actúa como un Observer pasivo del tráfico de red.
 class AuthInterceptor extends Interceptor {
-  // Nota: Si usas flutter_secure_storage, lo cambiarías aquí
+  final Future<void> Function() onUnauthenticated;
+
+  AuthInterceptor({required this.onUnauthenticated});
 
   @override
   Future<void> onRequest(
@@ -12,7 +15,16 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     // 1. Definimos las rutas que NUNCA deben llevar token
-    final List<String> publicRoutes = ['/auth/login', '/auth/register'];
+    final List<String> publicRoutes = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/registerProvider',
+      '/auth/verify-otp',
+      '/auth/send-otp',
+      '/auth/resend-otp',
+      '/api/categorias',
+      '/api/servicios',
+    ];
 
     // 2. Buscamos el token guardado en el dispositivo
     final prefs = await SharedPreferences.getInstance();
@@ -33,10 +45,10 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     // 1. Observamos si el servidor nos rechazó por falta de permisos o caducidad
     if (err.response?.statusCode == 401) {
-      print('🔒 ALERTA DE SEGURIDAD: Token expirado o inválido (Error 401).');
-
-      // TODO: (Próximo paso) Aquí conectaremos un trigger para forzar el cierre
-      // de sesión y mandar al usuario a la pantalla de Login.
+      debugPrint(
+        '🔒 ALERTA DE SEGURIDAD: Token expirado o inválido (Error 401).',
+      );
+      onUnauthenticated();
     }
 
     // 2. Dejamos que el error siga su curso para que la pantalla que hizo

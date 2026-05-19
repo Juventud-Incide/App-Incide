@@ -10,11 +10,11 @@ import 'package:app_incide/core/constants/app_strings.dart';
 /// Primer paso del Asistente (Wizard) de Registro para Proveedores.
 ///
 /// **Arquitectura de Recolección de Datos:**
-/// Esta pantalla actúa como el recolector inicial. En lugar de hacer llamadas
-/// parciales a la base de datos, recopila la Información Personal, de Cuenta
-/// y Legal, empaquetándola en un [Map] (`formData`). Este mapa es inyectado y
-/// transportado a las siguientes pantallas (OTP, Experiencia) a través del
-/// enrutador, permitiendo un registro atómico (todo o nada) al final del flujo.
+/// Esta pantalla actúa como el recolector inicial. Recopila la Información
+/// Personal, de Cuenta y Legal, y la guarda centralizada en la memoria global
+/// mediante `registrationProvider`. Esto permite mantener los datos seguros en
+/// RAM y navegar a las siguientes pantallas sin saturar las rutas del sistema,
+/// logrando un registro atómico (todo o nada) al final del flujo.
 class ProfRegisterScreen extends ConsumerStatefulWidget {
   const ProfRegisterScreen({super.key});
 
@@ -42,6 +42,8 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
   bool _termsAccepted = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     // LIMPIEZA: Evitamos fugas de memoria y destruimos información personal
@@ -57,7 +59,7 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
   }
 
   /// Evalúa el formulario, verifica políticas y orquesta la transición de datos.
-  void _submitForm() {
+  Future<void> _submitForm() async {
     FocusScope.of(context).unfocus();
 
     final isValidForm = _formKey.currentState!.validate();
@@ -77,6 +79,7 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
       );
     } else {
       try {
+        final cleanPhone = _phoneController.text.replaceAll(RegExp(r'\D'), '');
         // Guardamos en la memoria global de Riverpod
         ref
             .read(registrationProvider.notifier)
@@ -85,21 +88,42 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
               lastName: _lastNameController.text.trim(),
               email: _emailController.text.trim(),
               password: _passwordController.text,
-              phoneNumber: _phoneController.text.trim(),
+              phoneNumber: cleanPhone,
               curp: _curpController.text.trim().toUpperCase(),
               rfc: _rfcController.text.trim().toUpperCase(),
             );
 
-        // 4. Navegamos a la pantalla OTP con las manos vacías
-        context.pushNamed('prof_otp');
+        setState(() => _isLoading = true);
+
+        final smsSent = await ref
+            .read(registrationProvider.notifier)
+            .requestInitialOtp();
+
+        if (!mounted) return;
+
+        // 4. Solo avanzamos si el servidor confirmó el envío
+        if (smsSent) {
+          context.pushNamed('prof_otp');
+        } else {
+          // Si falló, mostramos el error (ej. Número inválido)
+          final errorMsg = ref.read(registrationProvider).error;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
+          );
+        }
       } catch (e) {
         // Manejo de errores visuales si algo falla en la lectura
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al guardar datos: $e'),
             backgroundColor: Colors.red,
           ),
         );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
     }
   }
@@ -378,14 +402,23 @@ class _ProfRegisterScreenState extends ConsumerState<ProfRegisterScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      AppStrings.continueBtn,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            AppStrings.continueBtn,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),

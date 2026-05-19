@@ -98,7 +98,7 @@ class MockAuthRepository implements AuthRepository {
     required String phoneNumber,
     required String role,
   }) async {
-    // TODO: Implement registration logic
+    await Future.delayed(const Duration(seconds: 2));
   }
 
   @override
@@ -116,7 +116,13 @@ class MockAuthRepository implements AuthRepository {
     required String professionalLicense,
     required String description,
   }) async {
-    // TODO: Implement registration logic
+    await Future.delayed(const Duration(seconds: 2));
+  }
+
+  @override
+  Future<void> sendOtp(String phoneNumber) async {
+    // Simulamos el tiempo de espera de una petición a internet real (1 segundo)
+    await Future.delayed(const Duration(seconds: 1));
   }
 
   @override
@@ -131,6 +137,12 @@ class MockAuthRepository implements AuthRepository {
       // Simulamos que el servidor de C# nos devuelve un error 400
       throw 'El código ingresado es incorrecto o ha expirado.';
     }
+  }
+
+  @override
+  Future<void> resendOtp(String phoneNumber) async {
+    // Simulamos el tiempo de espera de una petición a internet real (1 segundo)
+    await Future.delayed(const Duration(seconds: 1));
   }
 
   @override

@@ -146,12 +146,60 @@ class RegistrationNotifier extends Notifier<RegistrationState> {
         professionalLicense: state.professionalLicense,
         description: state.description,
       );
-
-      state = state.copyWith(isLoading: false);
+      clear();
       return true; // Éxito
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false; // Falló
+    }
+  }
+
+  /// Solicita el envío inicial del código SMS
+  Future<bool> requestInitialOtp() async {
+    // Activamos la ruedita de carga por si el internet está lento
+    state = state.copyWith(isLoading: true, error: '');
+
+    try {
+      final repository = ref.read(authRepositoryProvider);
+      await repository.sendOtp(state.phoneNumber);
+
+      state = state.copyWith(isLoading: false);
+      return true; // Éxito: El SMS va en camino
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false; // Error: Falló la red o el backend
+    }
+  }
+
+  Future<bool> verifyOtpCode(String code) async {
+    state = state.copyWith(isLoading: true, error: '');
+
+    try {
+      final repository = ref.read(authRepositoryProvider);
+
+      // Llamamos al repositorio usando el teléfono guardado en el Paso 1
+      final isSuccess = await repository.verifyOtp(state.phoneNumber, code);
+
+      state = state.copyWith(isLoading: false);
+      return isSuccess;
+    } catch (e) {
+      // Atrapamos el error del backend (ej. "Código incorrecto") y lo mandamos a la vista
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  /// Solicita un nuevo código SMS al servidor
+  Future<bool> resendOtpCode() async {
+    try {
+      final repository = ref.read(authRepositoryProvider);
+      // Usamos el teléfono que guardamos en el Paso 1
+      await repository.resendOtp(state.phoneNumber);
+      return true;
+    } catch (e) {
+      // Guardamos el error para que la UI lo muestre
+      state = state.copyWith(error: e.toString());
+      return false;
     }
   }
 

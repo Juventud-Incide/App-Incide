@@ -1,20 +1,17 @@
 import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/client/auth/providers/client_auth_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/widgets/custom_input_field.dart';
 import 'package:app_incide/core/constants/app_strings.dart';
 
-class ClienteRegisterScreen extends ConsumerStatefulWidget {
+class ClienteRegisterScreen extends StatefulWidget {
   const ClienteRegisterScreen({super.key});
 
   @override
-  ConsumerState<ClienteRegisterScreen> createState() =>
-      _ClienteRegisterScreenState();
+  State<ClienteRegisterScreen> createState() => _ClienteRegisterScreenState();
 }
 
-class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
+class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controladores para cliente
@@ -46,10 +43,10 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
       RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]').hasMatch(_passwordController.text);
 
   /// TRUE solo si se cumplen TODOS los requisitos de seguridad:
-  /// - Mínimo 8 caracteres
-  /// - Al menos una mayúscula (A-Z)
-  /// - Al menos una minúscula (a-z)
-  /// - Al menos un número (0-9)
+  /// - Mínimo 8 caracteres 
+  /// - Al menos una mayúscula (A-Z) 
+  /// - Al menos una minúscula (a-z) 
+  /// - Al menos un número (0-9) 
   /// (Carácter especial es recomendado, no obligatorio)
   bool get _allRequirementsMet =>
       _hasMinLength && _hasUppercase && _hasLowercase && _hasNumber;
@@ -77,8 +74,7 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
     super.dispose();
   }
 
-  /// Valida el formulario y llama al backend a través de [ClientAuthNotifier].
-  Future<void> _submitForm() async {
+  void _submitForm() {
     final isValidForm = _formKey.currentState!.validate();
 
     if (!isValidForm) {
@@ -96,15 +92,14 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
     } else if (!_allRequirementsMet) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'La contraseña no cumple todos los requisitos necesarios',
-          ),
+          content: Text('La contraseña no cumple todos los requisitos necesarios'),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
       );
       return;
     } else if (!_termsAccepted) {
+      // Mostrar advertencia si no aceptó los términos
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(AppStrings.termsNotAccepted),
@@ -112,32 +107,18 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      return;
-    }
+    } else {
+      // Solución P0 COMPLETA: Empaquetamos todo el estado del formulario
+      // para que no se pierda al navegar con GoRouter.
+      final formData = {
+        'name': _nameController.text,
+        'lastName': _lastNameController.text,
+        'email': _emailController.text,
+        'password': _passwordController.text,
+      };
 
-    // Todo validado — llamamos al backend
-    try {
-      await ref
-          .read(clientAuthProvider.notifier)
-          .registerCliente(
-            firstName: _nameController.text.trim(),
-            lastName: _lastNameController.text.trim(),
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-            confirmPassword: _confirmPasswordController.text,
-            // phoneNumber no se pide en este formulario — es opcional en el backend
-          );
-      // Si llega aquí, el registro fue exitoso.
-      // GoRouter detecta el cambio de AuthState y navega al home del cliente solo.
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Cliente: ir a verificar correo antes del login
+      context.pushNamed('verif-correo-cliente', extra: formData);
     }
   }
 
@@ -154,7 +135,7 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 13,//Ignorar este coemtnario 
               fontWeight: FontWeight.w800,
               color: AppColors.primaryBlue,
               letterSpacing: 1.2,
@@ -348,10 +329,10 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
                   textCapitalization: TextCapitalization.none,
                 ),
                 const SizedBox(height: 16),
-
+                
                 // --- CHECKLIST DE REQUISITOS DE CONTRASEÑA ---
                 _buildPasswordRequirements(),
-
+                
                 const SizedBox(height: 12),
                 CustomInputField(
                   label: AppStrings.confirmPasswordLabel,
@@ -440,10 +421,7 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
                           ),
                         );
                       },
-                      icon: Image.asset(
-                        'assets/images/logo_google.png',
-                        width: 32,
-                      ),
+                      icon: Image.asset('assets/images/logo_google.png', width: 32),
                       label: const Text(
                         'Google',
                         style: TextStyle(
@@ -465,44 +443,29 @@ class _ClienteRegisterScreenState extends ConsumerState<ClienteRegisterScreen> {
 
                 const SizedBox(height: 35),
 
-                // --- 5. BOTÓN DE CONTINUAR (reactivo al estado de carga) ---
-                Builder(
-                  builder: (context) {
-                    final isLoading = ref.watch(clientAuthProvider).isLoading;
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton(
-                        // Desactivamos el botón mientras carga para evitar doble envío
-                        onPressed: isLoading ? null : _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryBlue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 22,
-                                width: 22,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              )
-                            : const Text(
-                                AppStrings.continueBtn,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                // --- 5. BOTÓN DE CONTINUAR ---
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryBlue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    );
-                  },
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      AppStrings.continueBtn,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
               ],

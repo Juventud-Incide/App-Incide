@@ -2,40 +2,45 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_incide/core/constants/app_keys.dart';
 
-/// Interceptor que actúa como un Observer pasivo del tráfico de red.
+/// Interceptor que adjunta el JWT a cada petición autenticada.
+///
+/// Las rutas públicas (/auth/login y /auth/register) quedan exentas —
+/// enviarles un token causaría un 401 si el token está vencido.
 class AuthInterceptor extends Interceptor {
-  // Nota: Si usas flutter_secure_storage, lo cambiarías aquí
+  /// Rutas que NO necesitan token (son las que dan el token).
+  static const _publicPaths = ['/auth/login', '/auth/register'];
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // 1. Buscamos el token guardado en el dispositivo
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString(AppKeys.token);
+    // Verificamos si la ruta actual es pública (no requiere token)
+    final isPublic = _publicPaths.any((path) => options.path.contains(path));
 
-    // 2. Si existe, lo inyectamos en la cabecera de la petición
-    if (token != null && token.isNotEmpty) {
-      options.headers['Authorization'] = 'Bearer $token';
+    if (!isPublic) {
+      // Solo para rutas protegidas: inyectamos el token en el header
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(AppKeys.token);
+
+      if (token != null && token.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
     }
 
-    // 3. Dejamos que la petición continúe su viaje hacia el servidor
+    // Dejamos que la petición continúe hacia el servidor
     super.onRequest(options, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // 1. Observamos si el servidor nos rechazó por falta de permisos o caducidad
     if (err.response?.statusCode == 401) {
+      // El token expiró o es inválido en una ruta protegida.
+      // TODO: Aquí se puede forzar logout y redirigir al login.
       print('🔒 ALERTA DE SEGURIDAD: Token expirado o inválido (Error 401).');
-
-      // TODO: (Próximo paso) Aquí conectaremos un trigger para forzar el cierre
-      // de sesión y mandar al usuario a la pantalla de Login.
     }
 
-    // 2. Dejamos que el error siga su curso para que la pantalla que hizo
-    // la petición pueda mostrar un mensaje al usuario.
+    // Dejamos que el error siga para que la pantalla muestre el mensaje.
     super.onError(err, handler);
   }
 }

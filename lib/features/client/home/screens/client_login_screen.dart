@@ -35,8 +35,8 @@ class _ClientLoginScreenState extends ConsumerState<ClientLoginScreen> {
             .login(
               _emailController.text.trim(),
               _passwordController.text,
-              'cliente',
-            );
+              //'cliente',
+            ); //borre role para que lo decida el backend
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

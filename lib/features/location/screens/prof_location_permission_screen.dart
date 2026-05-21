@@ -1,6 +1,7 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
 import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -65,6 +66,13 @@ class _ProfLocationPermissionScreenState
   /// Si el permiso ya fue otorgado previamente, dispara el estado en Riverpod
   /// para saltarse la interfaz gráfica por completo.
   Future<void> _checkInitialPermission() async {
+    // En web, permission_handler no está soportado para locationWhenInUse.
+    // El navegador gestiona su propio permiso, por lo que asumimos concedido.
+    if (kIsWeb) {
+      if (mounted) ref.read(authControllerProvider.notifier).grantLocation();
+      return;
+    }
+
     final status = await Permission.locationWhenInUse.status;
 
     if (status.isGranted) {
@@ -81,6 +89,13 @@ class _ProfLocationPermissionScreenState
 
   /// Lanza el diálogo nativo (Pop-up) del sistema operativo pidiendo acceso al GPS.
   Future<void> _requestPermission() async {
+    // En web no se puede llamar a permission_handler — el navegador maneja
+    // su propio flujo de permisos de ubicación de forma independiente.
+    if (kIsWeb) {
+      if (mounted) ref.read(authControllerProvider.notifier).grantLocation();
+      return;
+    }
+
     final status = await Permission.locationWhenInUse.request();
 
     if (status.isGranted) {

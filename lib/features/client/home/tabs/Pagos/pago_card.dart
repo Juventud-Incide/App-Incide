@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../models/pago_model.dart';
+import '../../providers/pagos_providers.dart';
 import 'payment_method_sheet.dart';
 
 // ─────────────────────────────────────────────────────────
 // Tarjeta de Pago
 // ─────────────────────────────────────────────────────────
-class PagoCard extends StatelessWidget {
+class PagoCard extends ConsumerWidget {
   final PagoModel pago;
 
   const PagoCard({super.key, required this.pago});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final (
       Color badgeColor,
       String badgeLabel,
@@ -93,25 +95,27 @@ class PagoCard extends StatelessWidget {
                           color: AppColors.textDark,
                         ),
                       ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.credit_card_rounded,
-                            size: 12,
-                            color: AppColors.textGray,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            pago.metodoPago,
-                            style: const TextStyle(
-                              fontSize: 11,
+                      if (!isPendiente) ...[
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.credit_card_rounded,
+                              size: 12,
                               color: AppColors.textGray,
-                              fontWeight: FontWeight.w500,
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(width: 4),
+                            Text(
+                              pago.metodoPago,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textGray,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -230,14 +234,14 @@ class PagoCard extends StatelessWidget {
                     context,
                     monto: pago.monto,
                     titulo: pago.titulo,
+                    onPaymentSuccess: (String metodo) {
+                      ref.read(allPagosProvider.notifier).marcarComoPagado(pago.id, metodo);
+                    },
                   ),
                   icon: const Icon(Icons.payment_rounded, size: 16),
                   label: const Text(
                     'Pagar ahora',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF59E0B),

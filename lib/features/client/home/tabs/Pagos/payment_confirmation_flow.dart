@@ -13,11 +13,12 @@ void showPaymentConfirmationFlow(
   BuildContext context, {
   required SavedCardModel card,
   required double monto,
+  required void Function(String) onPaymentSuccess,
 }) {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (_) => _CvvDialog(card: card, monto: monto, sheetCtx: context),
+    builder: (_) => _CvvDialog(card: card, monto: monto, sheetCtx: context, onPaymentSuccess: onPaymentSuccess),
   );
 }
 
@@ -28,11 +29,13 @@ class _CvvDialog extends StatefulWidget {
   final SavedCardModel card;
   final double monto;
   final BuildContext sheetCtx;
+  final void Function(String) onPaymentSuccess;
 
   const _CvvDialog({
     required this.card,
     required this.monto,
     required this.sheetCtx,
+    required this.onPaymentSuccess,
   });
 
   @override
@@ -60,7 +63,7 @@ class _CvvDialogState extends State<_CvvDialog> {
 
   void _startPayment() {
     Navigator.pop(context); // Cierra el diálogo CVV
-    _showProcessing(widget.sheetCtx, card: widget.card, monto: widget.monto);
+    _showProcessing(widget.sheetCtx, card: widget.card, monto: widget.monto, onPaymentSuccess: widget.onPaymentSuccess);
   }
 
   @override
@@ -195,12 +198,13 @@ void _showProcessing(
   BuildContext sheetCtx, {
   required SavedCardModel card,
   required double monto,
+  required void Function(String) onPaymentSuccess,
 }) {
   showDialog(
     context: sheetCtx,
     barrierDismissible: false,
     builder: (_) =>
-        _ProcessingDialog(card: card, monto: monto, sheetCtx: sheetCtx),
+        _ProcessingDialog(card: card, monto: monto, sheetCtx: sheetCtx, onPaymentSuccess: onPaymentSuccess),
   );
 }
 
@@ -208,11 +212,13 @@ class _ProcessingDialog extends StatefulWidget {
   final SavedCardModel card;
   final double monto;
   final BuildContext sheetCtx;
+  final void Function(String) onPaymentSuccess;
 
   const _ProcessingDialog({
     required this.card,
     required this.monto,
     required this.sheetCtx,
+    required this.onPaymentSuccess,
   });
 
   @override
@@ -227,9 +233,9 @@ class _ProcessingDialogState extends State<_ProcessingDialog> {
       if (!mounted) return;
       Navigator.pop(context);
       if (exito) {
-        _showSuccess(widget.sheetCtx, card: widget.card, monto: widget.monto);
+        _showSuccess(widget.sheetCtx, card: widget.card, monto: widget.monto, onPaymentSuccess: widget.onPaymentSuccess);
       } else {
-        _showError(widget.sheetCtx, card: widget.card, monto: widget.monto);
+        _showError(widget.sheetCtx, card: widget.card, monto: widget.monto, onPaymentSuccess: widget.onPaymentSuccess);
       }
     });
   }
@@ -281,13 +287,17 @@ void _showSuccess(
   BuildContext sheetCtx, {
   required SavedCardModel card,
   required double monto,
+  required void Function(String) onPaymentSuccess,
 }) {
+  final metodo = '${card.brandLabel} •••• ${card.lastFour}';
+  onPaymentSuccess(metodo);
+
   showDialog(
     context: sheetCtx,
     builder: (ctx) => PaymentSuccessDialog(
       folio: _generateFolio(),
       fecha: _formatFecha(DateTime.now()),
-      metodoPago: '${card.brandLabel} •••• ${card.lastFour}',
+      metodoPago: metodo,
       monto: monto,
       onDismiss: () {
         Navigator.pop(ctx);
@@ -304,6 +314,7 @@ void _showError(
   BuildContext sheetCtx, {
   required SavedCardModel card,
   required double monto,
+  required void Function(String) onPaymentSuccess,
 }) {
   showDialog(
     context: sheetCtx,
@@ -314,7 +325,7 @@ void _showError(
       },
       onRetry: () {
         Navigator.pop(ctx);
-        _showProcessing(sheetCtx, card: card, monto: monto);
+        _showProcessing(sheetCtx, card: card, monto: monto, onPaymentSuccess: onPaymentSuccess);
       },
     ),
   );

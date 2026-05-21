@@ -11,19 +11,21 @@ import 'saved_card_tile.dart';
 class SavedCardsSheet extends ConsumerWidget {
   final double monto;
   final String titulo;
+  final void Function(String) onPaymentSuccess;
 
-  const SavedCardsSheet({super.key, required this.monto, required this.titulo});
+  const SavedCardsSheet({super.key, required this.monto, required this.titulo, required this.onPaymentSuccess});
 
   static Future<void> show(
     BuildContext context, {
     required double monto,
     required String titulo,
+    required void Function(String) onPaymentSuccess,
   }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => SavedCardsSheet(monto: monto, titulo: titulo),
+      builder: (_) => SavedCardsSheet(monto: monto, titulo: titulo, onPaymentSuccess: onPaymentSuccess),
     );
   }
 
@@ -151,6 +153,7 @@ class SavedCardsSheet extends ConsumerWidget {
                   monto: monto,
                   onDelete: () =>
                       ref.read(savedCardsProvider.notifier).removeCard(card.id),
+                  onPaymentSuccess: onPaymentSuccess,
                 ),
               ),
             ),

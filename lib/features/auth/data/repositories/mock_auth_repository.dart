@@ -115,4 +115,84 @@ class MockAuthRepository implements AuthRepository {
       'token': 'mock_register_token_${email.hashCode.abs()}',
     };
   }
+
+  @override
+  Future<void> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    required String phoneNumber,
+    required String role,
+  }) async {
+    await Future.delayed(const Duration(seconds: 2));
+  }
+
+  @override
+  Future<void> registerProvider({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String curp,
+    required String rfc,
+    required int categoryId,
+    required List<int> serviceIds,
+    required int yearsOfExperience,
+    required String professionalLicense,
+    required String description,
+  }) async {
+    await Future.delayed(const Duration(seconds: 2));
+  }
+
+  @override
+  Future<void> sendOtp(String phoneNumber) async {
+    // Simulamos el tiempo de espera de una petición a internet real (1 segundo)
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  Future<bool> verifyOtp(String phoneNumber, String code) async {
+    // 1. Simulamos el tiempo de espera de una petición a internet real (1 segundo)
+    await Future.delayed(const Duration(seconds: 1));
+
+    // 2. Simulamos la validación del servidor
+    if (code == '1234') {
+      return true;
+    } else {
+      // Simulamos que el servidor de C# nos devuelve un error 400
+      throw 'El código ingresado es incorrecto o ha expirado.';
+    }
+  }
+
+  @override
+  Future<void> resendOtp(String phoneNumber) async {
+    // Simulamos el tiempo de espera de una petición a internet real (1 segundo)
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getServicesCatalog() async {
+    await Future.delayed(const Duration(seconds: 1)); // Simulamos red
+    return [
+      {"id": 2, "name": "Instalación de llaves", "categoryId": 1},
+      {"id": 1, "name": "Reparación de tuberías", "categoryId": 1},
+      {"id": 3, "name": "Instalación eléctrica", "categoryId": 2},
+      {"id": 4, "name": "Reparación de apagadores", "categoryId": 2},
+      {"id": 5, "name": "Instalación de muebles", "categoryId": 3},
+      {"id": 6, "name": "Limpieza de hogar", "categoryId": 4},
+    ];
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getCategoriesCatalog() async {
+    return [
+      {"id": 1, "name": "Plomería"},
+      {"id": 2, "name": "Electricidad"},
+      {"id": 3, "name": "Carpintería"},
+      {"id": 4, "name": "Limpieza"},
+    ];
+  }
 }

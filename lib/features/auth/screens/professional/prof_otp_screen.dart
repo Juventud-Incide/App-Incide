@@ -1,6 +1,8 @@
 import 'package:app_incide/core/constants/app_strings.dart';
 import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:app_incide/features/auth/providers/registration_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
@@ -8,26 +10,24 @@ import 'dart:async';
 /// Pantalla de Verificación SMS (One-Time Password) para el Proveedor.
 ///
 /// **Flujo de Registro (Wizard):**
-/// Recibe el `formData` (Nombre, Email, Password, Teléfono) de la pantalla anterior.
-/// Si el OTP es correcto, hereda este diccionario a la siguiente vista (`prof_experience`)
-/// para continuar construyendo el Payload final.
+/// Esta pantalla lee el número de teléfono previamente guardado en el
+/// `registrationProvider`. Si el usuario ingresa el código correcto, el
+/// Notifier valida contra el servidor y aprueba la navegación hacia el
+/// paso final (`prof_experience`).
 ///
 /// **UX de Campos Divididos:**
 /// Utiliza una lista de `FocusNode` para implementar el "Auto-Avance". Cuando el
 /// usuario escribe un dígito, el foco salta automáticamente a la siguiente caja,
 /// mejorando radicalmente la experiencia de usuario.
-class ProfOtpScreen extends StatefulWidget {
-  /// Diccionario acumulativo con los datos parciales del registro.
-  final Map<String, dynamic> formData;
-
-  const ProfOtpScreen({super.key, required this.formData});
+class ProfOtpScreen extends ConsumerStatefulWidget {
+  const ProfOtpScreen({super.key});
 
   @override
-  State<ProfOtpScreen> createState() => _ProfOtpScreenState();
+  ConsumerState<ProfOtpScreen> createState() => _ProfOtpScreenState();
 }
 
-class _ProfOtpScreenState extends State<ProfOtpScreen> {
-  // Controladores y Nodos de Enfoque para las 4 cajas de texto individuales
+class _ProfOtpScreenState extends ConsumerState<ProfOtpScreen> {
+  // Controladores y Nodos de Enfoque para las 6 cajas de texto individuales
   late List<TextEditingController> _controllers;
   late List<FocusNode> _focusNodes;
   bool _isLoading = false;
@@ -36,12 +36,13 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
   Timer? _timer;
   int _secondsRemaining = 59;
   bool _canResend = false;
+  int _codeLength = 6; // Número de dígitos del OTP
 
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(4, (_) => TextEditingController());
-    _focusNodes = List.generate(4, (_) => FocusNode());
+    _controllers = List.generate(_codeLength, (_) => TextEditingController());
+    _focusNodes = List.generate(_codeLength, (_) => FocusNode());
     _startTimer();
   }
 
@@ -83,16 +84,34 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
   }
 
   /// Solicita al servidor un nuevo código y reinicia el bloqueo temporal.
-  void _resendOTP() {
-    // TODO: (BACKEND) - Invocar authService.resendSms(widget.formData['phone'])
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Nuevo código SMS enviado'),
-        backgroundColor: Colors.green,
-      ),
-    );
-    _startTimer();
-    _focusNodes[0].requestFocus(); // Devuelve el cursor a la primera caja
+  void _resendOTP() async {
+    // Bloqueamos el botón visualmente (opcional, el timer ya lo hace)
+    setState(() => _canResend = false);
+
+    // Disparamos la petición al Notifier
+    final success = await ref
+        .read(registrationProvider.notifier)
+        .resendOtpCode();
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nuevo código SMS enviado'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _startTimer();
+      _focusNodes[0].requestFocus();
+    } else {
+      // Si falló la red, volvemos a habilitar el botón y mostramos el error
+      setState(() => _canResend = true);
+      final errorMsg = ref.read(registrationProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
+      );
+    }
   }
 
   /// Formatea los segundos restantes (ej. "00:09").
@@ -101,22 +120,27 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
   /// Función de ofuscación para no mostrar el número completo en pantalla.
   /// Ej: Si el número es 6621234567, retorna "**4567".
   String _getMaskedPhone() {
-    final String phone = widget.formData['phone'] as String? ?? '';
-    if (phone.length >= 4) {
-      return '**${phone.substring(phone.length - 4)}';
+    final userPhone = ref.read(registrationProvider).phoneNumber;
+
+    if (userPhone.length >= 4) {
+      return '**${userPhone.substring(userPhone.length - 4)}';
     }
     return '**00';
   }
 
-  /// Concatena los 4 dígitos, valida y verifica contra el servidor.
+  /// Concatena los 6 dígitos, valida y verifica contra el servidor.
   Future<void> _verifyCode() async {
+    FocusScope.of(context).unfocus();
+
     // Une el texto de todos los controladores en un solo String
     String otpCode = _controllers.map((c) => c.text).join();
 
-    if (otpCode.length < 4) {
+    if (otpCode.length < _codeLength) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(AppStrings.otpIncomplete),
+        SnackBar(
+          content: Text(
+            AppStrings.otpIncomplete.replaceAll('X', '$_codeLength'),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -126,33 +150,36 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: (BACKEND) - Llamada real: await authService.verifyOTP(otpCode)
-      await Future.delayed(const Duration(seconds: 1));
-      bool isValid = otpCode == '1234'; // Mock de prueba (quitar en prod)
+      // Usamos el método que diseñamos en el Notifier
+      final isValid = await ref
+          .read(registrationProvider.notifier)
+          .verifyOtpCode(otpCode);
 
+      // 3. Si es exitoso, navegamos al Paso 3 (Experiencia Profesional)
       if (isValid) {
-        // Limpiamos el OTP correcto de la RAM antes de navegar
         for (var controller in _controllers) {
           controller.clear();
         }
         if (mounted) {
-          // Éxito: Pasamos al siguiente formulario inyectando la data acumulada
-          context.pushNamed('prof_experience', extra: widget.formData);
+          context.pushNamed('prof_experience');
         }
       } else {
+        // Si no es válido, el Notifier ya guardó el error en el estado
         if (mounted) {
+          final errorMsg = ref.read(registrationProvider).error;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(AppStrings.otpError),
+            SnackBar(
+              content: Text(
+                errorMsg.isNotEmpty ? errorMsg : 'Código incorrecto',
+              ),
               backgroundColor: Colors.red,
             ),
           );
+          for (var controller in _controllers) {
+            controller.clear();
+          }
+          _focusNodes[0].requestFocus();
         }
-        // Si falla, borramos lo que escribió para obligarlo a teclear de nuevo
-        for (var controller in _controllers) {
-          controller.clear();
-        }
-        _focusNodes[0].requestFocus(); // Regresamos el foco al inicio
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -234,7 +261,12 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                     height: 1.4,
                   ),
                   children: [
-                    TextSpan(text: AppStrings.otpSubtitle1),
+                    TextSpan(
+                      text: AppStrings.otpSubtitle1.replaceAll(
+                        'X',
+                        '$_codeLength',
+                      ),
+                    ),
                     TextSpan(
                       text: _getMaskedPhone(),
                       style: TextStyle(
@@ -250,7 +282,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
               // --- 3. CAJAS DE OTP ---
               Row(
                 children: [
-                  for (int i = 0; i < 4; i++) ...[
+                  for (int i = 0; i < _codeLength; i++) ...[
                     Expanded(
                       child: AspectRatio(
                         aspectRatio:
@@ -292,7 +324,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                           onChanged: (value) {
                             // Lógica de "Auto-Avance" y "Auto-Retroceso"
                             if (value.isNotEmpty) {
-                              if (i < 3) {
+                              if (i < _codeLength - 1) {
                                 _focusNodes[i + 1]
                                     .requestFocus(); // Salta al siguiente
                               } else {
@@ -309,7 +341,7 @@ class _ProfOtpScreenState extends State<ProfOtpScreen> {
                         ),
                       ),
                     ),
-                    if (i < 3) const SizedBox(width: 16),
+                    if (i < _codeLength - 1) const SizedBox(width: 16),
                   ],
                 ],
               ),

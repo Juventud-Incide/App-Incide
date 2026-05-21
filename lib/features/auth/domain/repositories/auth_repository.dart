@@ -34,6 +34,34 @@ abstract class AuthRepository {
     required String password,
     required String confirmPassword,
     String? phoneNumber,
-    required int userRole,
+    required String role,
   });
+
+  Future<void> registerProvider({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String phoneNumber,
+    required String curp,
+    required String rfc,
+    required int categoryId,
+    required List<int> serviceIds,
+    required int yearsOfExperience,
+    required String professionalLicense,
+    required String description,
+  });
+
+  Future<void> sendOtp(String phoneNumber);
+
+  Future<bool> verifyOtp(String phoneNumber, String code);
+
+  Future<void> resendOtp(String phoneNumber);
+
+  Future<List<Map<String, dynamic>>> getServicesCatalog();
+
+  Future<List<Map<String, dynamic>>> getCategoriesCatalog();
+
+  // Aquí puedes agregar más métodos en el futuro:
+  // Future<void> logout();
 }

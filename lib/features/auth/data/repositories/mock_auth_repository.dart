@@ -1,27 +1,24 @@
 import 'package:app_incide/features/auth/domain/repositories/auth_repository.dart';
 
-/// Capa de acceso a datos para la autenticación (Patrón Repositorio).
+/// Implementación MOCK del [AuthRepository].
 ///
-/// Aísla la lógica de red (API/Firebase) del manejador de estado.
-/// Actualmente utiliza datos en duro para simular respuestas del servidor
-/// y permitir el desarrollo Frontend sin bloqueos.
+/// Simula las respuestas del backend de C# con datos en duro.
+/// Permite desarrollar y probar el Frontend sin necesitar el servidor activo.
+///
+/// Activar/desactivar: cambia [useMocksProvider] en auth_provider.dart.
 class MockAuthRepository implements AuthRepository {
-  // Ahora pedimos el rol intentado para simular la separación de apps
-  /// Ejecuta la petición HTTP de inicio de sesión.
+  // ── LOGIN ─────────────────────────────────────────────────────────────────
+
   @override
-  Future<Map<String, dynamic>> login(
-    String email,
-    String password,
-    String requestedRole,
-  ) async {
-    // TODO: (BACKEND) - Reemplazar la simulación con el SDK de Firebase Auth o API PaaS.
-    await Future.delayed(const Duration(seconds: 2));
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    await Future.delayed(const Duration(seconds: 2)); // Simula latencia de red
 
-    // Casos de prueba:
+    // Inferimos el rol por el dominio del email:
+    // Los proveedores de prueba usan @incide.com, los clientes usan @correo.com
+    final bool esProveedor = email.endsWith('@incide.com');
 
-    // --- CREDENCIALES GENERALES / PROFESIONISTAS ---
-    if (requestedRole == 'proveedor') {
-      // 1. Recién registrado
+    // ── CREDENCIALES DE PRUEBA: PROVEEDOR ────────────────────────────────────
+    if (esProveedor) {
       if (email == 'revision@incide.com' && password == '12345678') {
         return {
           'token': 'tk_123',
@@ -30,7 +27,6 @@ class MockAuthRepository implements AuthRepository {
           'pending_step': 'pendingReview',
         };
       }
-      // 2. Ya le agendaron entrevista
       if (email == 'entrevista@incide.com' && password == '12345678') {
         return {
           'token': 'tk_124',
@@ -39,7 +35,6 @@ class MockAuthRepository implements AuthRepository {
           'pending_step': 'interviewScheduled',
         };
       }
-      // 3. Pasó la entrevista, debe subir documentos
       if (email == 'subirdocs@incide.com' && password == '12345678') {
         return {
           'token': 'tk_125',
@@ -48,7 +43,6 @@ class MockAuthRepository implements AuthRepository {
           'pending_step': 'uploadingDocs',
         };
       }
-      // 4. Subió documentos, esperando a que backoffice los valide
       if (email == 'validando@incide.com' && password == '12345678') {
         return {
           'token': 'tk_126',
@@ -57,7 +51,6 @@ class MockAuthRepository implements AuthRepository {
           'pending_step': 'validatingDocs',
         };
       }
-      // 5. Backoffice lo activó (Transición final)
       if (email == 'activado@incide.com' && password == '12345678') {
         return {
           'token': 'tk_127',
@@ -66,26 +59,61 @@ class MockAuthRepository implements AuthRepository {
           'pending_step': 'activated',
         };
       }
-      // 6. Cuenta 100% libre y aceptada (El usuario normal)
       if (email == 'aceptado@incide.com' && password == '12345678') {
         return {'token': 'tk_128', 'role': 'proveedor', 'status': 'aceptado'};
       }
-      // 7. Cuenta rechazada
       if (email == 'rechazado@incide.com' && password == '12345678') {
         return {'token': 'tk_129', 'role': 'proveedor', 'status': 'rechazado'};
       }
+      throw Exception('Correo o contraseña incorrectos');
     }
 
-    // --- CREDENCIAL EXCLUSIVA PARA CLIENTES ---
+    // ── CREDENCIALES DE PRUEBA: CLIENTE ──────────────────────────────────────
     if (email == 'cliente@correo.com' && password == 'cliente123') {
       return {
         'token': 'mock_token_cliente_123',
         'role': 'cliente',
         'status': 'aceptado',
       };
-    } else {
-      throw Exception('Correo o contraseña incorrectos');
     }
+
+    throw Exception('Correo o contraseña incorrectos');
+  }
+
+  // ── REGISTER ──────────────────────────────────────────────────────────────
+
+  /// Simula un registro exitoso devolviendo la misma estructura que el backend real:
+  /// { "user": { ... }, "token": "..." }
+  @override
+  Future<Map<String, dynamic>> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String confirmPassword,
+    String? phoneNumber,
+    required int userRole,
+  }) async {
+    await Future.delayed(const Duration(seconds: 1)); // Simula latencia de red
+
+    // Simula un correo ya registrado para probar manejo de errores
+    if (email == 'existe@correo.com') {
+      throw Exception('Este correo ya está registrado.');
+    }
+
+    // Respuesta exitosa — misma estructura que el backend real (AuthOutPutDTO)
+    return {
+      'user': {
+        'id': 99,
+        'fullName': '$firstName $lastName',
+        'email': email,
+        'phoneNumber': phoneNumber,
+        'userRole': userRole == 2 ? 'Client' : 'Provider',
+        // Simulamos el status inicial devuelto por el backend real
+        'status': userRole == 3 ? 'Registered' : null,
+      },
+      'token': 'mock_register_token_${email.hashCode.abs()}',
+    };
   }
 
   @override

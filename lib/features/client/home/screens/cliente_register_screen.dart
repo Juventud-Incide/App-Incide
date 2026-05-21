@@ -135,7 +135,7 @@ class _ClienteRegisterScreenState extends State<ClienteRegisterScreen> {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 13,//Ignorar este coemtnario 
               fontWeight: FontWeight.w800,
               color: AppColors.primaryBlue,
               letterSpacing: 1.2,

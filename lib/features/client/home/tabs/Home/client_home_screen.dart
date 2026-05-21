@@ -22,6 +22,8 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
   bool _isLoading = true;
   String _userName = '';
   String _userEmail = '';
+  String _userPhone = '';
+  String _userAddress = '';
   int _unreadNotifications = 0;
 
   @override
@@ -50,6 +52,8 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
         setState(() {
           _userName = 'Juan Pérez';
           _userEmail = 'cliente@correo.com';
+          _userPhone = '+52 555 123 4567';
+          _userAddress = 'Av. Reforma 123, CDMX';
           _unreadNotifications =
               3; // Aqui pones un numero mayor a 0 y se activa la burbuja roja del numero de notificaciones
         });
@@ -69,7 +73,12 @@ class _ClientHomeScreenState extends ConsumerState<ClientHomeScreen> {
     const HomeTab(),
     const QuotesTab(),
     const PaymentsTab(),
-    ProfileTab(userName: _userName, userEmail: _userEmail),
+    ProfileTab(
+      userName: _userName,
+      userEmail: _userEmail,
+      userPhone: _userPhone,
+      userAddress: _userAddress,
+    ),
   ];
 
   // Helper method removed. Logic is now in ClientHomeAppBar.

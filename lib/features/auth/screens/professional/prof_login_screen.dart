@@ -65,7 +65,7 @@ class _ProfLoginScreenState extends ConsumerState<ProfLoginScreen> {
             .login(
               _emailController.text.trim(),
               _passwordController.text,
-              'proveedor',
+              //'proveedor',//borre role para que lo decida el backend
             );
       } catch (e) {
         if (!mounted) return;

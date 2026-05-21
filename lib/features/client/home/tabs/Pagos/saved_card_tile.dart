@@ -11,12 +11,14 @@ class SavedCardTile extends StatelessWidget {
   final SavedCardModel card;
   final double monto;
   final VoidCallback onDelete;
+  final void Function(String) onPaymentSuccess;
 
   const SavedCardTile({
     super.key,
     required this.card,
     required this.monto,
     required this.onDelete,
+    required this.onPaymentSuccess,
   });
 
   LinearGradient get _gradient {
@@ -69,7 +71,7 @@ class SavedCardTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           // ← Una sola línea dispara todo el flujo de pago
-          onTap: () => showPaymentConfirmationFlow(context, card: card, monto: monto),
+          onTap: () => showPaymentConfirmationFlow(context, card: card, monto: monto, onPaymentSuccess: onPaymentSuccess),
           borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.all(14),

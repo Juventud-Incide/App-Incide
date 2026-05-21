@@ -7,5 +7,6 @@ namespace backend.Infraestructure.API_Services_Interfaces
     {
         Task<AuthOutPutDTO> RegisterAsync(RegisterDTO dto);
         Task<AuthOutPutDTO?> LoginAsync(LoginDTO dto);
+        Task<AuthOutPutDTO> RegisterProviderAsync(RegisterProviderDTO dto);
     }
 }

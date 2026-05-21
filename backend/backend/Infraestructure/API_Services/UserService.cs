@@ -80,6 +80,80 @@ namespace backend.Infraestructure.API_Services
             return user;
         }
 
+        public async Task<User> CreateProviderAsync(RegisterProviderDTO dto)
+        {
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                throw new InvalidOperationException("El correo ya está registrado.");
+
+            if (await _context.Providers.AnyAsync(p => p.Curp == dto.Curp && !p.IsDeleted))
+                throw new InvalidOperationException("El CURP ya está registrado.");
+
+            if (await _context.Providers.AnyAsync(p => p.Rfc == dto.Rfc && !p.IsDeleted))
+                throw new InvalidOperationException("El RFC ya está registrado.");
+
+            if (!await _context.Categories.AnyAsync(c => c.Id == dto.CategoryId && !c.IsDeleted))
+                throw new InvalidOperationException("La categoría especificada no existe.");
+
+            var serviceIds = dto.ServiceIds.Distinct().ToList();
+
+            var validServiceCount = await _context.ServiceItems
+                .CountAsync(s => serviceIds.Contains(s.Id)
+                              && s.CategoryId == dto.CategoryId
+                              && !s.IsDeleted);
+
+            if (validServiceCount != serviceIds.Count)
+                throw new InvalidOperationException(
+                    "Uno o más servicios no pertenecen a la categoría seleccionada o no existen.");
+
+            var user = new User
+            {
+                FirstName    = dto.FirstName,
+                LastName     = dto.LastName,
+                Email        = dto.Email,
+                PhoneNumber  = dto.PhoneNumber,
+                UserRole     = UserRole.Provider,
+                IsActive     = true,
+                CreationDate = DateTime.UtcNow,
+                LastUpdate   = DateTime.UtcNow
+            };
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
+            _context.Users.Add(user);
+
+            var provider = new Provider
+            {
+                User               = user,
+                Status             = ProviderStatus.Registered,
+                Curp               = dto.Curp,
+                Rfc                = dto.Rfc,
+                YearsOfExperience  = dto.YearsOfExperience,
+                ProfessionalLicense = dto.ProfessionalLicense,
+                Description        = dto.Description,
+                IsActive           = true,
+                CreationDate       = DateTime.UtcNow,
+                LastUpdate         = DateTime.UtcNow
+            };
+            _context.Providers.Add(provider);
+
+            _context.ProviderCategories.Add(new ProviderCategory
+            {
+                Provider   = provider,
+                CategoryId = dto.CategoryId
+            });
+
+            foreach (var serviceId in serviceIds)
+            {
+                _context.ProviderServiceItems.Add(new ProviderServiceItem
+                {
+                    Provider      = provider,
+                    ServiceItemId = serviceId
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            return user;
+        }
+
         public async Task<UserOutPutDTO?> GetByIdAsync(int id)
         {
             var user = await _context.Users

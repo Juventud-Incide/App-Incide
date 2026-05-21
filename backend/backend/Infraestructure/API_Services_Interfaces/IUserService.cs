@@ -7,6 +7,7 @@ namespace backend.Infraestructure.API_Services_Interfaces
     public interface IUserService
     {
         Task<User> CreateAsync(UserDTO dto);
+        Task<User> CreateProviderAsync(RegisterProviderDTO dto);
         Task<UserOutPutDTO?> GetByIdAsync(int id);
         Task<List<UserOutPutDTO>> GetAllAsync();
         Task<UserOutPutDTO?> UpdateAsync(int id, UserDTO dto);

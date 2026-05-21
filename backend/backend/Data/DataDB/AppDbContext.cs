@@ -15,7 +15,9 @@ namespace backend.Data.DataDB
         public DbSet<Document>         Documents          => Set<Document>();
         public DbSet<Category>         Categories         => Set<Category>();
         public DbSet<ServiceItem>      ServiceItems       => Set<ServiceItem>();
-        public DbSet<ProviderCategory> ProviderCategories => Set<ProviderCategory>();
+        public DbSet<ProviderCategory>   ProviderCategories   => Set<ProviderCategory>();
+        public DbSet<ProviderServiceItem> ProviderServiceItems => Set<ProviderServiceItem>();
+        public DbSet<OtpCode>            OtpCodes             => Set<OtpCode>();
         public DbSet<ServiceRequest>   ServiceRequests    => Set<ServiceRequest>();
         public DbSet<Cotizacion>       Cotizaciones       => Set<Cotizacion>();
         public DbSet<Question>         Questions          => Set<Question>();
@@ -59,6 +61,18 @@ namespace backend.Data.DataDB
                  .WithOne(u => u.Provider)
                  .HasForeignKey<Provider>(p => p.UserId)
                  .OnDelete(DeleteBehavior.Cascade);
+
+                e.Property(p => p.Curp).HasMaxLength(18);
+                e.Property(p => p.Rfc).HasMaxLength(13);
+                e.Property(p => p.ProfessionalLicense).HasMaxLength(20);
+                e.Property(p => p.Description).HasMaxLength(1000);
+
+                e.HasIndex(p => p.Curp)
+                 .IsUnique()
+                 .HasFilter("\"IsDeleted\" = false");
+                e.HasIndex(p => p.Rfc)
+                 .IsUnique()
+                 .HasFilter("\"IsDeleted\" = false");
             });
 
             modelBuilder.Entity<RevokedToken>(e =>
@@ -214,6 +228,30 @@ namespace backend.Data.DataDB
                  .HasForeignKey(o => o.QuestionId)
                  .OnDelete(DeleteBehavior.Cascade);
                 e.HasIndex(o => new { o.QuestionId, o.Order });
+            });
+
+            // ProviderServiceItem (join table, composite PK)
+            modelBuilder.Entity<ProviderServiceItem>(e =>
+            {
+                e.HasKey(ps => new { ps.ProviderId, ps.ServiceItemId });
+                e.HasOne(ps => ps.Provider)
+                 .WithMany(p => p.ServiceItems)
+                 .HasForeignKey(ps => ps.ProviderId)
+                 .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(ps => ps.ServiceItem)
+                 .WithMany(s => s.Providers)
+                 .HasForeignKey(ps => ps.ServiceItemId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // OtpCode
+            modelBuilder.Entity<OtpCode>(e =>
+            {
+                e.HasKey(o => o.Id);
+                e.Property(o => o.PhoneNumber).IsRequired().HasMaxLength(20);
+                e.Property(o => o.CodeHash).IsRequired().HasMaxLength(64);
+                e.HasIndex(o => o.PhoneNumber);
+                e.HasIndex(o => o.ExpiresAt);
             });
         }
     }

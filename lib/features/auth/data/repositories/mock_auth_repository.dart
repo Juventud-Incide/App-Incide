@@ -117,19 +117,6 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> register({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String password,
-    required String confirmPassword,
-    required String phoneNumber,
-    required String role,
-  }) async {
-    await Future.delayed(const Duration(seconds: 2));
-  }
-
-  @override
   Future<void> registerProvider({
     required String firstName,
     required String lastName,

@@ -14,10 +14,7 @@ abstract class AuthRepository {
   /// ```json
   /// { "user": { "id":1, "fullName":"Ana", "email":"...", "userRole":"Client" }, "token":"..." }
   /// ```
-  Future<Map<String, dynamic>> login(
-    String email,
-    String password,
-  );
+  Future<Map<String, dynamic>> login(String email, String password);
 
   /// Registro de un nuevo usuario (cliente o proveedor).
   ///
@@ -34,7 +31,7 @@ abstract class AuthRepository {
     required String password,
     required String confirmPassword,
     String? phoneNumber,
-    required String role,
+    required int userRole,
   });
 
   Future<void> registerProvider({

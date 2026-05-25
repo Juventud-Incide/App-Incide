@@ -27,11 +27,7 @@ class NetworkAuthRepository implements AuthRepository {
     try {
       final response = await _dio.post(
         '/auth/login',
-        data: {
-          'email': email,
-          'password': password,
-          // ⚠️ NO enviar 'role' — el backend C# no lo espera en LoginDTO
-        },
+        data: {'email': email, 'password': password},
       );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
@@ -40,92 +36,6 @@ class NetworkAuthRepository implements AuthRepository {
           ? data
           : (data?['message'] ?? 'Error de conexión con el servidor');
       throw Exception(errorMessage);
-    }
-  }
-
-      // Extrae la data del backend
-      final data = response.data;
-      final user = data['user'];
-
-      // Traduce el rol de C# al de Flutter
-      // C# envía "Provider", Flutter espera "proveedor"
-      String serverRole = 'proveedor';
-      if (user != null && user['userRole'] != null) {
-        serverRole = user['userRole'].toString().toLowerCase() == 'provider'
-            ? 'proveedor'
-            : 'cliente';
-      }
-
-      // Manejo de variables faltantes
-      // Como el backend aún no envía 'status' ni 'pendingStep',
-      // inyectamos valores por defecto seguros para que el GoRouter no explote.
-      // TODO: (BACKEND) - Solicitar al equipo que incluyan el estatus de la cuenta en el DTO de Login.
-      String mainStatus = user?['status'] ?? 'pendiente';
-      String pendingStep = 'pendingReview';
-
-      // Extraemos el estatus del proveedor que viene de C# (Puede ser Int o String)
-      final dynamic rawProviderStatus = user?['providerStatus'];
-
-      if (rawProviderStatus != null) {
-        String statusStr = rawProviderStatus.toString();
-
-        switch (statusStr) {
-          case '0':
-          case 'Registered':
-            mainStatus = 'pendiente';
-            pendingStep = 'pendingReview';
-            break;
-          case '1':
-          case 'InterviewPending':
-            mainStatus = 'pendiente';
-            pendingStep = 'interviewScheduled';
-            break;
-          case '2':
-          case 'InterviewApproved':
-            mainStatus = 'pendiente';
-            pendingStep = 'uploadingDocs';
-            break;
-          case '3':
-          case 'AffiliationPending':
-            mainStatus = 'pendiente';
-            pendingStep = 'validatingDocs';
-            break;
-          case '4':
-          case 'Affiliated':
-            mainStatus = 'aceptado';
-            pendingStep = 'activated';
-            break;
-          case '5':
-          case 'Rejected':
-            mainStatus = 'rechazado';
-            break;
-        }
-      }
-
-      // Retornamos el contrato
-      return {
-        'token': data['token'],
-        'role': serverRole,
-        'status': mainStatus,
-        'pending_step': pendingStep,
-      };
-    } on DioException catch (e) {
-      // 1. Verificamos si el servidor respondió con un error 401, 400, etc.
-      if (e.response != null) {
-        final data = e.response!.data;
-
-        // 2. Si el backend mandó un String crudo (tu caso actual)
-        if (data is String) {
-          throw data; // Lanza "Credenciales Invalidas." directo a la UI
-        }
-
-        // 3. Si el backend mandó un JSON estructurado
-        if (data is Map<String, dynamic>) {
-          throw data['message'] ?? data['error'] ?? 'Error de autenticación';
-        }
-      }
-
-      throw 'Error de conexión con el servidor. Verifica tu red.';
     }
   }
 
@@ -173,8 +83,9 @@ class NetworkAuthRepository implements AuthRepository {
           : (data?['message'] ?? 'Error al registrarse. Intenta de nuevo.');
       throw Exception(errorMessage);
     }
-    
-    @override
+  }
+
+  @override
   Future<void> registerProvider({
     required String firstName,
     required String lastName,

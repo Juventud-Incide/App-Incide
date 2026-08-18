@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:app_incide/core/constants/app_keys.dart';
+import 'package:incide_core/core/constants/app_keys.dart';
 
 /// Interceptor que adjunta el JWT a cada petición autenticada.
 ///

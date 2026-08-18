@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import '../../models/pago_model.dart';
 import '../../providers/pagos_providers.dart';
 import 'pago_card.dart';

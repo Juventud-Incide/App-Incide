@@ -1,6 +1,6 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/shared/widgets/cached_avatar.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:app_proveedor/features/shared/widgets/cached_avatar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';

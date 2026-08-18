@@ -1,9 +1,9 @@
-import 'package:app_incide/core/utils/app_formatters.dart';
+import 'package:incide_core/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_incide/core/constants/app_strings.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import '../../widgets/custom_input_field.dart';
 import '../../providers/auth_provider.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import '../../models/saved_card_model.dart';
 import '../../providers/saved_cards_provider.dart';
 

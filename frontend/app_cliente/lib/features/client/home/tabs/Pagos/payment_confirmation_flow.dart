@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import '../../models/saved_card_model.dart';
 import 'payment_receipt_widgets.dart';
 import 'payment_result_dialogs.dart';

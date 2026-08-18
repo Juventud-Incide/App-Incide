@@ -1,5 +1,5 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 /// Etiqueta visual pequeña que indica el nivel o tipo de oportunidad.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 
 /// Barra de progreso animada para el flujo de Recuperación de Contraseña.
 ///

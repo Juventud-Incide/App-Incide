@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import '../../providers/saved_cards_provider.dart';
 import 'add_card_sheet.dart';
 import 'saved_card_tile.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app_incide/features/provider/profile/providers/provider_profile_provider.dart';
+import 'package:app_proveedor/features/provider/profile/providers/provider_profile_provider.dart';
 
 /// Un botón de icono inteligente y reactivo para la bandeja de notificaciones.
 ///

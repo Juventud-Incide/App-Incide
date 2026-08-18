@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../auth/widgets/custom_input_field.dart';
-import '../../../auth/widgets/forgot_password_step_indicator.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:incide_core/features/auth/widgets/custom_input_field.dart';
+import 'package:incide_core/features/auth/widgets/forgot_password_step_indicator.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});

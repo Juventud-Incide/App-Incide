@@ -1,4 +1,4 @@
-import 'package:app_incide/features/auth/providers/auth_provider.dart';
+import 'package:incide_core/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final servicesCatalogProvider = FutureProvider<List<Map<String, dynamic>>>((

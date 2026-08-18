@@ -1,8 +1,8 @@
-import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../auth/widgets/custom_input_field.dart';
-import 'package:app_incide/core/constants/app_strings.dart';
+import 'package:incide_core/features/auth/widgets/custom_input_field.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
 
 class ClienteRegisterScreen extends StatefulWidget {
   const ClienteRegisterScreen({super.key});

@@ -1,5 +1,5 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/features/shared/widgets/cached_gallery_image.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:app_proveedor/features/shared/widgets/cached_gallery_image.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 

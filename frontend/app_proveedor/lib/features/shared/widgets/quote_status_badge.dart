@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:app_incide/features/provider/quotes/models/quote_status_ext.dart';
-import 'package:app_incide/features/provider/quotes/models/quote_model.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:app_proveedor/features/provider/quotes/models/quote_status_ext.dart';
+import 'package:app_proveedor/features/provider/quotes/models/quote_model.dart';
 
 /// Un "Badge" (Etiqueta visual) reutilizable que indica el estado actual de una cotización.
 ///

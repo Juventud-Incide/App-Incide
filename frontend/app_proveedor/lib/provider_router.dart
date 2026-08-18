@@ -21,7 +21,7 @@ import 'package:incide_core/features/auth/screens/professional/prof_forgot_passw
 import 'package:incide_core/features/auth/screens/professional/prof_new_password_screen.dart';
 import 'package:incide_core/features/location/screens/prof_location_permission_screen.dart';
 
-import 'package:app_proveedor/features/shared/widgets/custom_logout_button.dart';
+import 'package:incide_core/features/shared/widgets/custom_logout_button.dart';
 import 'package:app_proveedor/features/provider/dashboard/screens/prof_dashboard_shell.dart';
 import 'package:app_proveedor/features/provider/dashboard/screens/prof_home_screen.dart';
 import 'package:app_proveedor/features/provider/dashboard/screens/opportunity_detail_screen.dart';

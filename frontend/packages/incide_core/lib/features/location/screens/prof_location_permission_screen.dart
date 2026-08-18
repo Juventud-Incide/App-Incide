@@ -1,12 +1,12 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/shared/widgets/custom_logout_button.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:incide_core/features/shared/widgets/custom_logout_button.dart';
 import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app_incide/features/auth/providers/auth_provider.dart';
+import 'package:incide_core/features/auth/providers/auth_provider.dart';
 
 /// Pantalla de interceptación obligatoria para solicitar permisos de GPS.
 ///

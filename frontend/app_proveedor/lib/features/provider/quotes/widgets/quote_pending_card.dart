@@ -1,5 +1,5 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/features/provider/quotes/widgets/chat_button_badge.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:app_proveedor/features/provider/quotes/widgets/chat_button_badge.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/quote_status_badge.dart';

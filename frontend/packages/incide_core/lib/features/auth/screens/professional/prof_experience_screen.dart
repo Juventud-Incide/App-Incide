@@ -1,8 +1,8 @@
-import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/utils/app_formatters.dart';
-import 'package:app_incide/features/auth/providers/categories_provider.dart';
-import 'package:app_incide/features/auth/providers/registration_provider.dart';
+﻿import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/utils/app_formatters.dart';
+import 'package:incide_core/features/auth/providers/categories_provider.dart';
+import 'package:incide_core/features/auth/providers/registration_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

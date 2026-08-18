@@ -1,8 +1,8 @@
-import 'package:app_incide/core/constants/app_strings.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/chat_message.dart';
 import 'dart:async';
-import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
+import 'package:app_proveedor/features/provider/quotes/providers/quotes_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 // 1. Usamos Notifier normal, manejando un Mapa (Diccionario) de chats por ID

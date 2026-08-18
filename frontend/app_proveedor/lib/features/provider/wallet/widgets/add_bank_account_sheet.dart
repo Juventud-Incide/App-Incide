@@ -1,9 +1,9 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/utils/bank_catalog.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/utils/bank_catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app_incide/core/utils/app_formatters.dart';
-import 'package:app_incide/features/provider/wallet/providers/bank_accounts_provider.dart';
+import 'package:incide_core/core/utils/app_formatters.dart';
+import 'package:app_proveedor/features/provider/wallet/providers/bank_accounts_provider.dart';
 
 class AddBankAccountSheet extends ConsumerStatefulWidget {
   const AddBankAccountSheet({super.key});

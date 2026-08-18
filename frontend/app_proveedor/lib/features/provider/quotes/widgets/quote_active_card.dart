@@ -1,10 +1,10 @@
-import 'package:app_incide/core/constants/app_strings.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../models/quote_model.dart';
-import 'package:app_incide/features/provider/quotes/models/quote_status_ext.dart';
+import 'package:app_proveedor/features/provider/quotes/models/quote_status_ext.dart';
 import '../../../shared/widgets/quote_status_badge.dart';
-import 'package:app_incide/features/provider/quotes/widgets/chat_button_badge.dart';
+import 'package:app_proveedor/features/provider/quotes/widgets/chat_button_badge.dart';
 
 /// Componente visual que representa una Cotización en un estado "Activo" o "Final".
 ///

@@ -1,4 +1,4 @@
-import 'package:app_incide/core/constants/app_strings.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 
 class EmptyTransactionsState extends StatelessWidget {

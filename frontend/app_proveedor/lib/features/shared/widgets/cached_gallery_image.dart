@@ -1,8 +1,8 @@
-import 'package:app_incide/features/shared/widgets/full_screen_image_viewer.dart';
+﻿import 'package:app_proveedor/features/shared/widgets/full_screen_image_viewer.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
+import 'package:app_proveedor/features/provider/chat/providers/chat_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CachedGalleryImage extends ConsumerStatefulWidget {

@@ -1,6 +1,6 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/provider/dashboard/widgets/opportunity_badge.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:app_proveedor/features/provider/dashboard/widgets/opportunity_badge.dart';
 import 'package:flutter/material.dart';
 
 /// Tarjeta principal para mostrar oportunidades de trabajo en el feed.

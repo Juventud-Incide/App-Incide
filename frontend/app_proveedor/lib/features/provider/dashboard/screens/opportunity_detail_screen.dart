@@ -1,10 +1,10 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
-import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:app_proveedor/features/provider/dashboard/widgets/proposal_bottom_sheet.dart';
+import 'package:app_proveedor/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:app_incide/features/shared/widgets/opportunity_info_body.dart';
+import 'package:app_proveedor/features/shared/widgets/opportunity_info_body.dart';
 
 /// Vista de detalle inmersiva para una Oportunidad (Solicitud de trabajo).
 ///

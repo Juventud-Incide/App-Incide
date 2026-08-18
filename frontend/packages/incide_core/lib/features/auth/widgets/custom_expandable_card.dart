@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 
 /// Tarjeta interactiva para mostrar errores y solicitar correcciones al usuario.
 ///

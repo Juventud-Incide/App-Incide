@@ -1,11 +1,11 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/utils/app_formatters.dart';
-import 'package:app_incide/features/provider/wallet/providers/bank_accounts_provider.dart';
-import 'package:app_incide/features/provider/wallet/widgets/add_bank_account_sheet.dart';
+﻿import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/utils/app_formatters.dart';
+import 'package:app_proveedor/features/provider/wallet/providers/bank_accounts_provider.dart';
+import 'package:app_proveedor/features/provider/wallet/widgets/add_bank_account_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:app_incide/features/provider/wallet/providers/wallet_provider.dart';
+import 'package:app_proveedor/features/provider/wallet/providers/wallet_provider.dart';
 
 class WithdrawFundsSheet extends ConsumerStatefulWidget {
   const WithdrawFundsSheet({super.key});

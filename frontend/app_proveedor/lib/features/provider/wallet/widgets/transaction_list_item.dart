@@ -1,7 +1,7 @@
-import 'package:app_incide/features/provider/wallet/widgets/transaction_detail_sheet.dart';
+﻿import 'package:app_proveedor/features/provider/wallet/widgets/transaction_detail_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:app_incide/features/provider/wallet/providers/wallet_provider.dart';
+import 'package:app_proveedor/features/provider/wallet/providers/wallet_provider.dart';
 
 class TransactionListItem extends StatelessWidget {
   final TransactionModel transaction;

@@ -1,4 +1,4 @@
-import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
+﻿import 'package:app_proveedor/features/provider/dashboard/models/opportunity_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/quote_model.dart';
 

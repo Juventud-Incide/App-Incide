@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:app_incide/features/shared/widgets/cached_gallery_image.dart';
-import 'package:app_incide/features/shared/widgets/full_screen_image_viewer.dart';
+import 'package:app_proveedor/features/shared/widgets/cached_gallery_image.dart';
+import 'package:app_proveedor/features/shared/widgets/full_screen_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import '../domain/models/chat_message.dart';

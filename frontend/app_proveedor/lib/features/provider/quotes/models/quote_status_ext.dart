@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/features/provider/quotes/models/quote_model.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:app_proveedor/features/provider/quotes/models/quote_model.dart';
 
 /// Extensión de Presentación (UI) para el enum [QuoteStatus].
 ///

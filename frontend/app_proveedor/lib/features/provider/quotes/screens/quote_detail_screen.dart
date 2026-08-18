@@ -1,11 +1,11 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/features/provider/quotes/widgets/chat_button_badge.dart';
-import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
-import 'package:app_incide/features/shared/widgets/cached_avatar.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:app_proveedor/features/provider/quotes/widgets/chat_button_badge.dart';
+import 'package:app_proveedor/features/shared/utils/quote_dialogs.dart';
+import 'package:app_proveedor/features/shared/widgets/cached_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import '../models/quote_model.dart';
 import '../../../shared/widgets/quote_status_badge.dart';
 import '../providers/quotes_provider.dart';

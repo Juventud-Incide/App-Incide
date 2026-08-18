@@ -1,7 +1,7 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
-import 'package:app_incide/features/provider/chat/providers/chat_provider.dart';
-import 'package:app_incide/features/provider/chat/screens/attachment_preview_screen.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:app_proveedor/features/provider/chat/providers/chat_provider.dart';
+import 'package:app_proveedor/features/provider/chat/screens/attachment_preview_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';

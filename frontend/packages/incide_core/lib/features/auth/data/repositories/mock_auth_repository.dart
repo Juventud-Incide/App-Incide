@@ -1,4 +1,4 @@
-import 'package:app_incide/features/auth/domain/repositories/auth_repository.dart';
+import 'package:incide_core/features/auth/domain/repositories/auth_repository.dart';
 
 /// Implementación MOCK del [AuthRepository].
 ///

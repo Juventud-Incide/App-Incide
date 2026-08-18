@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app_incide/core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import 'provider_notification_bell.dart';
 
 /// Encabezado (AppBar) global y reutilizable para el módulo de Proveedores.

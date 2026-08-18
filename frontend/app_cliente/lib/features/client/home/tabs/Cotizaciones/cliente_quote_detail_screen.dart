@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_colors.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import '../../models/cotizacion_model.dart';
 
 class ClienteQuoteDetailScreen extends StatelessWidget {

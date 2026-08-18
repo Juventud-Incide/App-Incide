@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:app_incide/features/provider/dashboard/models/opportunity_model.dart';
+import 'package:app_proveedor/features/provider/dashboard/models/opportunity_model.dart';
 
 /// Notifier que gestiona el estado global de las oportunidades disponibles
 class OpportunitiesNotifier extends Notifier<List<OpportunityModel>> {

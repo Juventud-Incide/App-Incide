@@ -1,8 +1,8 @@
-import 'package:app_incide/core/constants/app_strings.dart';
-import 'package:app_incide/features/provider/chat/widgets/typing_bubble.dart';
-import 'package:app_incide/features/provider/quotes/models/quote_model.dart';
-import 'package:app_incide/features/provider/quotes/providers/quotes_provider.dart';
-import 'package:app_incide/features/shared/utils/quote_dialogs.dart';
+import 'package:incide_core/core/constants/app_strings.dart';
+import 'package:app_proveedor/features/provider/chat/widgets/typing_bubble.dart';
+import 'package:app_proveedor/features/provider/quotes/models/quote_model.dart';
+import 'package:app_proveedor/features/provider/quotes/providers/quotes_provider.dart';
+import 'package:app_proveedor/features/shared/utils/quote_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/chat_provider.dart';

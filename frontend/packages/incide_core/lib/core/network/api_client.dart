@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:app_incide/core/network/interceptors/auth_interceptor.dart';
+import 'package:incide_core/core/network/interceptors/auth_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'api_config.dart';
 

@@ -1,13 +1,13 @@
-import 'package:app_incide/core/network/api_client.dart';
-import 'package:app_incide/features/auth/data/repositories/mock_auth_repository.dart';
-import 'package:app_incide/features/auth/domain/repositories/auth_repository.dart';
-import 'package:app_incide/features/auth/domain/repositories/network_auth_repository.dart';
-import 'package:app_incide/features/auth/domain/models/application_status.dart';
+import 'package:incide_core/core/network/api_client.dart';
+import 'package:incide_core/features/auth/data/repositories/mock_auth_repository.dart';
+import 'package:incide_core/features/auth/domain/repositories/auth_repository.dart';
+import 'package:incide_core/features/auth/domain/repositories/network_auth_repository.dart';
+import 'package:incide_core/features/auth/domain/models/application_status.dart';
 import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:app_incide/core/constants/app_keys.dart';
+import 'package:incide_core/core/constants/app_keys.dart';
 
 // ==========================================
 // 1. EL ESTADO INMUTABLE (La Memoria)

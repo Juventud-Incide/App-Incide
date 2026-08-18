@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../auth/providers/auth_provider.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
+import 'package:incide_core/features/auth/providers/auth_provider.dart';
 
 class ProfileTab extends ConsumerWidget {
   final String userName;

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:incide_core/features/auth/providers/auth_provider.dart';
-import 'package:incide_core/features/auth/splash_screen.dart';
 
 import 'features/client/home/screens/client_login_screen.dart';
+import 'features/client/welcome/screens/welcome_screen.dart';
 import 'features/client/home/screens/cliente_register_screen.dart';
 import 'features/client/home/screens/cliente_verif_correo.dart';
 import 'features/client/home/tabs/Home/client_home_screen.dart';
@@ -47,7 +47,7 @@ final clientRouterProvider = Provider<GoRouter>((ref) {
       final bool isAuthenticated = authState.isAuthenticated;
 
       final targetPath = state.matchedLocation;
-      final isGoingToSplash = targetPath == '/';
+      final isGoingToWelcome = targetPath == '/';
 
       final publicRoutes = [
         '/login-cliente',
@@ -60,16 +60,16 @@ final clientRouterProvider = Provider<GoRouter>((ref) {
       final isGoingToPublicRoute = publicRoutes.contains(targetPath);
 
       if (!isInitialized) {
-        return isGoingToSplash ? null : '/';
+        return isGoingToWelcome ? null : '/';
       }
 
       if (!isAuthenticated) {
-        if (!isGoingToPublicRoute) return '/login-cliente';
+        if (!isGoingToPublicRoute && !isGoingToWelcome) return '/login-cliente';
         return null;
       }
 
       // Si está autenticado
-      if (isGoingToPublicRoute || isGoingToSplash) {
+      if (isGoingToPublicRoute || isGoingToWelcome) {
         return '/home-cliente';
       }
 
@@ -78,8 +78,8 @@ final clientRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/',
-        name: 'splash',
-        builder: (context, state) => const SplashScreen(),
+        name: 'welcome',
+        builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
         path: '/login-cliente',

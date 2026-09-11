@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:incide_core/core/theme/app_colors.dart';
 import 'package:incide_core/features/auth/providers/auth_provider.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
@@ -88,7 +89,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                           'Conecta con los\nmejores profesionistas',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.headlineSmall?.copyWith(
-                            color: const Color(0xFF092B58),
+                            color: AppColors.primaryBlue,
                             fontWeight: FontWeight.w800,
                             height: 1.08,
                           ),
@@ -97,7 +98,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         Text(
                           'Contrata servicios con total confianza',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFF24466D),
+                            color: AppColors.textMedium,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -108,7 +109,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         Text(
                           '¿No tienes cuenta?',
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: const Color(0xFF707070),
+                            color: AppColors.textGray,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -118,8 +119,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                           child: OutlinedButton(
                             onPressed: () => context.push('/registro-cliente'),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF092B58),
-                              side: const BorderSide(color: Color(0xFFE0E0E0)),
+                              foregroundColor: AppColors.primaryBlue,
+                              side: const BorderSide(color: AppColors.borderLight),
                               shape: const StadiumBorder(),
                               elevation: 2,
                               shadowColor: Colors.black12,
@@ -136,8 +137,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                           'Al continuar aceptas nuestros Términos de Uso y Privacidad',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: const Color(0xFF7B7B7B),
-                            fontSize: 7,
+                            color: AppColors.textGray,
+                            fontSize: 11,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -190,7 +191,7 @@ class _CategoryChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: const Color(0xFFF28C00)),
+          Icon(icon, size: 12, color: AppColors.accentYellow),
           const SizedBox(width: 4),
           Text(label, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600)),
         ],
@@ -207,9 +208,9 @@ class _TrustIndicators extends StatelessWidget {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        _TrustItem(icon: Icons.verified_outlined, label: 'Verificados', color: Color(0xFF25A36F)),
-        _TrustItem(icon: Icons.shield_outlined, label: 'Seguros', color: Color(0xFF2185E5)),
-        _TrustItem(icon: Icons.star_border_rounded, label: 'Calificados', color: Color(0xFFF28C00)),
+        _TrustItem(icon: Icons.verified_outlined, label: 'Verificados', color: AppColors.successGreen),
+        _TrustItem(icon: Icons.shield_outlined, label: 'Seguros', color: AppColors.primaryBlue),
+        _TrustItem(icon: Icons.star_border_rounded, label: 'Calificados', color: AppColors.accentYellow),
       ],
     );
   }
@@ -228,7 +229,7 @@ class _TrustItem extends StatelessWidget {
       children: [
         Icon(icon, color: color, size: 18),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 8, color: Color(0xFF5D5D5D))),
+        Text(label, style: const TextStyle(fontSize: 8, color: AppColors.textGray)),
       ],
     );
   }
@@ -247,7 +248,7 @@ class _LoginButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF203F96),
+          backgroundColor: AppColors.primaryBlue,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -265,7 +266,7 @@ class _LoginButton extends StatelessWidget {
                   Text('Iniciar Sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                   Text(
                     'Busca profesionistas para tus proyectos',
-                    style: TextStyle(fontSize: 12, color: Color.fromARGB(255, 191, 191, 191)),
+                    style: TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                 ],
               ),
